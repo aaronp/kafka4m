@@ -1,0 +1,9 @@
+.DS_Store
+.metals
+*.log
+target
+.idea
+.idea_modules
+out
+shared-src
+.vertx/
