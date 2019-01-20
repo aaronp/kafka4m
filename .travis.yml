@@ -1,0 +1,16 @@
+language: scala
+scala:
+   - 2.12.10
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION -jvm-opts travis/jvmopts clean test
+jdk:
+    - oraclejdk11
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.sbt
+    - $HOME/.ivy2
+    - $HOME/.coursier
+

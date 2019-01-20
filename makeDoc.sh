@@ -1,0 +1,1 @@
+sbt paradox makeSite ghpagesPushSite

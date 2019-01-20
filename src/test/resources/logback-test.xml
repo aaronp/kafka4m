@@ -1,0 +1,14 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>KafkaTest: %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="kafka4m" level="info" />
+    <logger name="org.apache.kafka" level="warn" />
+
+    <root level="warn">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
