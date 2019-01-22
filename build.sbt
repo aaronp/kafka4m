@@ -141,7 +141,8 @@ lazy val root = (project in file("."))
     esaCoreJVM,
     esaRest,
     esaRender,
-    esaClient,
+    esaClientXhr,
+    esaClientJvm,
     esaDB
   )
   .settings(scaladocSiteSettings)
@@ -167,7 +168,12 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
 //      "org.reactivestreams" %%% "reactive-streams-scalajs" % "1.0.0",
       "com.lihaoyi"   %%% "scalatags" % "0.6.7",
       "org.scalatest" %%% "scalatest" % "3.0.0" % "test"
-    )
+    ),
+    libraryDependencies ++= (List(
+      "io.circe" %%% "circe-core",
+      "io.circe" %%% "circe-generic",
+      "io.circe" %%% "circe-parser"
+    ).map(_ % "0.11.1"))
   )
   .in(file("esa-core"))
   .jvmSettings(commonSettings: _*)
@@ -175,28 +181,24 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
     name := "esa-core-jvm",
     coverageMinimum := 85,
     coverageFailOnMinimum := true,
-    libraryDependencies ++= (List(
-      "io.circe" %%% "circe-core",
-      "io.circe" %%% "circe-generic",
-      "io.circe" %%% "circe-parser"
-    ).map(_                        % "0.11.1")) ++ List(
-      "com.lihaoyi"                %% "sourcecode" % "0.1.4", // % "test",
-      "org.scala-js"               %% "scalajs-stubs" % scalaJSVersion % "provided",
-      "com.github.aaronp"          %% "eie" % "0.0.3",
-      "com.lihaoyi"                %%% "scalatags" % "0.6.7",
-      "org.scalatest"              %%% "scalatest" % "3.0.0" % "test",
-      "org.reactivestreams"        % "reactive-streams" % "1.0.2",
+    libraryDependencies ++= List(
+      "com.lihaoyi"                %% "sourcecode"          % "0.1.4", // % "test",
+      "org.scala-js"               %% "scalajs-stubs"       % scalaJSVersion % "provided",
+      "com.github.aaronp"          %% "eie"                 % "0.0.3",
+      "org.reactivestreams"        % "reactive-streams"     % "1.0.2",
       "org.reactivestreams"        % "reactive-streams-tck" % "1.0.2" % "test",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2" % "test",
-      "ch.qos.logback"             % "logback-classic" % "1.1.11" % "test",
-      "org.pegdown"                % "pegdown" % "1.4.2" % "test"
+      "com.typesafe.scala-logging" %% "scala-logging"       % "3.7.2" % "test",
+      "ch.qos.logback"             % "logback-classic"      % "1.1.11" % "test",
+      "org.pegdown"                % "pegdown"              % "1.4.2" % "test"
     ),
     // put scaladocs under 'api/latest'
     siteSubdirName in SiteScaladoc := "api/latest"
   )
-  .jsSettings(
-    name := "esa-core-js"
-  )
+  .jsSettings(name := "esa-core-js")
+  .jsSettings(libraryDependencies ++= List(
+    "com.lihaoyi"   %%% "scalatags" % "0.6.7",
+    "org.scalatest" %%% "scalatest" % "3.0.0" % "test"
+  ))
 
 lazy val esaCoreJVM = esaCoreCrossProject.jvm
 lazy val esaCoreJS  = esaCoreCrossProject.js
@@ -217,14 +219,24 @@ lazy val esaRender = project
   .settings(commonSettings: _*)
   .settings(libraryDependencies ++= Dependencies.esaRender)
 
-lazy val esaClient = project
-  .in(file("esa-client"))
+lazy val esaClientXhr = project
+  .in(file("esa-client-xhr"))
   //.dependsOn(esaMonix % "compile->compile;test->test")
   .dependsOn(esaCoreJS % "compile->compile;test->test")
-  .settings(name := s"${repo}-client")
+  .settings(name := s"${repo}-client-xhr")
   .enablePlugins(ScalaJSPlugin)
   .settings(
-    libraryDependencies += "org.julienrf" %%% "endpoints-xhr-client-circe" % "0.8.0"
+    libraryDependencies += "org.julienrf" %%% "endpoints-xhr-client-circe" % "0.8.0",
+    libraryDependencies += "com.lihaoyi"  %%% "scalatags"                  % "0.6.7",
+    libraryDependencies += "org.scala-js" %%% "scalajs-dom"                % "0.9.2"
+  )
+lazy val esaClientJvm = project
+  .in(file("esa-client-jvm"))
+  //.dependsOn(esaMonix % "compile->compile;test->test")
+  .dependsOn(esaCoreJS % "compile->compile;test->test")
+  .settings(name := s"${repo}-client-jvm")
+  .settings(
+    libraryDependencies += "org.julienrf" %% "endpoints-akka-http-client" % "0.8.0"
   )
 
 lazy val esaRest = project
