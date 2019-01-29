@@ -1,5 +1,5 @@
 package esa.client
-import quickstart.{Counter, Increment}
+import esa.endpoints.{Counter, Increment}
 
 object CounterApp {
 

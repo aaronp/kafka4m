@@ -169,10 +169,13 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
       "com.lihaoyi"   %%% "scalatags" % "0.6.7",
       "org.scalatest" %%% "scalatest" % "3.0.0" % "test"
     ),
+    //https://dzone.com/articles/5-useful-circe-feature-you-may-have-overlooked
     libraryDependencies ++= (List(
       "io.circe" %%% "circe-core",
       "io.circe" %%% "circe-generic",
-      "io.circe" %%% "circe-parser"
+      "io.circe" %%% "circe-parser",
+      "io.circe" %%% "circe-java8",
+      "io.circe" %%% "circe-literal"
     ).map(_ % "0.11.1"))
   )
   .in(file("esa-core"))
@@ -236,7 +239,8 @@ lazy val esaClientJvm = project
   .dependsOn(esaCoreJS % "compile->compile;test->test")
   .settings(name := s"${repo}-client-jvm")
   .settings(
-    libraryDependencies += "org.julienrf" %% "endpoints-akka-http-client" % "0.8.0"
+    libraryDependencies += "org.julienrf" %% "endpoints-akka-http-client"       % "0.8.0",
+    libraryDependencies += "org.julienrf" %% "endpoints-akka-http-server-circe" % "0.4.0"
   )
 
 lazy val esaRest = project

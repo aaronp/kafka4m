@@ -26,3 +26,4 @@ research
 com.softwaremill.akka-http-session %% "core" % "0.5.6"
 com.softwaremill.akka-http-session %% "jwt" % "0.5.6"
 
+

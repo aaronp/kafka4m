@@ -22,16 +22,24 @@ object Dependencies {
 
   val simulacrum: ModuleID = "com.github.mpilquist" %% "simulacrum" % "0.13.0"
 
-  
-  val endpointsServer = List(
-      "org.julienrf" %% "endpoints-akka-http-server" % "0.8.0",
-      "org.julienrf" %% "endpoints-akka-http-server-circe" % "0.4.0",
-      "org.julienrf" %% "endpoints-openapi" % "0.8.0",
-      "org.scala-stm" %% "scala-stm" % "0.8")
 
   // this akka version has to match the version from endpoints
-  val akkaRestRouteTestKit = "com.typesafe.akka" %% "akka-http-testkit" % "10.0.14" % "test"
-  val esaRest: List[ModuleID] = akkaRestRouteTestKit :: config :: logging ::: testDependencies ::: endpointsServer
+
+  val esaRest: List[ModuleID] = {
+
+    val akkaRestRouteTestKit = "com.typesafe.akka" %% "akka-http-testkit" % "10.0.14" % "test"
+
+    val endpointsServer = List(
+      "org.julienrf" %% "endpoints-akka-http-server" % "0.8.0",
+      "org.julienrf" %% "endpoints-akka-http-server-circe" % "0.4.0",
+      "org.julienrf" %% "endpoints-openapi" % "0.8.0")
+
+      config ::
+      logging :::
+      akkaRestRouteTestKit ::
+      testDependencies :::
+      endpointsServer
+  }
 
   //https://github.com/rjeschke/txtmark
   val esaRender: List[ModuleID] = ("es.nitaur.markdown" % "txtmark" % "0.16") +: esaRest
