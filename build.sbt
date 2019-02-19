@@ -29,12 +29,13 @@ val Core        = config("esaCoreJVM")
 val ESARest     = config("esaRest")
 val ESARender   = config("esaRender")
 val ESADatabase = config("esaDB")
+val ESADeploy   = config("esaDeploy")
 
 git.remoteRepo := s"git@github.com:$username/$repo.git"
 ghpagesNoJekyll := true
 
 lazy val scaladocSiteProjects =
-  List((esaCoreJVM, Core), (esaRest, ESARest), (esaRender, ESARender), (esaDB, ESADatabase))
+  List((esaCoreJVM, Core), (esaRest, ESARest), (esaRender, ESARender), (esaDB, ESADatabase), (esaDeploy, ESADeploy))
 
 lazy val scaladocSiteSettings = scaladocSiteProjects.flatMap {
   case (project: Project, conf) =>
@@ -143,7 +144,8 @@ lazy val root = (project in file("."))
     esaRender,
     esaClientXhr,
     esaClientJvm,
-    esaDB
+    esaDB,
+    esaDeploy
   )
   .settings(scaladocSiteSettings)
   .settings(
@@ -213,6 +215,13 @@ lazy val esaDB = project
   .settings(libraryDependencies ++= Dependencies.esaDB)
   .settings(name := s"${repo}-db", coverageMinimum := 80, coverageFailOnMinimum := true)
   .dependsOn(esaCoreJVM % "compile->compile;test->test")
+
+lazy val esaDeploy = project
+  .in(file("esa-deploy"))
+  .settings(commonSettings: _*)
+  .settings(name := s"${repo}-deploy")
+  .dependsOn(esaClientXhr % "compile->compile;test->test")
+  .dependsOn(esaRest % "compile->compile;test->test")
 
 lazy val esaRender = project
   .in(file("esa-render"))
