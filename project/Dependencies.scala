@@ -44,8 +44,10 @@ object Dependencies {
   //https://github.com/rjeschke/txtmark
   val esaRender: List[ModuleID] = ("es.nitaur.markdown" % "txtmark" % "0.16") +: esaRest
 
-  val esaDB: List[ModuleID] = ("org.scalaz" %% "scalaz-zio" % "0.5.3") +: 
+  val esaOrientDB: List[ModuleID] = ("org.scalaz" %% "scalaz-zio" % "0.5.3") +: 
     ("com.michaelpollmeier" %% "gremlin-scala" % "3.3.4.15") +: 
     ("com.orientechnologies" % "orientdb-graphdb" % "2.2.3") +: //https://orientdb.com/integration/using-orientdb-scala/
-    esaRest
+    testDependencies
+  
+  val esaMongoDB: List[ModuleID] = testDependencies
 }

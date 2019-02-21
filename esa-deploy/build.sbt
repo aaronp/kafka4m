@@ -44,4 +44,3 @@ dockerfile in docker := {
     entryPoint(s"$appDir/app/esa-boot.sh")
   }
 }
-

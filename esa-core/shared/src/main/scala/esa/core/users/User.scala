@@ -15,7 +15,7 @@ case class User(name : String, email : String, created : ZonedDateTime) {
 }
 
 object User {
-  type Id = Long
+  type Id = String
 
   def fromJson(json : String): Either[circe.Error, User] = {
     decode[User](json)

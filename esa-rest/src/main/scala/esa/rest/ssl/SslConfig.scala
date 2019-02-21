@@ -20,7 +20,7 @@ class SslConfig private (pathToCertificate: Path, val keystoreType: String, keys
     val is = Files.newInputStream(pathToCertificate)
     try {
       SslConfig.withArray[Char, Try[T]](keystorePw.toCharArray(), ' ') { ksPassword =>
-        SslConfig.withArray[Byte, Try[T]](serverTlsSeed.getBytes(StandardCharsets.UTF_8), 0 : Byte) { seed =>
+        SslConfig.withArray[Byte, Try[T]](serverTlsSeed.getBytes(StandardCharsets.UTF_8), 0: Byte) { seed =>
           Try(cert(ksPassword, seed, is))
         }
       }
@@ -65,7 +65,7 @@ object SslConfig {
     }
   }
 
-  private def withArray[A, T](array: Array[A], clear : A)(f: Array[A] => T): T = {
+  private def withArray[A, T](array: Array[A], clear: A)(f: Array[A] => T): T = {
     val result = f(array)
     array.indices.foreach(i => array(i) = clear)
     result

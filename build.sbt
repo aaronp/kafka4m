@@ -28,14 +28,15 @@ scalafmtVersion in ThisBuild := "1.4.0"
 val Core        = config("esaCoreJVM")
 val ESARest     = config("esaRest")
 val ESARender   = config("esaRender")
-val ESADatabase = config("esaDB")
+val ESAOrientDB = config("esaOrientDB")
+val ESAMongoDB  = config("esaMongoDB")
 val ESADeploy   = config("esaDeploy")
 
 git.remoteRepo := s"git@github.com:$username/$repo.git"
 ghpagesNoJekyll := true
 
 lazy val scaladocSiteProjects =
-  List((esaCoreJVM, Core), (esaRest, ESARest), (esaRender, ESARender), (esaDB, ESADatabase), (esaDeploy, ESADeploy))
+  List((esaCoreJVM, Core), (esaRest, ESARest), (esaRender, ESARender), (esaMongoDB, ESAMongoDB), (esaOrientDB, ESAOrientDB), (esaDeploy, ESADeploy))
 
 lazy val scaladocSiteSettings = scaladocSiteProjects.flatMap {
   case (project: Project, conf) =>
@@ -130,8 +131,6 @@ test in assembly := {}
 
 publishMavenStyle := true
 
-// val siteWithScaladocAlt = project.in(file("site/scaladoc-alternative"))
-
 lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .enablePlugins(SiteScaladocPlugin)
@@ -144,7 +143,8 @@ lazy val root = (project in file("."))
     esaRender,
     esaClientXhr,
     esaClientJvm,
-    esaDB,
+    esaOrientDB,
+    esaMongoDB,
     esaDeploy
   )
   .settings(scaladocSiteSettings)
@@ -208,12 +208,20 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
 lazy val esaCoreJVM = esaCoreCrossProject.jvm
 lazy val esaCoreJS  = esaCoreCrossProject.js
 
-lazy val esaDB = project
-  .in(file("esa-db"))
+lazy val esaOrientDB = project
+  .in(file("esa-orientdb"))
   .settings(commonSettings: _*)
   .settings(parallelExecution in Test := false)
-  .settings(libraryDependencies ++= Dependencies.esaDB)
-  .settings(name := s"${repo}-db", coverageMinimum := 80, coverageFailOnMinimum := true)
+  .settings(libraryDependencies ++= Dependencies.esaOrientDB)
+  .settings(name := s"${repo}-orientdb", coverageMinimum := 80, coverageFailOnMinimum := true)
+  .dependsOn(esaCoreJVM % "compile->compile;test->test")
+
+lazy val esaMongoDB = project
+  .in(file("esa-mongodb"))
+  .settings(commonSettings: _*)
+  .settings(parallelExecution in Test := false)
+  .settings(libraryDependencies ++= Dependencies.esaMongoDB)
+  .settings(name := s"${repo}-mongodb", coverageMinimum := 80, coverageFailOnMinimum := true)
   .dependsOn(esaCoreJVM % "compile->compile;test->test")
 
 lazy val esaDeploy = project
