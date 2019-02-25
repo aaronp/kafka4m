@@ -121,10 +121,9 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
     case x =>
       val oldStrategy = (assemblyMergeStrategy in assembly).value
       oldStrategy(x)
-  },
+  }
   // see http://www.scalatest.org/user_guide/using_scalatest_with_sbt
-  (testOptions in Test) += (Tests
-    .Argument(TestFrameworks.ScalaTest, "-h", s"target/scalatest-reports-${name.value}", "-oN"))
+  //(testOptions in Test) += (Tests.Argument(TestFrameworks.ScalaTest, "-h", s"target/scalatest-reports-${name.value}", "-oN"))
 )
 
 test in assembly := {}

@@ -5,7 +5,8 @@ class UserRepoNioTest extends WordSpec with Matchers {
 
   "UserRepoNio" should {
     "find users" in {
-      UserLocalFileRepo()
+
+      // UserRepoNio()
     }
   }
 }

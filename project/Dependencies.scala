@@ -49,5 +49,9 @@ object Dependencies {
     ("com.orientechnologies" % "orientdb-graphdb" % "2.2.3") +: //https://orientdb.com/integration/using-orientdb-scala/
     testDependencies
   
-  val esaMongoDB: List[ModuleID] = testDependencies
+
+  val mongo = "org.mongodb.scala" %% "mongo-scala-driver" % "2.6.0"
+  val esaMongoDB: List[ModuleID] = {
+    mongo :: config :: testDependencies
+  }
 }
