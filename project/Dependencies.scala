@@ -52,6 +52,6 @@ object Dependencies {
 
   val mongo = "org.mongodb.scala" %% "mongo-scala-driver" % "2.6.0"
   val esaMongoDB: List[ModuleID] = {
-    mongo :: config :: testDependencies
+    mongo :: config :: testDependencies ::: monix
   }
 }
