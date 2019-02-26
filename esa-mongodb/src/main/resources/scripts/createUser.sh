@@ -4,4 +4,4 @@ source dockerFunctions.sh
 
 ensureRunning
 
-docker exec some-mongo bash -c 'mongo < /data/mount/createUser.js'
+docker exec "$IMAGE_NAME" bash -c 'mongo < /data/mount/createUser.js'
