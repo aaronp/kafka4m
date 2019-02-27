@@ -4,22 +4,11 @@ import java.util.concurrent.atomic.AtomicBoolean
 import monix.execution.CancelableFuture
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.{Completed, Observer, SingleObservable}
-import org.scalatest.concurrent.Eventually
-import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatest.{Matchers, WordSpec}
 
-import scala.concurrent.duration._
-
-class MongoConnectTest extends WordSpec with Matchers with Eventually {
-
-  def testTimeout: FiniteDuration = 5.seconds
-
-  implicit override def patienceConfig =
-    PatienceConfig(timeout = scaled(Span(testTimeout.toSeconds, Seconds)), interval = scaled(Span(150, Millis)))
+class MongoConnectTest extends BaseMongoSpec {
 
   "MongoConnect" should {
     "connect" in {
-
 
       val c     = MongoConnect("serviceUser", "changeTh1sDefaultPasswrd".toCharArray, "esa", "mongodb://localhost:9010")
       val someC = MongoConnect.collection(c)

@@ -9,6 +9,8 @@ object Dependencies {
     "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
     "ch.qos.logback"                                % "logback-classic" % "1.1.11")
 
+  def testLogging = logging.map(_ % "test")
+
   val testDependencies = List(
     "org.scalactic" %% "scalactic" % "3.0.5"   % "test",
     "org.scalatest" %% "scalatest" % "3.0.5"   % "test",
@@ -52,6 +54,6 @@ object Dependencies {
 
   val mongo = "org.mongodb.scala" %% "mongo-scala-driver" % "2.6.0"
   val esaMongoDB: List[ModuleID] = {
-    mongo :: config :: testDependencies ::: monix
+    mongo :: config :: testLogging ::: testDependencies ::: monix
   }
 }
