@@ -41,9 +41,4 @@ object MongoConnect {
   }
 
   def clear(pw : Array[Char]) = pw.indices.foreach(pw.update(_, '*'))
-
-  def collection(client: MongoClient, dbName: String = "mydb", coll: String = "mycoll") = {
-    val db = client.getDatabase(dbName)
-    db.getCollection(coll)
-  }
 }

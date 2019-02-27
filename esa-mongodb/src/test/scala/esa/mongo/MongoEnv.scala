@@ -1,8 +1,9 @@
 package esa.mongo
 import java.nio.file.Paths
 
+import com.typesafe.scalalogging.LazyLogging
+
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -31,7 +32,7 @@ trait MongoEnv {
 object MongoEnv {
   def apply(): MongoEnv = DockerEnv
 
-  object DockerEnv extends MongoEnv {
+  object DockerEnv extends MongoEnv with LazyLogging {
     override def isMongoRunning(): Boolean = {
       tryRunScript("scripts/startMongoDocker.sh").toOption.exists {
         case (_, output) => output.contains("is running")
@@ -41,13 +42,13 @@ object MongoEnv {
     override def stop(): Boolean  = tryRun("scripts/stopMongoDocker.sh")
 
     private def tryRun(script: String) = {
-      println(script + " returned:")
+      logger.info(script + " returned:")
       tryRunScript(script) match {
         case Success(output) =>
-          println(output)
+          logger.info(output.toString())
           true
         case Failure(output) =>
-          println(output)
+          logger.info(output.toString())
           false
       }
     }

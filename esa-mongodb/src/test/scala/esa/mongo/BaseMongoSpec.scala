@@ -14,6 +14,10 @@ trait BaseMongoSpec extends WordSpec with Matchers with Eventually with ScalaFut
 
   def mongoEnv() = MongoEnv()
 
+  lazy val mongoClient = MongoConnect("serviceUser", "changeTh1sDefaultPasswrd".toCharArray, "esa", "mongodb://localhost:9010")
+
+  def databaseName = "esa"
+
   private var mongoIsRunningStateBeforeTest = false
   override def beforeAll(): Unit = {
     super.beforeAll()

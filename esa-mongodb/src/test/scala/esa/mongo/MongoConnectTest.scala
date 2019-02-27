@@ -1,19 +1,18 @@
 package esa.mongo
 import java.util.concurrent.atomic.AtomicBoolean
 
+import com.typesafe.scalalogging.StrictLogging
 import monix.execution.CancelableFuture
 import org.mongodb.scala.bson.collection.immutable.Document
-import org.mongodb.scala.{Completed, Observer, SingleObservable}
+import org.mongodb.scala.{Completed, MongoCollection, Observer, SingleObservable}
 
-class MongoConnectTest extends BaseMongoSpec {
+class MongoConnectTest extends BaseMongoSpec with StrictLogging {
 
   "MongoConnect" should {
     "connect" in {
 
-      val c     = MongoConnect("serviceUser", "changeTh1sDefaultPasswrd".toCharArray, "esa", "mongodb://localhost:9010")
-      val someC = MongoConnect.collection(c)
+      val someC: MongoCollection[Document] = mongoClient.getDatabase(databaseName).getCollection("users")
 
-//      val document: Document               = Document("_id" -> 1, "x" -> 1)
       val document: Document               = Document("x" -> 1)
       val res: SingleObservable[Completed] = someC.insertOne(document)
       val completed                        = new AtomicBoolean(false)
@@ -22,10 +21,10 @@ class MongoConnectTest extends BaseMongoSpec {
       val head: CancelableFuture[Option[Completed]] = res.asMonix.runAsyncGetFirst
 
       res.subscribe(new Observer[Completed] {
-        override def onNext(result: Completed): Unit = println(s"onNext: $result")
-        override def onError(e: Throwable): Unit     = println(s"onError: $e")
+        override def onNext(result: Completed): Unit = logger.info(s"onNext: $result")
+        override def onError(e: Throwable): Unit     = logger.info(s"onError: $e")
         override def onComplete(): Unit = {
-          println("onComplete")
+          logger.info("onComplete")
           completed.set(true)
         }
       })
