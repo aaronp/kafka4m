@@ -15,7 +15,7 @@ class MongoEnvTest extends BaseMongoSpec {
       startMongo() shouldBe true
       isMongoRunning() shouldBe true
     }
-    "keep the data persistent between runs" in {
+    "keep the data persistent between runs" ignore {
       ensureMongoIsRunning()
       val test: MongoCollection[Document] = mongoDb.getCollection("test")
     }

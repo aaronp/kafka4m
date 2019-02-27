@@ -75,7 +75,8 @@ object MongoEnv {
 
   def run(script: String): (Int, String) = {
 
-    val location  = getClass.getResource(script)
+    val location  = getClass.getClassLoader.getResource(script)
+    require(location != null, s"Couldn't find $script")
     val scriptLoc = Paths.get(location.toURI)
     import sys.process._
 
