@@ -3,6 +3,7 @@
 
 export VOLUME_NAME=${VOLUME_NAME:-mongo-data}
 export IMAGE_NAME=${IMAGE_NAME:-esa-mongo}
+export MONGO_PORT=${MONGO_PORT:-9010}
 
 # see https://docs.docker.com/storage/volumes/
 createVolume () {
@@ -12,6 +13,10 @@ createVolume () {
 
 ensureVolume () {
   (docker volume ls | grep "$VOLUME_NAME") || createVolume
+}
+
+stopMongo () {
+    docker stop "$IMAGE_NAME"
 }
 
 dockerRunMongo () {
@@ -24,13 +29,16 @@ dockerRunMongo () {
     mkdir -p "$MONGO_DATA_DIR"
     echo "starting mongo w/ MONGO_DATA_DIR set to $MONGO_DATA_DIR"
 
-    echo "RUNNING: docker run --name "$IMAGE_NAME" -p 27017:9010 -v "$(pwd)":/data/mount -v "$VOLUME_NAME":/data/db -d mongo:4.0"
+    echo "RUNNING: docker run --name "${IMAGE_NAME}" -p 27017:${MONGO_PORT} -v "$(pwd)":/data/mount -v "${VOLUME_NAME}":/data/db -d mongo:4.0"
 
     # see "Start a container with a volume" in https://docs.docker.com/storage/volumes/
     docker run --name "$IMAGE_NAME" -p 9010:27017 -v "$(pwd)":/data/mount -v "$VOLUME_NAME":/data/db -d mongo:4.0
-
 }
 
 ensureRunning () {
-  (docker ps | grep "$IMAGE_NAME") || dockerRunMongo
+  isRunning || dockerRunMongo
+}
+
+isRunning () {
+  (docker ps | grep "$IMAGE_NAME") && echo "docker image "${IMAGE_NAME}" is running"
 }

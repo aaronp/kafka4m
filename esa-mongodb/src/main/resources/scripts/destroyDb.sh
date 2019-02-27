@@ -2,7 +2,7 @@
 
 source dockerFunctions.sh
 
-docker stop "$IMAGE_NAME"
+stopMongo
 
 docker rm "$IMAGE_NAME"
 

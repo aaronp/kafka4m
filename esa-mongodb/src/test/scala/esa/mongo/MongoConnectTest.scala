@@ -19,7 +19,9 @@ class MongoConnectTest extends WordSpec with Matchers with Eventually {
 
   "MongoConnect" should {
     "connect" in {
-      val c     = MongoConnect.clientForUri("mongodb://localhost:9010")
+
+
+      val c     = MongoConnect("serviceUser", "changeTh1sDefaultPasswrd".toCharArray, "esa", "mongodb://localhost:9010")
       val someC = MongoConnect.collection(c)
 
 //      val document: Document               = Document("_id" -> 1, "x" -> 1)
