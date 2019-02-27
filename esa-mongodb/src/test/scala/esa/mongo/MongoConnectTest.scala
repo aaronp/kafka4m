@@ -11,14 +11,14 @@ class MongoConnectTest extends BaseMongoSpec with StrictLogging {
   "MongoConnect" should {
     "connect" in {
 
-      val someC: MongoCollection[Document] = mongoClient.getDatabase(databaseName).getCollection("users")
+      val someC: MongoCollection[Document] = mongoDb.getCollection("users")
 
       val document: Document               = Document("x" -> 1)
       val res: SingleObservable[Completed] = someC.insertOne(document)
       val completed                        = new AtomicBoolean(false)
 
       import implicits._
-      val head: CancelableFuture[Option[Completed]] = res.asMonix.runAsyncGetFirst
+      val head: CancelableFuture[Option[Completed]] = res.monix.runAsyncGetFirst
 
       res.subscribe(new Observer[Completed] {
         override def onNext(result: Completed): Unit = logger.info(s"onNext: $result")

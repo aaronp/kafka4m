@@ -11,8 +11,25 @@ import scala.util.{Failure, Success, Try}
   *
   * The other way we could do this would be to run the integration tests within e.g. a docker-compose setup.
   *
-  * Doing it this way makes it a bit easier to develop/run locally
+  * Doing it this way makes it a bit easier to develop/run locally. This trait is just the programmatic equivalent
+  * of just
   *
+  * {{{
+  *   cd esa-mongodb/src/test/resources/scripts
+  * }}}
+  *
+  * and then running the following (several times, in any order to just play around w/ it):
+  *
+  * {{{
+  *   cd esa-mongodb/src/test/resources/scripts
+  *   ./startMongoDocker.sh
+  *   ./stopMongoDocker.sh
+  *   ./isMongoDockerRunning.sh
+  * }}}
+  *
+  *
+  * These are blocking calls, which is naughty for IO -- but all this is just for local test support, so we want to be
+  * blocking on the environment anyway.
   */
 trait MongoEnv {
 
