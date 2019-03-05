@@ -53,27 +53,27 @@ object MongoEnv {
 
   object DockerEnv extends MongoEnv with LazyLogging {
     override def isMongoRunning(): Boolean = {
-      tryRunScript("scripts/isMongoDockerRunning.sh.sh").toOption.exists {
+      tryRunScript("scripts/isMongoDockerRunning.sh").toOption.exists {
         case (_, output) =>
-          output.contains("is running")
+          output.contains("docker image ") && output.contains(" is running")
       }
     }
     override def start(): Boolean = tryRun("scripts/startMongoDocker.sh")
     override def stop(): Boolean  = tryRun("scripts/stopMongoDocker.sh")
 
-    private def tryRun(script: String) = {
-      logger.info(script + " returned:")
-      tryRunScript(script) match {
-        case Success(output) =>
-          logger.info(output.toString())
-          true
-        case Failure(output) =>
-          logger.info(output.toString())
-          false
+    private def tryRun(script: String): Boolean = tryRunScript(script).isSuccess
+
+    private def tryRunScript(script: String): Try[(Int, String)] = {
+      logger.debug(script + " returned:")
+      Try(run(script)) match {
+        case res @ Success(output) =>
+          logger.debug(output.toString())
+          res
+        case res @ Failure(output) =>
+          logger.debug(output.toString())
+          res
       }
     }
-
-    private def tryRunScript(script: String): Try[(Int, String)] = Try(run(script))
   }
 
   def run(script: String): (Int, String) = {

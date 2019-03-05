@@ -1,4 +1,7 @@
 package esa.mongo
+
+import _root_.esa.mongo.esa._
+
 import org.mongodb.scala.MongoDatabase
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import org.scalatest.time.{Millis, Seconds, Span}
@@ -15,9 +18,10 @@ trait BaseMongoSpec extends WordSpec with Matchers with Eventually with ScalaFut
 
   def mongoEnv() = MongoEnv()
 
-  lazy val mongoClient = MongoConnect("serviceUser", "changeTh1sDefaultPasswrd".toCharArray, "esa", "mongodb://localhost:9010")
+  lazy val mongoClient = MongoConnect("serviceUser", "changeTh1sDefaultPasswrd".toCharArray, databaseName, "mongodb://localhost:9010")
 
   def mongoDb: MongoDatabase = mongoClient.getDatabase(databaseName)
+  def esaDb  : EsaDB= EsaDB(mongoDb)
 
   def databaseName = "esa"
 

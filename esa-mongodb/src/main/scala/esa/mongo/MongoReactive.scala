@@ -2,20 +2,20 @@ package esa.mongo
 
 object MongoReactive {
 
-  class ReactivePublisherForObservable[A](val obs :MongoObservable[A]) extends RPublisher[A] {
+  class ReactivePublisherForObservable[A](val obs: MongoObservable[A]) extends RPublisher[A] {
     override def subscribe(s: RSubscriber[_ >: A]): Unit = {
       obs.subscribe(new ObserverForSubscriber[A](s))
     }
   }
 
-  class ObserverForSubscriber[A](val subscriber :RSubscriber[_ >: A]) extends MongoObserver[A] {
+  class ObserverForSubscriber[A](val subscriber: RSubscriber[_ >: A]) extends MongoObserver[A] {
     override def onNext(result: A): Unit = {
       subscriber.onNext(result)
     }
     override def onError(e: Throwable): Unit = {
       subscriber.onError(e)
     }
-    override def onComplete(): Unit                = {
+    override def onComplete(): Unit = {
       subscriber.onComplete()
     }
     override def onSubscribe(subscription: MongoSubscription): Unit = {

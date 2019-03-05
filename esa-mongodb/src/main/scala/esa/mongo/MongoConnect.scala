@@ -5,11 +5,11 @@ import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.{MongoClient, MongoClientSettings, MongoCredential}
 
 /**
-* Functions to knock out a MongoClient
+  * Functions to knock out a MongoClient
   */
 object MongoConnect {
 
-  def apply(config : Config): MongoClient = {
+  def apply(config: Config): MongoClient = {
     apply(
       config.getString("user"),
       config.getString("password").toCharArray,
@@ -29,7 +29,7 @@ object MongoConnect {
     * @param uri
     * @return a MongoClient
     */
-  def apply(user : String, pw : Array[Char], database : String, uri: String): MongoClient = {
+  def apply(user: String, pw: Array[Char], database: String, uri: String): MongoClient = {
     val creds = MongoCredential.createCredential(user, database, pw)
     MongoClientSettings
       .builder()
@@ -40,5 +40,5 @@ object MongoConnect {
     MongoClient(uri)
   }
 
-  def clear(pw : Array[Char]) = pw.indices.foreach(pw.update(_, '*'))
+  def clear(pw: Array[Char]) = pw.indices.foreach(pw.update(_, '*'))
 }
