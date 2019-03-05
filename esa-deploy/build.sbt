@@ -20,13 +20,17 @@ dockerfile in docker := {
   sLog.value.warn(s"Creating docker file with entrypoint ${entrypointPath.getAbsolutePath}")
 
   val appDir = "/opt/esa"
+
+  streams.value.log.info(s"Base Dir is ${baseDirectory.value.toPath}")
+
   //
   // see https://forums.docker.com/t/is-it-possible-to-pass-arguments-in-dockerfile/14488
   // for passing in args to docker in run (which basically just says to use $@)
   //
   val dockerFile = new Dockerfile {
     from("java")
-    expose(7770)
+    maintainer(developers.value.map(_.name).headOption.getOrElse(organization.value))
+    expose(80)
     run("mkdir", "-p", s"$appDir/data")
     run("mkdir", "-p", s"$appDir/logs")
     run("mkdir", "-p", s"$appDir/app")
@@ -34,7 +38,7 @@ dockerfile in docker := {
     volume(s"$appDir/data")
     volume(s"$appDir/config")
     volume(s"$appDir/logs")
-    maintainer("Aaron Pritzlaff")
+    add(logbackFile, s"$appDir/config/logback.xml")
     add(logbackFile, s"$appDir/config/logback.xml")
     add(artifact, s"$appDir/app/esa.jar")
     add(entrypointPath, s"$appDir/app/esa-boot.sh")

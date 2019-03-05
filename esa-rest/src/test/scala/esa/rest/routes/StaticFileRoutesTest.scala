@@ -7,35 +7,35 @@ class StaticFileRoutesTest extends WordSpec with Matchers with ScalatestRouteTes
 
   "StaticFileRoutes.route" should {
     "redirect to /index from the root" in {
-      val route = StaticFileRoutes.devHttps
+      val route = StaticFileRoutes.dev()
       Get("/") ~> route.route ~> check {
         val indexhtml = responseAs[String]
         indexhtml should include("<link rel=\"stylesheet\" type=\"text/css\" href=\"css/esa.css\">")
       }
     }
     "redirect to /index from the normal path" in {
-      val route = StaticFileRoutes.devHttps
+      val route = StaticFileRoutes.dev()
       Get() ~> route.route ~> check {
         val indexhtml = responseAs[String]
         indexhtml should include("<link rel=\"stylesheet\" type=\"text/css\" href=\"css/esa.css\">")
       }
     }
     "serve css routes" in {
-      val route = StaticFileRoutes.devHttps
+      val route = StaticFileRoutes.dev()
       Get("/css/esa.css") ~> route.route ~> check {
         val cssContent = responseAs[String]
         cssContent should include("background-color")
       }
     }
 
-    // this fails if we haven't run 'fastOptJS' on the xhr project
+    // this fails if we haven't run 'fastOptJS' or 'fullOptJS' on the xhr project
     import eie.io._
-    StaticFileRoutes.devJsDir.asPath.findFirst(8)(_.fileName == "esa-client-xhr-fastopt.js").foreach { _ =>
+    StaticFileRoutes.dev().jsRootDir.asPath.findFirst(8)(_.fileName.matches("esa-client-xhr.*opt.*js")).foreach { jsFile =>
       "serve js routes" in {
-        val route = StaticFileRoutes.devHttps
-        Get("/js/esa-client-xhr-fastopt.js") ~> route.route ~> check {
+        val route = StaticFileRoutes.dev()
+        Get(s"/js/${jsFile.fileName}") ~> route.route ~> check {
           val javascript = responseAs[String]
-          javascript should include("The top-level Scala.js environment")
+          javascript should include("function()")
         }
       }
     }

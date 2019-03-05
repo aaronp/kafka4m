@@ -1,3 +1,4 @@
+import sbt.KeyRanks
 import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
 
 val repo = "esa"
@@ -164,11 +165,10 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
     name := "esa-core",
     libraryDependencies ++= List(
       // http://julienrf.github.io/endpoints/quick-start.html
-      "org.julienrf" %%% "endpoints-algebra"             % "0.8.0",
-      "org.julienrf" %%% "endpoints-json-schema-generic" % "0.8.0",
-//      "org.reactivestreams" %%% "reactive-streams-scalajs" % "1.0.0",
-      "com.lihaoyi"   %%% "scalatags" % "0.6.7",
-      "org.scalatest" %%% "scalatest" % "3.0.0" % "test"
+      "org.julienrf"  %%% "endpoints-algebra"             % "0.8.0",
+      "org.julienrf"  %%% "endpoints-json-schema-generic" % "0.8.0",
+      "com.lihaoyi"   %%% "scalatags"                     % "0.6.7",
+      "org.scalatest" %%% "scalatest"                     % "3.0.0" % "test"
     ),
     //https://dzone.com/articles/5-useful-circe-feature-you-may-have-overlooked
     libraryDependencies ++= (List(
@@ -223,12 +223,23 @@ lazy val esaMongoDB = project
   .settings(name := s"${repo}-mongodb", coverageMinimum := 80, coverageFailOnMinimum := true)
   .dependsOn(esaCoreJVM % "compile->compile;test->test")
 
+lazy val deploy = TaskKey[String]("deploy", "deploys the build", KeyRanks.ATask)
+
 lazy val esaDeploy = project
   .in(file("esa-deploy"))
   .settings(commonSettings: _*)
   .settings(name := s"${repo}-deploy")
   //.dependsOn(esaClientXhr % "compile->compile;test->test")
   .dependsOn(esaRest % "compile->compile;test->test")
+  .settings(
+    deploy := {
+      streams.value.log.info("Deploying...")
+      //val opt = esaClientXhr / "fullJSOpt"
+//      val opt = fullJSOpt in Compile
+//      streams.value.log.info("opt is " + opt)
+      "ok"
+    }
+  )
 
 lazy val esaRender = project
   .in(file("esa-render"))
@@ -238,7 +249,8 @@ lazy val esaRender = project
   .settings(commonSettings: _*)
   .settings(libraryDependencies ++= Dependencies.esaRender)
 
-lazy val esaClientXhr = project
+lazy val pckg = TaskKey[String]("pckg", "Packages artifacts", KeyRanks.ATask)
+lazy val esaClientXhr: Project = project
   .in(file("esa-client-xhr"))
   //.dependsOn(esaMonix % "compile->compile;test->test")
   .dependsOn(esaCoreJS % "compile->compile;test->test")
@@ -248,6 +260,9 @@ lazy val esaClientXhr = project
     libraryDependencies += "org.julienrf" %%% "endpoints-xhr-client-circe" % "0.8.0",
     libraryDependencies += "com.lihaoyi"  %%% "scalatags"                  % "0.6.7",
     libraryDependencies += "org.scala-js" %%% "scalajs-dom"                % "0.9.2"
+  )
+  .settings(
+    //pckg := fullJSOpt.value
   )
 lazy val esaClientJvm = project
   .in(file("esa-client-jvm"))

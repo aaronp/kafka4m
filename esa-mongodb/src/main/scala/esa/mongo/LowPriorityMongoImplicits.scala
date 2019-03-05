@@ -8,4 +8,7 @@ trait LowPriorityMongoImplicits {
 
   implicit def mongoObsAsReactiveSubscriber[A](obs: MongoObservable[A]) = new RichMongoObservable[A](obs)
   implicit def asRichCollection(collection: MongoCollection[Document])  = new RichCollection(collection)
+  implicit def asRichDocument(document: Document)                       = new RichDocument(document)
 }
+
+object LowPriorityMongoImplicits extends LowPriorityMongoImplicits

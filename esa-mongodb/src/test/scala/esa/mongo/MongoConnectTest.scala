@@ -1,16 +1,14 @@
 package esa.mongo
 import java.util.concurrent.atomic.AtomicBoolean
 
-import com.typesafe.scalalogging.StrictLogging
 import monix.execution.CancelableFuture
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.{Completed, MongoCollection, Observer, SingleObservable}
 
-class MongoConnectTest extends BaseMongoSpec with StrictLogging {
+class MongoConnectTest extends BaseMongoSpec {
 
   "MongoConnect" should {
     "connect" in {
-
       val someC: MongoCollection[Document] = mongoDb.getCollection("users")
 
       val document: Document               = Document("x" -> 1)

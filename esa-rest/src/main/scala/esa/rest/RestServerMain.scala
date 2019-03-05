@@ -37,7 +37,7 @@ object RestServerMain {
 
     // TODO - check the schema in the route, not offer a different port ... perhaps
     val httpBindingFuture = {
-      val httpRoutes: Route = EsaRoutes.http(StaticFileRoutes.devHttp)
+      val httpRoutes: Route = EsaRoutes.http(StaticFileRoutes.dev.http())
       Http().bindAndHandle(httpRoutes, "0.0.0.0", port + 1)
     }
 
@@ -53,7 +53,7 @@ object RestServerMain {
   }
 
   def makeRoutes(implicit routingSettings: RoutingSettings): Route = {
-    val route = EsaRoutes.https(StaticFileRoutes.devHttps)
+    val route = EsaRoutes.https(StaticFileRoutes.dev())
     Route.seal(route)
   }
 

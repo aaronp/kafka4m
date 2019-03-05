@@ -45,7 +45,7 @@ dockerRunMongo () {
 
     # see "Start a container with a volume" in https://docs.docker.com/storage/volumes/
     echo "RUNNING: docker run --rm --name "${IMAGE_NAME}" -p 9010:27017 -v "$(pwd)":/data/mount -v "${VOLUME_NAME}":/data/db -d mongo:4.0"
-    docker run --rm --name "$IMAGE_NAME" -p 9010:27017 -v "$(pwd)":/data/mount -v "$VOLUME_NAME":/data/db -d mongo:4.0
+    docker run --rm --name "$IMAGE_NAME" -p "${MONGO_PORT}":27017 -v "$(pwd)":/data/mount -v "$VOLUME_NAME":/data/db -d mongo:4.0
 }
 
 # start up the docker mongo container if it's not already running
