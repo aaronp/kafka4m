@@ -21,7 +21,7 @@ trait BaseMongoSpec extends WordSpec with Matchers with Eventually with ScalaFut
   lazy val mongoClient = MongoConnect("serviceUser", "changeTh1sDefaultPasswrd".toCharArray, databaseName, "mongodb://localhost:9010")
 
   def mongoDb: MongoDatabase = mongoClient.getDatabase(databaseName)
-  def esaDb  : EsaDB= EsaDB(mongoDb)
+  def esaDb: EsaDB           = EsaDB(mongoDb)
 
   def databaseName = "esa"
 
