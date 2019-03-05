@@ -24,7 +24,7 @@ dockerfile in docker := {
   // see https://forums.docker.com/t/is-it-possible-to-pass-arguments-in-dockerfile/14488
   // for passing in args to docker in run (which basically just says to use $@)
   //
-  new Dockerfile {
+  val dockerFile = new Dockerfile {
     from("java")
     expose(7770)
     run("mkdir", "-p", s"$appDir/data")
@@ -40,7 +40,11 @@ dockerfile in docker := {
     add(entrypointPath, s"$appDir/app/esa-boot.sh")
     run("chmod", "700", s"$appDir/app/esa-boot.sh")
     workDir(s"$appDir/app")
-    //entryPoint("java", "-cp", "/config", "-jar", artifactTargetPath)
-    entryPoint(s"$appDir/app/esa-boot.sh")
+    entryPoint("java", "-cp", s"$appDir/config:$appDir/app/esa.jar", EsaBuild.MainRestClass)
+//    entryPoint(s"$appDir/app/esa-boot.sh")
   }
+
+  sLog.value.info(s"Created dockerfile: ${dockerFile.instructions}")
+
+  dockerFile
 }

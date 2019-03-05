@@ -4,6 +4,8 @@ import java.nio.file.Paths
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.mutable.ArrayBuffer
+import scala.sys.process
+import scala.sys.process.ProcessLogger
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -51,8 +53,9 @@ object MongoEnv {
 
   object DockerEnv extends MongoEnv with LazyLogging {
     override def isMongoRunning(): Boolean = {
-      tryRunScript("scripts/startMongoDocker.sh").toOption.exists {
-        case (_, output) => output.contains("is running")
+      tryRunScript("scripts/isMongoDockerRunning.sh.sh").toOption.exists {
+        case (_, output) =>
+          output.contains("is running")
       }
     }
     override def start(): Boolean = tryRun("scripts/startMongoDocker.sh")
@@ -74,25 +77,30 @@ object MongoEnv {
   }
 
   def run(script: String): (Int, String) = {
+    val buffer = new BufferLogger
+    val res    = parseScript(script).run(buffer)
+    res.exitValue() -> buffer.output
+  }
 
-    val location  = getClass.getClassLoader.getResource(script)
+  private def parseScript(script: String): process.ProcessBuilder = {
+    val location = getClass.getClassLoader.getResource(script)
     require(location != null, s"Couldn't find $script")
     val scriptLoc = Paths.get(location.toURI)
     import sys.process._
 
-    val proc = Process(scriptLoc.getFileName.toString, scriptLoc.getParent.toFile)
-    object Logger extends ProcessLogger {
-      private val outputBuffer = ArrayBuffer[String]()
-      def output               = outputBuffer.mkString("\n")
-      override def out(s: => String): Unit = {
-        outputBuffer.append(s)
-      }
-      override def err(s: => String): Unit = {
-        outputBuffer.append(s"ERR: $s")
-      }
-      override def buffer[T](f: => T): T = f
+    val scriptFile = s"./${scriptLoc.getFileName.toString}"
+    Process(scriptFile, scriptLoc.getParent.toFile)
+  }
+
+  private class BufferLogger extends ProcessLogger {
+    private val outputBuffer = ArrayBuffer[String]()
+    def output               = outputBuffer.mkString("\n")
+    override def out(s: => String): Unit = {
+      outputBuffer.append(s)
     }
-    val res: Process = proc.run(Logger)
-    res.exitValue() -> Logger.output
+    override def err(s: => String): Unit = {
+      outputBuffer.append(s"ERR: $s")
+    }
+    override def buffer[T](f: => T): T = f
   }
 }

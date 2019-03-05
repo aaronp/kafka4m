@@ -227,7 +227,7 @@ lazy val esaDeploy = project
   .in(file("esa-deploy"))
   .settings(commonSettings: _*)
   .settings(name := s"${repo}-deploy")
-  .dependsOn(esaClientXhr % "compile->compile;test->test")
+  //.dependsOn(esaClientXhr % "compile->compile;test->test")
   .dependsOn(esaRest % "compile->compile;test->test")
 
 lazy val esaRender = project
@@ -265,6 +265,8 @@ lazy val esaRest = project
   .dependsOn(esaCoreJVM % "compile->compile;test->test")
   .settings(name := s"${repo}-rest")
   .settings(commonSettings: _*)
+  .settings(mainClass in (Compile, run) := Some(EsaBuild.MainRestClass))
+  .settings(mainClass in (Compile, packageBin) := Some(EsaBuild.MainRestClass))
   .settings(libraryDependencies ++= Dependencies.esaRest)
 
 // see https://leonard.io/blog/2017/01/an-in-depth-guide-to-deploying-to-maven-central/

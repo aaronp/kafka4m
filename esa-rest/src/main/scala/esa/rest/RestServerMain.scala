@@ -14,7 +14,6 @@ import scala.util.Try
 object RestServerMain {
 
   def main(args: Array[String]): Unit = {
-    //    val sslConfig = AkkaSSLConfig()
 
     val port                                      = 8080
     implicit val system                           = ActorSystem("my-system")

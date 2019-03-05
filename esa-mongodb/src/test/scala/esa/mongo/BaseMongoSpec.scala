@@ -8,7 +8,7 @@ import scala.concurrent.duration._
 
 trait BaseMongoSpec extends WordSpec with Matchers with Eventually with ScalaFutures with BeforeAndAfterAll {
 
-  def testTimeout: FiniteDuration = 5.seconds
+  def testTimeout: FiniteDuration = 7.seconds
 
   implicit override def patienceConfig =
     PatienceConfig(timeout = scaled(Span(testTimeout.toSeconds, Seconds)), interval = scaled(Span(150, Millis)))
@@ -33,7 +33,7 @@ trait BaseMongoSpec extends WordSpec with Matchers with Eventually with ScalaFut
     }
   }
 
-  def isMongoRunning() = {
+  def isMongoRunning(): Boolean = {
     mongoEnv.isMongoRunning()
   }
 
