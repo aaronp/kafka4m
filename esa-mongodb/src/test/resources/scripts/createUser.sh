@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-source dockerFunctions.sh
+DIR=`dirname $0`
+source "$DIR/"dockerFunctions.sh
 
 ensureRunning
 
