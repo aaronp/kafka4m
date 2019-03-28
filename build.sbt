@@ -40,7 +40,7 @@ ghpagesNoJekyll := true
 
 val typesafeConfig: ModuleID = "com.typesafe" % "config" % "1.3.0"
 
-val logging = List("com.typesafe.scala-logging" %% "scala-logging" % "3.7.2", "ch.qos.logback" % "logback-classic" % "1.1.11")
+val logging = List("com.typesafe.scala-logging" %% "scala-logging" % "3.7.2", "ch.qos.logback" % "logback-classic" % "1.2.3")
 
 def testLogging = logging.map(_ % "test")
 
@@ -187,7 +187,7 @@ docker := {
 
   // contains the web resources
   val webResourceDir = (resourceDirectory in (esaClientXhr, Compile)).value.toPath.resolve("web")
-  val jsArtifacts    = (fullOptJS in (esaClientXhr, Compile)).value
+  val jsArtifacts    = (fullOptJS in (esaClientXhr, Compile)).value.data.asPath
 
   val dockerTargetDir = {
     val dir = baseDirectory.value / "target" / "docker"
@@ -196,7 +196,7 @@ docker := {
 
   EsaBuild.docker( //
     deployResourceDir = deployResourceDir, //
-    deployResourceDir = deployResourceDir, //
+    jsArtifacts = jsArtifacts, //
     webResourceDir = webResourceDir, //
     restAssembly = esaAssembly.asPath, //
     targetDir = dockerTargetDir, //
@@ -212,10 +212,10 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
     name := "esa-core",
     libraryDependencies ++= List(
       // http://julienrf.github.io/endpoints/quick-start.html
-      "org.julienrf"  %%% "endpoints-algebra"             % "0.8.0",
-      "org.julienrf"  %%% "endpoints-json-schema-generic" % "0.8.0",
-      "com.lihaoyi"   %%% "scalatags"                     % "0.6.7",
-      "org.scalatest" %%% "scalatest"                     % "3.0.0" % "test"
+      "org.julienrf" %%% "endpoints-algebra"             % "0.8.0",
+      "org.julienrf" %%% "endpoints-json-schema-generic" % "0.8.0",
+      "com.lihaoyi"  %%% "scalatags"                     % "0.6.7"
+      //,"org.scalatest" %%% "scalatest"                     % "3.0.0" % "test"
     ),
     //https://dzone.com/articles/5-useful-circe-feature-you-may-have-overlooked
     libraryDependencies ++= (List(
@@ -232,14 +232,12 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
     name := "esa-core-jvm",
     coverageMinimum := 85,
     coverageFailOnMinimum := true,
-    libraryDependencies ++= List(
+    libraryDependencies ++= testLogging ++ List(
       "com.lihaoyi"                %% "sourcecode"          % "0.1.4", // % "test",
       "org.scala-js"               %% "scalajs-stubs"       % scalaJSVersion % "provided",
       "com.github.aaronp"          %% "eie"                 % "0.0.3",
       "org.reactivestreams"        % "reactive-streams"     % "1.0.2",
       "org.reactivestreams"        % "reactive-streams-tck" % "1.0.2" % "test",
-      "com.typesafe.scala-logging" %% "scala-logging"       % "3.7.2" % "test",
-      "ch.qos.logback"             % "logback-classic"      % "1.1.11" % "test",
       "org.pegdown"                % "pegdown"              % "1.4.2" % "test"
     ),
     // put scaladocs under 'api/latest'
@@ -248,7 +246,7 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
   .jsSettings(name := "esa-core-js")
   .jsSettings(libraryDependencies ++= List(
     "com.lihaoyi"   %%% "scalatags" % "0.6.7",
-    "org.scalatest" %%% "scalatest" % "3.0.0" % "test"
+    "org.scalatest" %%% "scalatest" % "3.0.5" % "test"
   ))
 
 lazy val esaCoreJVM = esaCoreCrossProject.jvm

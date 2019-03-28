@@ -12,7 +12,7 @@ object EsaBuild {
              restAssembly: Path, //
              targetDir: Path, //
              logger: sbt.util.Logger) = {
-    
+
     logger.info(
       s""" Building Docker Image with:
          |
