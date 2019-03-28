@@ -26,6 +26,12 @@ object EsaBuild {
 
     IO.copyDirectory(deployResourceDir.toFile, targetDir.toFile)
     IO.copy(List(restAssembly.toFile -> (targetDir.resolve("app.jar").toFile)))
+    IO.copy(List(jsArtifacts.toFile -> (targetDir.resolve("/web/js/esa.js").toFile)))
+    
+    
+    //esa-client-xhr-jsdeps.js
+    //js/esa-client-xhr-opt.js
+    
 
     execIn(targetDir, "docker", "build", "--tag=esa", ".")
   }

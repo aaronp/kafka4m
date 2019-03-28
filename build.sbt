@@ -40,7 +40,7 @@ ghpagesNoJekyll := true
 
 val typesafeConfig: ModuleID = "com.typesafe" % "config" % "1.3.0"
 
-val logging = List("com.typesafe.scala-logging" %% "scala-logging" % "3.7.2", "ch.qos.logback" % "logback-classic" % "1.2.3")
+val logging = List("com.typesafe.scala-logging" %% "scala-logging" % "3.9.2", "ch.qos.logback" % "logback-classic" % "1.2.3")
 
 def testLogging = logging.map(_ % "test")
 
@@ -128,8 +128,8 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
   exportJars := false,
   crossScalaVersions := scalaVersions,
   libraryDependencies ++= List(
-    "org.scalactic" %% "scalactic" % "3.0.5" % "test",
-    "org.scalatest" %% "scalatest" % "3.0.5" % "test",
+    "org.scalactic" %% "scalactic" % "3.0.7" % "test",
+    "org.scalatest" %% "scalatest" % "3.0.7" % "test",
     "org.pegdown"   % "pegdown"    % "1.6.0" % "test",
     "junit"         % "junit"      % "4.12"  % "test"
   ),
@@ -212,8 +212,8 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
     name := "esa-core",
     libraryDependencies ++= List(
       // http://julienrf.github.io/endpoints/quick-start.html
-      "org.julienrf" %%% "endpoints-algebra"             % "0.8.0",
-      "org.julienrf" %%% "endpoints-json-schema-generic" % "0.8.0",
+      "org.julienrf" %%% "endpoints-algebra"             % "0.9.0",
+      "org.julienrf" %%% "endpoints-json-schema-generic" % "0.9.0",
       "com.lihaoyi"  %%% "scalatags"                     % "0.6.7"
       //,"org.scalatest" %%% "scalatest"                     % "3.0.0" % "test"
     ),
@@ -233,20 +233,20 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
     coverageMinimum := 85,
     coverageFailOnMinimum := true,
     libraryDependencies ++= testLogging ++ List(
-      "com.lihaoyi"                %% "sourcecode"          % "0.1.4", // % "test",
-      "org.scala-js"               %% "scalajs-stubs"       % scalaJSVersion % "provided",
-      "com.github.aaronp"          %% "eie"                 % "0.0.3",
-      "org.reactivestreams"        % "reactive-streams"     % "1.0.2",
-      "org.reactivestreams"        % "reactive-streams-tck" % "1.0.2" % "test",
-      "org.pegdown"                % "pegdown"              % "1.4.2" % "test"
+      "com.lihaoyi"         %% "sourcecode"          % "0.1.5", // % "test",
+      "org.scala-js"        %% "scalajs-stubs"       % scalaJSVersion % "provided",
+      "com.github.aaronp"   %% "eie"                 % "0.0.5",
+      "org.reactivestreams" % "reactive-streams"     % "1.0.2",
+      "org.reactivestreams" % "reactive-streams-tck" % "1.0.2" % "test",
+      "org.pegdown"         % "pegdown"              % "1.6.0" % "test"
     ),
     // put scaladocs under 'api/latest'
     siteSubdirName in SiteScaladoc := "api/latest"
   )
   .jsSettings(name := "esa-core-js")
   .jsSettings(libraryDependencies ++= List(
-    "com.lihaoyi"   %%% "scalatags" % "0.6.7",
-    "org.scalatest" %%% "scalatest" % "3.0.5" % "test"
+    "com.lihaoyi"   %%% "scalatags" % "0.6.8",
+    "org.scalatest" %%% "scalatest" % "3.0.7" % "test"
   ))
 
 lazy val esaCoreJVM = esaCoreCrossProject.jvm
@@ -299,7 +299,7 @@ lazy val esaClientXhr: Project = project
   .settings(name := s"${repo}-client-xhr")
   .enablePlugins(ScalaJSPlugin)
   .settings(
-    libraryDependencies += "org.julienrf" %%% "endpoints-xhr-client-circe" % "0.8.0",
+    libraryDependencies += "org.julienrf" %%% "endpoints-xhr-client-circe" % "0.9.0",
     libraryDependencies += "com.lihaoyi"  %%% "scalatags"                  % "0.6.7",
     libraryDependencies += "org.scala-js" %%% "scalajs-dom"                % "0.9.2"
   )
@@ -312,7 +312,7 @@ lazy val esaClientJvm = project
   .dependsOn(esaCoreJS % "compile->compile;test->test")
   .settings(name := s"${repo}-client-jvm")
   .settings(
-    libraryDependencies += "org.julienrf" %% "endpoints-akka-http-client"       % "0.8.0",
+    libraryDependencies += "org.julienrf" %% "endpoints-akka-http-client"       % "0.9.0",
     libraryDependencies += "org.julienrf" %% "endpoints-akka-http-server-circe" % "0.4.0"
   )
 
@@ -327,9 +327,9 @@ lazy val esaRest = project
   .settings(libraryDependencies += "com.typesafe.akka" %% "akka-http-testkit" % "10.0.14" % "test")
   .settings(libraryDependencies ++= typesafeConfig :: logging)
   .settings(libraryDependencies ++= List(
-    "org.julienrf" %% "endpoints-akka-http-server"       % "0.8.0",
+    "org.julienrf" %% "endpoints-akka-http-server"       % "0.9.0",
     "org.julienrf" %% "endpoints-akka-http-server-circe" % "0.4.0",
-    "org.julienrf" %% "endpoints-openapi"                % "0.8.0"
+    "org.julienrf" %% "endpoints-openapi"                % "0.9.0"
   ))
 
 // see https://leonard.io/blog/2017/01/an-in-depth-guide-to-deploying-to-maven-central/
