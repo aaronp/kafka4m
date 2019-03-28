@@ -1,3 +1,5 @@
+import java.nio.file.Path
+import eie.io._
 import sbt.KeyRanks
 import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
 
@@ -35,6 +37,18 @@ val ESADeploy   = config("esaDeploy")
 
 git.remoteRepo := s"git@github.com:$username/$repo.git"
 ghpagesNoJekyll := true
+
+val typesafeConfig: ModuleID = "com.typesafe" % "config" % "1.3.0"
+
+val logging = List("com.typesafe.scala-logging" %% "scala-logging" % "3.7.2", "ch.qos.logback" % "logback-classic" % "1.1.11")
+
+def testLogging = logging.map(_ % "test")
+
+val monix = List("monix", "monix-execution", "monix-eval", "monix-reactive", "monix-tail").map { art =>
+  "io.monix" %% art % "3.0.0-RC1"
+}
+
+val simulacrum: ModuleID = "com.github.mpilquist" %% "simulacrum" % "0.13.0"
 
 lazy val scaladocSiteProjects =
   List((esaCoreJVM, Core), (esaRest, ESARest), (esaRender, ESARender), (esaMongoDB, ESAMongoDB), (esaOrientDB, ESAOrientDB), (esaDeploy, ESADeploy))
@@ -113,6 +127,12 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
   autoAPIMappings := true,
   exportJars := false,
   crossScalaVersions := scalaVersions,
+  libraryDependencies ++= List(
+    "org.scalactic" %% "scalactic" % "3.0.5" % "test",
+    "org.scalatest" %% "scalatest" % "3.0.5" % "test",
+    "org.pegdown"   % "pegdown"    % "1.6.0" % "test",
+    "junit"         % "junit"      % "4.12"  % "test"
+  ),
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-XX:MaxMetaspaceSize=1g"),
   scalacOptions ++= scalacSettings,
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
@@ -156,6 +176,27 @@ lazy val root = (project in file("."))
     publish := {},
     publishLocal := {}
   )
+
+lazy val docker = taskKey[Unit]("Packages the app in a docker file").withRank(KeyRanks.APlusTask)
+
+docker := {
+  val esaAssembly = (assembly in (esaRest, Compile)).value
+
+  //val esaAssembly = (assembly in(esaRest, Compile)).value
+
+  // contains the docker resources
+  val deployResourceDir = (resourceDirectory in (esaDeploy, Compile)).value.toPath
+
+  // contains the web resources
+  val webResourceDir = (resourceDirectory in (esaClientXhr, Compile)).value.toPath
+
+  val dockerTargetDir = {
+    val dir = baseDirectory.value / "target" / "docker"
+    dir.toPath.mkDirs()
+  }
+
+  EsaBuild.docker(deployResourceDir = deployResourceDir, webResourceDir = webResourceDir, restAssembly = esaAssembly.asPath, targetDir = dockerTargetDir, logger = sLog.value)
+}
 
 lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
@@ -211,7 +252,15 @@ lazy val esaOrientDB = project
   .in(file("esa-orientdb"))
   .settings(commonSettings: _*)
   .settings(parallelExecution in Test := false)
-  .settings(libraryDependencies ++= Dependencies.esaOrientDB)
+  .settings(libraryDependencies += typesafeConfig)
+  .settings(libraryDependencies ++= typesafeConfig :: List( //
+    "org.scalaz"           %% "scalaz-zio"      % "0.5.3",
+    "com.michaelpollmeier" % "orientdb-gremlin" % "3.2.3.0"
+    //    , "com.michaelpollmeier" %% "gremlin-scala" % "3.2.4.15"
+    ,
+    "com.michaelpollmeier" %% "gremlin-scala" % "3.3.4.16"
+    //, "com.orientechnologies" % "orientdb-graphdb" % "2.2.3"
+  ))
   .settings(name := s"${repo}-orientdb", coverageMinimum := 80, coverageFailOnMinimum := true)
   .dependsOn(esaCoreJVM % "compile->compile;test->test")
 
@@ -219,40 +268,29 @@ lazy val esaMongoDB = project
   .in(file("esa-mongodb"))
   .settings(commonSettings: _*)
   .settings(parallelExecution in Test := false)
-  .settings(libraryDependencies ++= Dependencies.esaMongoDB)
+  .settings(libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % "2.6.0")
+  .settings(libraryDependencies ++= typesafeConfig :: testLogging ::: monix)
   .settings(name := s"${repo}-mongodb", coverageMinimum := 80, coverageFailOnMinimum := true)
   .dependsOn(esaCoreJVM % "compile->compile;test->test")
-
-lazy val deploy = TaskKey[String]("deploy", "deploys the build", KeyRanks.ATask)
 
 lazy val esaDeploy = project
   .in(file("esa-deploy"))
   .settings(commonSettings: _*)
   .settings(name := s"${repo}-deploy")
-  //.dependsOn(esaClientXhr % "compile->compile;test->test")
   .dependsOn(esaRest % "compile->compile;test->test")
-  .settings(
-    deploy := {
-      streams.value.log.info("Deploying...")
-      //val opt = esaClientXhr / "fullJSOpt"
-//      val opt = fullJSOpt in Compile
-//      streams.value.log.info("opt is " + opt)
-      "ok"
-    }
-  )
 
+//https://github.com/rjeschke/txtmark
 lazy val esaRender = project
   .in(file("esa-render"))
   //.dependsOn(esaMonix % "compile->compile;test->test")
   .dependsOn(esaCoreJVM % "compile->compile;test->test")
   .settings(name := s"${repo}-render")
   .settings(commonSettings: _*)
-  .settings(libraryDependencies ++= Dependencies.esaRender)
+  .settings(libraryDependencies += "es.nitaur.markdown" % "txtmark" % "0.16")
 
 lazy val pckg = TaskKey[String]("pckg", "Packages artifacts", KeyRanks.ATask)
 lazy val esaClientXhr: Project = project
   .in(file("esa-client-xhr"))
-  //.dependsOn(esaMonix % "compile->compile;test->test")
   .dependsOn(esaCoreJS % "compile->compile;test->test")
   .settings(name := s"${repo}-client-xhr")
   .enablePlugins(ScalaJSPlugin)
@@ -282,7 +320,13 @@ lazy val esaRest = project
   .settings(commonSettings: _*)
   .settings(mainClass in (Compile, run) := Some(EsaBuild.MainRestClass))
   .settings(mainClass in (Compile, packageBin) := Some(EsaBuild.MainRestClass))
-  .settings(libraryDependencies ++= Dependencies.esaRest)
+  .settings(libraryDependencies += "com.typesafe.akka" %% "akka-http-testkit" % "10.0.14" % "test")
+  .settings(libraryDependencies ++= typesafeConfig :: logging)
+  .settings(libraryDependencies ++= List(
+    "org.julienrf" %% "endpoints-akka-http-server"       % "0.8.0",
+    "org.julienrf" %% "endpoints-akka-http-server-circe" % "0.4.0",
+    "org.julienrf" %% "endpoints-openapi"                % "0.8.0"
+  ))
 
 // see https://leonard.io/blog/2017/01/an-in-depth-guide-to-deploying-to-maven-central/
 pomIncludeRepository := (_ => false)
@@ -299,9 +343,7 @@ pomExtra in Global := {
     </licenses>
     <developers>
       <developer>
-        <id>
-          ${username}
-        </id>
+        <id>${username}</id>
         <name>Aaron Pritzlaff</name>
         <url>https://github.com/${username}/${repo}
         </url>
