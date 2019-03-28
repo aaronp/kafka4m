@@ -182,20 +182,26 @@ lazy val docker = taskKey[Unit]("Packages the app in a docker file").withRank(Ke
 docker := {
   val esaAssembly = (assembly in (esaRest, Compile)).value
 
-  //val esaAssembly = (assembly in(esaRest, Compile)).value
-
   // contains the docker resources
   val deployResourceDir = (resourceDirectory in (esaDeploy, Compile)).value.toPath
 
   // contains the web resources
-  val webResourceDir = (resourceDirectory in (esaClientXhr, Compile)).value.toPath
+  val webResourceDir = (resourceDirectory in (esaClientXhr, Compile)).value.toPath.resolve("web")
+  val jsArtifacts    = (fullOptJS in (esaClientXhr, Compile)).value
 
   val dockerTargetDir = {
     val dir = baseDirectory.value / "target" / "docker"
     dir.toPath.mkDirs()
   }
 
-  EsaBuild.docker(deployResourceDir = deployResourceDir, webResourceDir = webResourceDir, restAssembly = esaAssembly.asPath, targetDir = dockerTargetDir, logger = sLog.value)
+  EsaBuild.docker( //
+    deployResourceDir = deployResourceDir, //
+    deployResourceDir = deployResourceDir, //
+    webResourceDir = webResourceDir, //
+    restAssembly = esaAssembly.asPath, //
+    targetDir = dockerTargetDir, //
+    logger = sLog.value //
+  )
 }
 
 lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)

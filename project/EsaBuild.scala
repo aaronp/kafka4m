@@ -7,11 +7,22 @@ object EsaBuild {
   val MainRestClass = "esa.rest.RestServerMain"
 
   def docker(deployResourceDir: Path, //
+             jsArtifacts: Path, //
              webResourceDir: Path, //
              restAssembly: Path, //
              targetDir: Path, //
              logger: sbt.util.Logger) = {
-    logger.warn(s"dockerDir=$targetDir, mqttAssembly is ${restAssembly}")
+    
+    logger.info(
+      s""" Building Docker Image with:
+         |
+         |   deployResourceDir = ${deployResourceDir.toAbsolutePath}
+         |   jsArtifacts       = ${jsArtifacts.toAbsolutePath}
+         |   webResourceDir    = ${webResourceDir.toAbsolutePath}
+         |   restAssembly      = ${restAssembly.toAbsolutePath}
+         |   targetDir         = ${targetDir.toAbsolutePath}
+         |
+       """.stripMargin)
 
     IO.copyDirectory(deployResourceDir.toFile, targetDir.toFile)
     IO.copy(List(restAssembly.toFile -> (targetDir.resolve("app.jar").toFile)))
