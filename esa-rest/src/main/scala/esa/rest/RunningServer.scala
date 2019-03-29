@@ -9,27 +9,39 @@ import esa.rest.ssl.{HttpsUtil, SslConfig}
 import scala.concurrent.Future
 import scala.util.Try
 
-class RunningServer private (val settings: Settings, bindingFuture: Future[Seq[Http.ServerBinding]])
+class RunningServer private (val settings: Settings, bindingFuture: Future[Http.ServerBinding])
 
 object RunningServer {
 
-  def apply(settings: Settings) = {
+  def dev(settings: Settings) = {
+
     import settings.implicits._
-    val httpsRoutes: Route = makeRoutes
-    val https: HttpsConnectionContext = loadHttps(settings.sslConfig).get
-
-    val httpsBindingFuture = {
-      Http().bindAndHandle(httpsRoutes, settings.host, settings.port, connectionContext = https)
-    }
-
     // TODO - check the schema in the route, not offer a different port ... perhaps
     val httpBindingFuture = {
-      val httpRoutes: Route = EsaRoutes.http(StaticFileRoutes.dev.http())
+      val httpRoutes: Route = EsaRoutes.setupRoutes(StaticFileRoutes.dev.http())
       Http().bindAndHandle(httpRoutes, settings.host, settings.port + 1)
     }
+    new RunningServer(settings, httpBindingFuture)
+  }
 
-    val bindingFuture: Future[Seq[Http.ServerBinding]] = Future.sequence(Seq(httpsBindingFuture, httpBindingFuture))
+  def setup(settings: Settings): RunningServer = {
 
+    import settings.implicits._
+    // TODO - check the schema in the route, not offer a different port ... perhaps
+    val httpBindingFuture = {
+      val httpRoutes: Route = EsaRoutes.setupRoutes(StaticFileRoutes.fromRootConfig(settings.rootConfig))
+
+      Http().bindAndHandle(httpRoutes, settings.host, settings.port)
+    }
+    new RunningServer(settings, httpBindingFuture)
+  }
+
+  def apply(settings: Settings, sslConf: SslConfig) = {
+    import settings.implicits._
+    val httpsRoutes: Route            = makeRoutes
+    val https: HttpsConnectionContext = loadHttps(sslConf).get
+    val httpsBindingFuture            = Http().bindAndHandle(httpsRoutes, settings.host, settings.port, connectionContext = https)
+    val bindingFuture                 = httpsBindingFuture
     new RunningServer(settings, bindingFuture)
   }
 

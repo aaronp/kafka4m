@@ -6,7 +6,7 @@ import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import esa.rest.ssl.SslConfig
 
-case class Settings(rootConfig: Config, host: String, port: Int, sslConfig: SslConfig, materializer: ActorMaterializer) {
+case class Settings(rootConfig: Config, host: String, port: Int, jwtSecret: String, materializer: ActorMaterializer) {
 
   object implicits {
     implicit val actorMaterializer: ActorMaterializer = materializer
@@ -18,11 +18,37 @@ case class Settings(rootConfig: Config, host: String, port: Int, sslConfig: SslC
 
 object Settings {
 
+  /** Do we need to configure this application?
+    *
+    * The answer is YES if:
+    *
+    * - the configuration doesn't specify a tls seed
+    * - the configuration doesn't specify a jwt seed
+    * - the configuration doesn't specify a valid certificate path
+    * - there isn't at least one user or an admin role
+    *
+    * @param rootConfig the application configuration
+    * @return true if we need to set up/configure this service for first time usage (e.g. set up certificates, users, etc)
+    */
+  def requiresSetup(rootConfig: Config): Boolean = {
+    val tlsConf = rootConfig.getConfig("esa.tls")
+    SslConfig.certPathOpt(tlsConf).isEmpty ||
+    SslConfig.tlsSeedOpt(tlsConf).isEmpty ||
+    jwtSecret(rootConfig).isEmpty
+  }
+
+  def jwtSecret(config: Config) = config.getString("esa.jwt.secret").trim
+
   def apply(rootConfig: Config): Settings = {
     val config                                   = rootConfig.getConfig("esa")
     implicit val system                          = ActorSystem(Main.getClass.getSimpleName.filter(_.isLetter))
     implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-    new Settings(rootConfig, host = config.getString("host"), port = config.getInt("port"), sslConfig = SslConfig(config.getConfig("tls")), materializer)
+    new Settings(rootConfig, //
+                 host = config.getString("host"), //
+                 port = config.getInt("port"), //
+                 jwtSecret = jwtSecret(rootConfig), //
+                 materializer //
+    )
   }
 }

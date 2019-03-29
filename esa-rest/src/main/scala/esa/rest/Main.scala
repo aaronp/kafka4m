@@ -1,6 +1,7 @@
 package esa.rest
 import args4c.ConfigApp
 import com.typesafe.config.Config
+import esa.rest.ssl.SslConfig
 
 /**
   * The main entry point for the REST service
@@ -10,5 +11,13 @@ import com.typesafe.config.Config
   */
 object Main extends ConfigApp {
   type Result = RunningServer
-  def run(config: Config): RunningServer = RunningServer(Settings(config))
+
+  def run(config: Config): RunningServer = {
+    if (Settings.requiresSetup(config)) {
+      RunningServer.setup(Settings(config))
+    } else {
+      val sslConf: SslConfig = SslConfig(config.getConfig("esa.tls"))
+      RunningServer(Settings(config), sslConf)
+    }
+  }
 }

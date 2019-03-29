@@ -1,11 +1,9 @@
 package esa.rest.routes
 import akka.http.scaladsl.server.Route
-import endpoints.akkahttp.server
-import endpoints.akkahttp.server.JsonSchemaEntities
 import endpoints.openapi.model.{OpenApi, OpenApiSchemas}
 import esa.rest.Documentation
 
-object DocumentationRoutes extends server.Endpoints with OpenApiSchemas with JsonSchemaEntities {
+object DocumentationRoutes extends OpenApiSchemas with BaseRoutes {
 
   def route: Route = {
     val docEndpoint: Endpoint[Unit, OpenApi] = {

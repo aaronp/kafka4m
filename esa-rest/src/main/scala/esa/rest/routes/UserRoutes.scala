@@ -6,8 +6,6 @@ import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives.respondWithHeader
 import akka.http.scaladsl.server.{Directives, Route}
 import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport._
-import endpoints.akkahttp.server
-import endpoints.akkahttp.server.JsonSchemaEntities
 import esa.endpoints.{LoginRequest, _}
 import esa.rest.jwt.{Claims, Hmac256, JsonWebToken}
 import io.circe.Encoder
@@ -24,7 +22,7 @@ object UserRoutes {
   }
 }
 
-class UserRoutes(secret: SecretKeySpec, doLogin: LoginRequest => Option[Claims]) extends UserEndpoints with server.Endpoints with JsonSchemaEntities {
+class UserRoutes(secret: SecretKeySpec, doLogin: LoginRequest => Option[Claims]) extends UserEndpoints with BaseRoutes {
 
   override def loginResponse: LoginResponse => Route = { resp: LoginResponse =>
     implicit def encoder: Encoder[LoginResponse] = implicitly[JsonSchema[LoginResponse]].encoder

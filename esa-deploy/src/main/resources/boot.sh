@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 alias myip="ipconfig getifaddr en0"
 
 export IPADDR=`myip`

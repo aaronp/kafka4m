@@ -8,7 +8,7 @@ object EsaRoutes {
     staticRoutes.route ~ cs.routes ~ DocumentationRoutes.route
   }
 
-  def http(staticRoutes: StaticFileRoutes): Route = {
+  def setupRoutes(staticRoutes: StaticFileRoutes): Route = {
     staticRoutes.route
   }
 

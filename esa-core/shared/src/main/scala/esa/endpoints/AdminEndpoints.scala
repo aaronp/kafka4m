@@ -8,8 +8,7 @@ trait AdminEndpoints extends BaseEndpoint {
     seed.seedEndpoint
   )
 
-  /**
-    * Generate a server certificate
+  /** Generate a server certificate
     */
   object generate {
     def request: Request[GenerateServerCertRequest] = {

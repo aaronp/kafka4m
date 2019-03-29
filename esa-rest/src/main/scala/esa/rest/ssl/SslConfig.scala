@@ -36,17 +36,22 @@ object SslConfig {
 
   def apply(config: Config): SslConfig = {
     apply(
-      config.getString("certificate").asPath.ensuring(_.isFile),
+      certPathOpt(config).getOrElse(throw new IllegalStateException(s"'certificate' set to '${certPathString(config)}' does not exist")),
       config.getString("password"),
-      config.getString("tls_seed"),
+      tlsSeedOpt(config).getOrElse(throw new IllegalStateException(s"'certificate' set to '${certPathString(config)}' does not exist")),
     )
   }
+
+  def tlsSeed(config: Config)                = config.getString("tls_seed")
+  def tlsSeedOpt(config: Config)             = Option(tlsSeed(config)).filterNot(_.isEmpty)
+  def certPathString(config: Config)         = config.getString("certificate")
+  def certPathOpt(config: Config): Option[Path] = Option(certPathString(config)).map(_.asPath).filter(_.isFile)
 
   def apply(pathToCertificate: Path, keystorePW: String, serverTlsSeed: String): SslConfig = {
     val ksType = pathToCertificate.fileName match {
       case P12() => "pkcs12"
       case JKS() => "jks"
-      case other => sys.error(s"Unable to determine the key store type from ${pathToCertificate}")
+      case other => sys.error(s"Unable to determine the key store type from ${other}")
     }
     apply(pathToCertificate, ksType, keystorePW, serverTlsSeed)
   }
