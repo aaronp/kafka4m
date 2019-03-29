@@ -23,7 +23,7 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
     * Uses the HTTP verb “GET” and URL path “/current-value”.
     * The response entity is a JSON document representing the counter value.
     */
-  def login: Endpoint[(LoginRequest, Option[String]), LoginResponse] = endpoint(loginRequest, loginResponse)
+  val login: Endpoint[(LoginRequest, Option[String]), LoginResponse] = endpoint(loginRequest, loginResponse)
 
 
   def createUserRequest: Request[CreateUserRequest] = {
@@ -31,7 +31,7 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
   }
   def createUserResponse = jsonResponse[CreateUserResponse]()
 
-  def createUser = endpoint(createUserRequest, createUserResponse)
+  val createUser: Endpoint[CreateUserRequest, CreateUserResponse] = endpoint(createUserRequest, createUserResponse)
 
   implicit lazy val `JsonSchema[CreateUserRequest]`: JsonSchema[CreateUserRequest]   = genericJsonSchema
   implicit lazy val `JsonSchema[CreateUserResponse]`: JsonSchema[CreateUserResponse]   = genericJsonSchema

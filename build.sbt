@@ -214,6 +214,7 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
       // http://julienrf.github.io/endpoints/quick-start.html
       "org.julienrf" %%% "endpoints-algebra"             % "0.9.0",
       "org.julienrf" %%% "endpoints-json-schema-generic" % "0.9.0",
+      "org.julienrf" %%% "endpoints-json-schema-circe"   % "0.9.0",
       "com.lihaoyi"  %%% "scalatags"                     % "0.6.7"
       //,"org.scalatest" %%% "scalatest"                     % "3.0.0" % "test"
     ),
@@ -262,7 +263,8 @@ lazy val esaOrientDB = project
     "com.michaelpollmeier" % "orientdb-gremlin" % "3.2.3.0"
     //    , "com.michaelpollmeier" %% "gremlin-scala" % "3.2.4.15"
     ,
-    "com.michaelpollmeier" %% "gremlin-scala" % "3.3.4.16"
+    "com.michaelpollmeier"  %% "gremlin-scala" % "3.3.4.16",
+    "com.orientechnologies" % "orientdb-core"  % "3.0.18"
     //, "com.orientechnologies" % "orientdb-graphdb" % "2.2.3"
   ))
   .settings(name := s"${repo}-orientdb", coverageMinimum := 80, coverageFailOnMinimum := true)

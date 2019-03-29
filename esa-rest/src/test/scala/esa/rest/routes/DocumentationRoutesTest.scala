@@ -1,6 +1,7 @@
 package esa.rest.routes
 
 import akka.http.scaladsl.testkit.ScalatestRouteTest
+import esa.rest.Documentation
 import io.circe._
 import io.circe.parser._
 import org.scalatest.{Matchers, WordSpec}
@@ -16,7 +17,10 @@ class DocumentationRoutesTest extends WordSpec with Matchers with ScalatestRoute
           val paths = json.hcursor.downField("paths")
 
           val Some(keys) = paths.keys.map(_.toList)
-          keys should contain only ("/current-value", "/increment", "/login")
+          val cs         = Documentation.documentedEndpoints.map(_.path)
+
+          keys should not be (empty)
+          keys should contain theSameElementsAs (cs)
         }
       }
     }
