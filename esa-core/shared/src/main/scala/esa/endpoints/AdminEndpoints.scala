@@ -45,7 +45,4 @@ trait AdminEndpoints extends BaseEndpoint {
 
     val seedEndpoint: Endpoint[SetJWTSeedRequest, GenericMessageResult] = endpoint(request, genericMessageResponse)
   }
-
-
-
 }

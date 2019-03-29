@@ -20,7 +20,7 @@ object Settings {
 
   def apply(rootConfig: Config): Settings = {
     val config                                   = rootConfig.getConfig("esa")
-    implicit val system                          = ActorSystem(RestServerMain.getClass.getSimpleName.filter(_.isLetter))
+    implicit val system                          = ActorSystem(Main.getClass.getSimpleName.filter(_.isLetter))
     implicit val materializer: ActorMaterializer = ActorMaterializer()
 
     new Settings(rootConfig, host = config.getString("host"), port = config.getInt("port"), sslConfig = SslConfig(config.getConfig("tls")), materializer)

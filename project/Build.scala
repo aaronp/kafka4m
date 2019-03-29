@@ -3,8 +3,8 @@ import eie.io._
 import scala.sys.process._
 import sbt.IO
 
-object EsaBuild {
-  val MainRestClass = "esa.rest.RestServerMain"
+object Build {
+  val MainRestClass = "esa.rest.Main"
 
   def docker(deployResourceDir: Path, //
              jsArtifacts: Seq[Path], //

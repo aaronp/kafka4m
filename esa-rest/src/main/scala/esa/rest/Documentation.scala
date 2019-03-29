@@ -15,7 +15,6 @@ object Documentation //
     with AdminEndpoints   //
     {
 
-//  val documentedEndpoints: List[Documentation.DocumentedEndpoint] = List(login, currentValue, increment, createUser)
   val documentedEndpoints: List[Documentation.DocumentedEndpoint] = {
     userEndpoints ++ adminEndpoints ++ List(currentValue, increment)
   }

@@ -31,7 +31,6 @@ class UserRoutes(secret: SecretKeySpec, doLogin: LoginRequest => Option[Claims])
     resp.jwtToken match {
       case Some(token) =>
         respondWithHeader(RawHeader("X-Access-Token", token)) {
-
           resp.redirectTo match {
             case Some(uriString) =>
               Directives.redirect(Uri(uriString), StatusCodes.TemporaryRedirect)
@@ -45,15 +44,15 @@ class UserRoutes(secret: SecretKeySpec, doLogin: LoginRequest => Option[Claims])
   }
 
   def loginRoute: Route = {
-
     Directives.extractRequest { rqt =>
-      redirectHeader { redirectToHeader =>
-        login.implementedBy {
+      // An anonymous user may have tried to browse a page which requires login (e.g. a JWT token), and so upon a successful login,
+      // we should redirect to the URL as specified by the 'redirectToHeader' (if set)
+      redirectHeader { redirectToHeader: Option[String] =>
+        loginEndpoint.implementedBy {
           case (loginRequest, redirectToIn) =>
             doLogin(loginRequest) match {
               case Some(claims) =>
-                // TODO - the 'endpoints' library doesn't seem to be parsing this for us
-                val redirectTo = redirectToIn.orElse(redirectToHeader).orElse {
+                val redirectTo: Option[String] = redirectToIn.orElse(redirectToHeader).orElse {
                   rqt.uri.queryString().flatMap { rawQueryStr =>
                     Query(rawQueryStr).get("redirectTo")
                   }
@@ -67,7 +66,6 @@ class UserRoutes(secret: SecretKeySpec, doLogin: LoginRequest => Option[Claims])
         }
       }
     }
-
   }
 
   def routes: Route = loginRoute

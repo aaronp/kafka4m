@@ -199,7 +199,7 @@ docker := {
     dir.toPath.mkDirs()
   }
 
-  EsaBuild.docker( //
+  Build.docker( //
     deployResourceDir = deployResourceDir, //
     jsArtifacts = jsArtifacts, //
     webResourceDir = webResourceDir, //
@@ -329,8 +329,8 @@ lazy val esaRest = project
   .dependsOn(esaCoreJVM % "compile->compile;test->test")
   .settings(name := s"${repo}-rest")
   .settings(commonSettings: _*)
-  .settings(mainClass in (Compile, run) := Some(EsaBuild.MainRestClass))
-  .settings(mainClass in (Compile, packageBin) := Some(EsaBuild.MainRestClass))
+  .settings(mainClass in (Compile, run) := Some(Build.MainRestClass))
+  .settings(mainClass in (Compile, packageBin) := Some(Build.MainRestClass))
   .settings(libraryDependencies += "com.typesafe.akka" %% "akka-http-testkit" % "10.0.14" % "test")
   .settings(libraryDependencies += "com.github.aaronp" %% "args4c" % "0.4.1")
   .settings(libraryDependencies ++= typesafeConfig :: logging)
