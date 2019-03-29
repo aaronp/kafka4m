@@ -1,5 +1,5 @@
 import java.nio.file.Path
-
+import eie.io._
 import scala.sys.process._
 import sbt.IO
 
@@ -7,7 +7,7 @@ object EsaBuild {
   val MainRestClass = "esa.rest.RestServerMain"
 
   def docker(deployResourceDir: Path, //
-             jsArtifacts: Path, //
+             jsArtifacts: Seq[Path], //
              webResourceDir: Path, //
              restAssembly: Path, //
              targetDir: Path, //
@@ -17,21 +17,17 @@ object EsaBuild {
       s""" Building Docker Image with:
          |
          |   deployResourceDir = ${deployResourceDir.toAbsolutePath}
-         |   jsArtifacts       = ${jsArtifacts.toAbsolutePath}
+         |   jsArtifacts       = ${jsArtifacts.map(_.toAbsolutePath).mkString(",")}
          |   webResourceDir    = ${webResourceDir.toAbsolutePath}
          |   restAssembly      = ${restAssembly.toAbsolutePath}
          |   targetDir         = ${targetDir.toAbsolutePath}
          |
        """.stripMargin)
 
+    val esaJsDir = targetDir.resolve("web/js").mkDirs()
     IO.copyDirectory(deployResourceDir.toFile, targetDir.toFile)
     IO.copy(List(restAssembly.toFile -> (targetDir.resolve("app.jar").toFile)))
-    IO.copy(List(jsArtifacts.toFile -> (targetDir.resolve("/web/js/esa.js").toFile)))
-    
-    
-    //esa-client-xhr-jsdeps.js
-    //js/esa-client-xhr-opt.js
-    
+    IO.copy(jsArtifacts.map(jsFile => jsFile.toFile -> (esaJsDir.resolve(jsFile.fileName).toFile)))
 
     execIn(targetDir, "docker", "build", "--tag=esa", ".")
   }

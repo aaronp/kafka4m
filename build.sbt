@@ -179,6 +179,7 @@ lazy val root = (project in file("."))
 
 lazy val docker = taskKey[Unit]("Packages the app in a docker file").withRank(KeyRanks.APlusTask)
 
+// see https://docs.docker.com/engine/reference/builder
 docker := {
   val esaAssembly = (assembly in (esaRest, Compile)).value
 
@@ -187,7 +188,11 @@ docker := {
 
   // contains the web resources
   val webResourceDir = (resourceDirectory in (esaClientXhr, Compile)).value.toPath.resolve("web")
-  val jsArtifacts    = (fullOptJS in (esaClientXhr, Compile)).value.data.asPath
+  val jsArtifacts = {
+    val path            = (fullOptJS in (esaClientXhr, Compile)).value.data.asPath
+    val dependencyFiles = path.getParent.find(_.fileName.endsWith("-jsdeps.min.js")).toList
+    path :: dependencyFiles
+  }
 
   val dockerTargetDir = {
     val dir = baseDirectory.value / "target" / "docker"
