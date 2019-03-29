@@ -12,7 +12,8 @@ import scala.util.Try
   * @see see https://docs.oracle.com/javase/9/docs/specs/security/standard-names.html for keystore types
   * @param pathToCertificate the path to the keystore file
   * @param keystoreType the keystore type (e.g. pkcs12, jks, etc)
-  * @param pw the keystore pw
+  * @param keystorePw the keystore pw
+  * @param serverTlsSeed the keystore pw
   */
 class SslConfig private (pathToCertificate: Path, val keystoreType: String, keystorePw: String, serverTlsSeed: String) {
 

@@ -332,6 +332,7 @@ lazy val esaRest = project
   .settings(mainClass in (Compile, run) := Some(EsaBuild.MainRestClass))
   .settings(mainClass in (Compile, packageBin) := Some(EsaBuild.MainRestClass))
   .settings(libraryDependencies += "com.typesafe.akka" %% "akka-http-testkit" % "10.0.14" % "test")
+  .settings(libraryDependencies += "com.github.aaronp" %% "args4c" % "0.4.1")
   .settings(libraryDependencies ++= typesafeConfig :: logging)
   .settings(libraryDependencies ++= List(
     "org.julienrf" %% "endpoints-akka-http-server"       % "0.9.0",
