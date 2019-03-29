@@ -1,7 +1,6 @@
 package esa.endpoints
-import endpoints.{algebra, generic}
 
-trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with generic.JsonSchemas {
+trait UserEndpoints extends BaseEndpoint {
 
   def redirectHeader: RequestHeaders[Option[String]] = {
     optHeader(
@@ -13,7 +12,7 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
   }
 
   def loginRequest: Request[(LoginRequest, Option[String])] = {
-    post(path / "login", jsonRequest[LoginRequest](), redirectHeader)
+    post(path / "login", jsonRequest[LoginRequest](Option("Basic user login request")), redirectHeader)
   }
 
   def loginResponse = jsonResponse[LoginResponse](Option("A login response which will also include an X-Access-Token header to use in subsequent requests"))
@@ -24,7 +23,6 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
     * The response entity is a JSON document representing the counter value.
     */
   val login: Endpoint[(LoginRequest, Option[String]), LoginResponse] = endpoint(loginRequest, loginResponse)
-
 
   def createUserRequest: Request[CreateUserRequest] = {
     post(path / "createUser", jsonRequest[CreateUserRequest]())
@@ -38,4 +36,6 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
 
   implicit lazy val `JsonSchema[LoginRequest]`: JsonSchema[LoginRequest]   = genericJsonSchema
   implicit lazy val `JsonSchema[LoginResponse]`: JsonSchema[LoginResponse] = genericJsonSchema
+
+  def userEndpoints = List(login, createUser)
 }

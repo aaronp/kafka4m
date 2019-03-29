@@ -1,4 +1,5 @@
-FROM java
+FROM openjdk:8u191-jre-alpine
+
 MAINTAINER "Aaron Pritzlaff"
 EXPOSE 80
 EXPOSE 9010
