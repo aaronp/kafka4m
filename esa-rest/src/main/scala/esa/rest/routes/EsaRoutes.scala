@@ -9,7 +9,7 @@ object EsaRoutes {
   }
 
   def setupRoutes(staticRoutes: StaticFileRoutes): Route = {
-    staticRoutes.route
+    staticRoutes.route ~ AdminRoutes.routes
   }
 
 }

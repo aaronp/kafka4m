@@ -2,15 +2,28 @@ package esa.rest.routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import com.typesafe.scalalogging.StrictLogging
 import esa.endpoints.{AdminEndpoints, GenerateServerCertRequest}
 
-object AdminRoutes extends AdminEndpoints with BaseRoutes {
+import scala.util.control.NonFatal
+
+object AdminRoutes extends AdminEndpoints with BaseRoutes with StrictLogging {
 
   val generateCertRoute: Route = generate.generateEndpoint.implementedBy {
-    case GenerateServerCertRequest(saveToPath) => ???
+    case GenerateServerCertRequest(saveToPath) =>
+      try {
+
+        ???
+      } catch {
+        case NonFatal(e) =>
+          ???
+      }
   }
 
   val updateCertRoute = updatecert.updateEndpoint.implementedBy { request =>
+  request.certificate
+  request.saveToPath
+
     ???
   }
 

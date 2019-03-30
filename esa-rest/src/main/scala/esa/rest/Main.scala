@@ -1,5 +1,7 @@
 package esa.rest
-import args4c.ConfigApp
+import java.nio.file.Path
+
+import args4c.{ConfigApp, SecretConfig}
 import com.typesafe.config.Config
 import esa.rest.ssl.SslConfig
 
@@ -11,6 +13,18 @@ import esa.rest.ssl.SslConfig
   */
 object Main extends ConfigApp {
   type Result = RunningServer
+
+
+        val pathToSecretConfig = "/app/config/"
+
+  override protected def runWithConfig(secretConfig: SecretConfigResult, parsedConfig: Config): Option[Result] = {
+    secretConfig match {
+      case SecretConfigParsed(path: Path, config: Config) => super.runWithConfig(secretConfig, parsedConfig)
+      case SecretConfigDoesntExist(path: Path) =>
+      case SecretConfigNotSpecified =>
+
+    }
+  }
 
   def run(config: Config): RunningServer = {
     if (Settings.requiresSetup(config)) {
