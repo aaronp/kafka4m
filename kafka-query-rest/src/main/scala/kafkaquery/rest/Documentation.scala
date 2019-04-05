@@ -3,7 +3,6 @@ package kafkaquery.rest
 import endpoints.openapi
 import endpoints.openapi.model.{Info, OpenApi}
 import kafkaquery.admin.AdminEndpoints
-import kafkaquery.core.CounterEndpoints
 import kafkaquery.users.UserEndpoints
 
 /**
@@ -12,12 +11,12 @@ import kafkaquery.users.UserEndpoints
 object Documentation //
     extends openapi.Endpoints       //
     with openapi.JsonSchemaEntities //
-    with UserEndpoints    //
-    with AdminEndpoints   //
+    with UserEndpoints  //
+    with AdminEndpoints //
     {
 
   val documentedEndpoints: List[Documentation.DocumentedEndpoint] = {
-    userEndpoints ++ adminEndpoints ++ List(currentValue, increment)
+    userEndpoints ++ adminEndpoints
   }
 
   val api: OpenApi = openApi(

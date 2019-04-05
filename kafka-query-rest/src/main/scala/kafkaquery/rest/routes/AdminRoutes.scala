@@ -22,7 +22,6 @@ object AdminRoutes extends AdminEndpoints with BaseRoutes with StrictLogging {
   }
 
   val updateCertRoute = updatecert.updateEndpoint.implementedBy { request =>
-
     logger.info(s"${request.certificate} for ${request.saveToPath}}")
 
     ???

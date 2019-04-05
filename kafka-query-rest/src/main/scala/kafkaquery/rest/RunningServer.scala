@@ -3,7 +3,7 @@ package kafkaquery.rest
 import akka.http.scaladsl.{Http, HttpsConnectionContext}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.RoutingSettings
-import kafkaquery.rest.routes.{EsaRoutes, StaticFileRoutes}
+import kafkaquery.rest.routes.{KafkaQueryRoutes, StaticFileRoutes}
 import kafkaquery.rest.ssl.{HttpsUtil, SslConfig}
 
 import scala.concurrent.Future
@@ -18,7 +18,7 @@ object RunningServer {
     import settings.implicits._
     // TODO - check the schema in the route, not offer a different port ... perhaps
     val httpBindingFuture = {
-      val httpRoutes: Route = EsaRoutes.setupRoutes(StaticFileRoutes.dev.http())
+      val httpRoutes: Route = KafkaQueryRoutes.setupRoutes(StaticFileRoutes.dev.http())
       Http().bindAndHandle(httpRoutes, settings.host, settings.port + 1)
     }
     new RunningServer(settings, httpBindingFuture)
@@ -29,7 +29,7 @@ object RunningServer {
     import settings.implicits._
     // TODO - check the schema in the route, not offer a different port ... perhaps
     val httpBindingFuture = {
-      val httpRoutes: Route = EsaRoutes.setupRoutes(StaticFileRoutes.fromRootConfig(settings.rootConfig))
+      val httpRoutes: Route = KafkaQueryRoutes.setupRoutes(StaticFileRoutes.fromRootConfig(settings.rootConfig))
 
       Http().bindAndHandle(httpRoutes, settings.host, settings.port)
     }
@@ -46,7 +46,7 @@ object RunningServer {
   }
 
   def makeRoutes(implicit routingSettings: RoutingSettings): Route = {
-    val route = EsaRoutes.https(StaticFileRoutes.dev())
+    val route = KafkaQueryRoutes.https(StaticFileRoutes.dev())
     Route.seal(route)
   }
 

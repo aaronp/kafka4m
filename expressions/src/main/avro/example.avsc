@@ -1,0 +1,46 @@
+{
+  "namespace": "example",
+  "type": "record",
+  "name": "Example",
+  "fields": [
+    {
+      "name": "id",
+      "type": "string",
+      "default" : ""
+    },
+    {
+      "name": "someText",
+      "type": "string",
+      "default" : ""
+    },
+    {
+      "name": "someLong",
+      "type": "long",
+      "default" : 0
+    },
+    {
+      "name": "someDouble",
+      "type": "double",
+      "default" : 1.23
+    },
+    {
+      "name": "someInt",
+      "type": "int",
+      "default" : 123
+    },
+    {
+      "name": "someFloat",
+      "type": "float",
+      "default" : 1.0
+    },
+    {
+      "name": "anEnum",
+      "type": {
+        "name": "daysOfTheWeek",
+        "type": "enum",
+        "symbols": [ "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" ]
+      },
+      "default" : "MONDAY"
+    }
+  ]
+}

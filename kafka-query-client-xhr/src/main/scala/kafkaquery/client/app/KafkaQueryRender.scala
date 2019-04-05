@@ -7,7 +7,7 @@ import scalatags.JsDom.all._
 /**
   * http://www.lihaoyi.com/scalatags/
   */
-object EsaRender {
+object KafkaQueryRender {
 
   def render = {
     html(

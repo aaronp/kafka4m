@@ -2,10 +2,10 @@ package kafkaquery.rest.routes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 
-object EsaRoutes {
+object KafkaQueryRoutes {
 
-  def https(staticRoutes: StaticFileRoutes, cs: CounterRoutes = new CounterRoutes): Route = {
-    staticRoutes.route ~ cs.routes ~ DocumentationRoutes.route
+  def https(staticRoutes: StaticFileRoutes): Route = {
+    staticRoutes.route ~ DocumentationRoutes.route
   }
 
   def setupRoutes(staticRoutes: StaticFileRoutes): Route = {
