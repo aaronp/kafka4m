@@ -1,4 +1,4 @@
-package kafkaquery.endpoints
+package kafkaquery.core
 
 import endpoints.{algebra, generic}
 

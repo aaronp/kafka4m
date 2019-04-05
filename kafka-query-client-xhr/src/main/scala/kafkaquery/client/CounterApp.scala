@@ -1,5 +1,6 @@
 package kafkaquery.client
-import kafkaquery.endpoints.{Counter, Increment}
+import kafkaquery.core.{Counter, Increment}
+import kafkaquery.endpoints.Increment
 
 object CounterApp {
 

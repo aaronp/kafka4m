@@ -1,7 +1,7 @@
 package kafkaquery.client
 
 import endpoints.xhr
-import kafkaquery.endpoints.CounterEndpoints
+import kafkaquery.core.CounterEndpoints
 
 /**
   * Defines an HTTP client for the endpoints described in the `CounterEndpoints` trait.

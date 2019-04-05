@@ -208,7 +208,7 @@ lazy val kafkaQueryCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .enablePlugins(TestNGPlugin)
   .settings(
-    name := "kafkaQuery-core",
+    name := "kafka-query-core",
     libraryDependencies ++= List(
       // http://julienrf.github.io/endpoints/quick-start.html
       "org.julienrf" %%% "endpoints-algebra"             % "0.9.0",
@@ -226,10 +226,10 @@ lazy val kafkaQueryCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
       "io.circe" %%% "circe-literal"
     ).map(_ % "0.11.1"))
   )
-  .in(file("kafkaQuery-core"))
+  .in(file("kafka-query-core"))
   .jvmSettings(commonSettings: _*)
   .jvmSettings(
-    name := "kafkaQuery-core-jvm",
+    name := "kafka-query-core-jvm",
     coverageMinimum := 85,
     coverageFailOnMinimum := true,
     libraryDependencies ++= testLogging ++ List(
@@ -243,7 +243,7 @@ lazy val kafkaQueryCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
     // put scaladocs under 'api/latest'
     siteSubdirName in SiteScaladoc := "api/latest"
   )
-  .jsSettings(name := "kafkaQuery-core-js")
+  .jsSettings(name := "kafka-query-core-js")
   .jsSettings(libraryDependencies ++= List(
     "com.lihaoyi"   %%% "scalatags" % "0.6.8",
     "org.scalatest" %%% "scalatest" % "3.0.7" % "test"
@@ -253,14 +253,14 @@ lazy val kafkaQueryCoreJVM = kafkaQueryCoreCrossProject.jvm
 lazy val kafkaQueryCoreJS  = kafkaQueryCoreCrossProject.js
 
 lazy val kafkaQueryDeploy = project
-  .in(file("kafkaQuery-deploy"))
+  .in(file("kafka-query-deploy"))
   .settings(commonSettings: _*)
   .settings(name := s"${repo}-deploy")
   .dependsOn(kafkaQueryRest % "compile->compile;test->test")
 
 lazy val pckg = TaskKey[String]("pckg", "Packages artifacts", KeyRanks.ATask)
 lazy val kafkaQueryClientXhr: Project = project
-  .in(file("kafkaQuery-client-xhr"))
+  .in(file("kafka-query-client-xhr"))
   .dependsOn(kafkaQueryCoreJS % "compile->compile;test->test")
   .settings(name := s"${repo}-client-xhr")
   .enablePlugins(ScalaJSPlugin)
@@ -273,7 +273,7 @@ lazy val kafkaQueryClientXhr: Project = project
     //pckg := fullJSOpt.value
   )
 lazy val kafkaQueryClientJvm = project
-  .in(file("kafkaQuery-client-jvm"))
+  .in(file("kafka-query-client-jvm"))
   //.dependsOn(kafkaQueryMonix % "compile->compile;test->test")
   .dependsOn(kafkaQueryCoreJS % "compile->compile;test->test")
   .settings(name := s"${repo}-client-jvm")
@@ -283,7 +283,7 @@ lazy val kafkaQueryClientJvm = project
   )
 
 lazy val kafkaQueryRest = project
-  .in(file("kafkaQuery-rest"))
+  .in(file("kafka-query-rest"))
   //.dependsOn(kafkaQueryMonix % "compile->compile;test->test")
   .dependsOn(kafkaQueryCoreJVM % "compile->compile;test->test")
   .settings(name := s"${repo}-rest")

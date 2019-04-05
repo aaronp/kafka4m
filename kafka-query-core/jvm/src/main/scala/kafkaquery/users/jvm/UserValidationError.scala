@@ -1,4 +1,4 @@
-package kafkaquery.core.users.jvm
+package kafkaquery.users.jvm
 
 sealed trait UserValidationError
 

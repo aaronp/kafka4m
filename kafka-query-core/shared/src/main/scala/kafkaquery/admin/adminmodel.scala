@@ -1,5 +1,4 @@
-package kafkaquery.endpoints
-
+package kafkaquery.admin
 
 sealed trait AdminRequest
 sealed trait AdminResponse

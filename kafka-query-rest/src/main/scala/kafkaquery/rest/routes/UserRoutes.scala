@@ -6,10 +6,11 @@ import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives.respondWithHeader
 import akka.http.scaladsl.server.{Directives, Route}
 import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport._
-import kafkaquery.endpoints.{LoginRequest, _}
+
 import kafkaquery.rest.jwt.{Claims, Hmac256, JsonWebToken}
 import io.circe.Encoder
 import javax.crypto.spec.SecretKeySpec
+import kafkaquery.users.{LoginRequest, LoginResponse, UserEndpoints}
 
 object UserRoutes {
 

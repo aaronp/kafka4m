@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import endpoints.akkahttp.client.{AkkaHttpRequestExecutor, Endpoints, EndpointsSettings, JsonEntitiesFromCodec}
 import endpoints.algebra.BasicAuthentication
-import kafkaquery.endpoints.UserEndpoints
+import kafkaquery.users.UserEndpoints
 
 import scala.concurrent.ExecutionContext
 

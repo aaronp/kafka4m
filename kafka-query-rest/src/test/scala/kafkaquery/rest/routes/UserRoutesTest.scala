@@ -5,10 +5,11 @@ import akka.http.scaladsl.model.headers.Location
 import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport._
-import kafkaquery.endpoints.{LoginRequest, LoginResponse}
+import kafkaquery.endpoints.LoginResponse
 import kafkaquery.rest.jwt.JsonWebToken.CorruptJwtSecret
 import kafkaquery.rest.jwt.{Claims, Hmac256, JsonWebToken}
 import io.circe.generic.auto._
+import kafkaquery.users.{LoginRequest, LoginResponse}
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.concurrent.duration._

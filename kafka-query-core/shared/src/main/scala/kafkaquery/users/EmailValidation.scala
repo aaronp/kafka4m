@@ -1,4 +1,4 @@
-package kafkaquery.core.users
+package kafkaquery.users
 
 /**
   * See https://stackoverflow.com/questions/13912597/validate-email-one-liner-in-scala

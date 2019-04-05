@@ -1,4 +1,4 @@
-package kafkaquery.core.users
+package kafkaquery.users
 
 /**
   * Provides a means to lookup a user

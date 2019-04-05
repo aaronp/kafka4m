@@ -1,4 +1,6 @@
-package kafkaquery.endpoints
+package kafkaquery.users
+
+import kafkaquery.admin.{CreateUserEndpoints, LoginEndpoints}
 
 /**
   * Endpoints for user actions (e.g. login, logout, update profile, ...)

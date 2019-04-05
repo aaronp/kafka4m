@@ -7,10 +7,10 @@ import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives.{complete, get, pathSingleSlash, _}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport._
-import kafkaquery.endpoints.LoginRequest
 import kafkaquery.rest.jwt.{Claims, Hmac256}
 import io.circe.generic.auto._
 import javax.crypto.spec.SecretKeySpec
+import kafkaquery.users.LoginRequest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 

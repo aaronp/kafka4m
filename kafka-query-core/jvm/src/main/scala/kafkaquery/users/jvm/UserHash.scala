@@ -1,4 +1,5 @@
-package kafkaquery.core.users.jvm
+package kafkaquery.users.jvm
+
 import java.security.SecureRandom
 import java.util.Base64
 

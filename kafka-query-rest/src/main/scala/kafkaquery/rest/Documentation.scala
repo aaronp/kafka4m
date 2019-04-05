@@ -2,7 +2,9 @@ package kafkaquery.rest
 
 import endpoints.openapi
 import endpoints.openapi.model.{Info, OpenApi}
-import kafkaquery.endpoints.{AdminEndpoints, CounterEndpoints, UserEndpoints}
+import kafkaquery.admin.AdminEndpoints
+import kafkaquery.core.CounterEndpoints
+import kafkaquery.users.UserEndpoints
 
 /**
   * Generates OpenAPI documentation for the endpoints described in the `CounterEndpoints` trait.
@@ -10,7 +12,6 @@ import kafkaquery.endpoints.{AdminEndpoints, CounterEndpoints, UserEndpoints}
 object Documentation //
     extends openapi.Endpoints       //
     with openapi.JsonSchemaEntities //
-    with CounterEndpoints //
     with UserEndpoints    //
     with AdminEndpoints   //
     {

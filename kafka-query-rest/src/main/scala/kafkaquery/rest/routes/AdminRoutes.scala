@@ -3,7 +3,8 @@ package kafkaquery.rest.routes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
-import kafkaquery.endpoints.{AdminEndpoints, GenerateServerCertRequest}
+import kafkaquery.admin.GenerateServerCertRequest
+import kafkaquery.admin.AdminEndpoints
 
 import scala.util.control.NonFatal
 
@@ -21,8 +22,8 @@ object AdminRoutes extends AdminEndpoints with BaseRoutes with StrictLogging {
   }
 
   val updateCertRoute = updatecert.updateEndpoint.implementedBy { request =>
-  request.certificate
-  request.saveToPath
+
+    logger.info(s"${request.certificate} for ${request.saveToPath}}")
 
     ???
   }

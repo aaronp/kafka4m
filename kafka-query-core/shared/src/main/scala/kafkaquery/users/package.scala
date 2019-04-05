@@ -1,4 +1,4 @@
-package kafkaquery.core
+package kafkaquery
 
 /**
   *

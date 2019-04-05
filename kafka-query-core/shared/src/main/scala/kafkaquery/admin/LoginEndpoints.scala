@@ -1,4 +1,7 @@
-package kafkaquery.endpoints
+package kafkaquery.admin
+
+import kafkaquery.core.BaseEndpoint
+import kafkaquery.users.{LoginRequest, LoginResponse}
 
 trait LoginEndpoints extends BaseEndpoint {
 

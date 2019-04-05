@@ -1,4 +1,4 @@
-package kafkaquery.core.users
+package kafkaquery.users
 
 import java.time.{ZoneId, ZonedDateTime}
 
