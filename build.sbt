@@ -48,7 +48,7 @@ val monix = List("monix", "monix-execution", "monix-eval", "monix-reactive", "mo
 val simulacrum: ModuleID = "com.github.mpilquist" %% "simulacrum" % "0.13.0"
 
 lazy val scaladocSiteProjects =
-  List((esaCoreJVM, Core), (esaRest, KafkaQueryRest), (esaDeploy, KafkaQueryDeploy))
+  List((kafkaQueryCoreJVM, Core), (kafkaQueryRest, KafkaQueryRest), (kafkaQueryDeploy, KafkaQueryDeploy))
 
 lazy val scaladocSiteSettings = scaladocSiteProjects.flatMap {
   case (project: Project, conf) =>
@@ -154,12 +154,12 @@ lazy val root = (project in file("."))
   .enablePlugins(ParadoxPlugin)
   .enablePlugins(ScalaUnidocPlugin)
   .aggregate(
-    esaCoreJS,
-    esaCoreJVM,
-    esaRest,
-    esaClientXhr,
-    esaClientJvm,
-    esaDeploy
+    kafkaQueryCoreJS,
+    kafkaQueryCoreJVM,
+    kafkaQueryRest,
+    kafkaQueryClientXhr,
+    kafkaQueryClientJvm,
+    kafkaQueryDeploy
   )
   .settings(scaladocSiteSettings)
   .settings(
@@ -175,15 +175,15 @@ lazy val docker = taskKey[Unit]("Packages the app in a docker file").withRank(Ke
 
 // see https://docs.docker.com/engine/reference/builder
 docker := {
-  val esaAssembly = (assembly in (esaRest, Compile)).value
+  val kafkaQueryAssembly = (assembly in (kafkaQueryRest, Compile)).value
 
   // contains the docker resources
-  val deployResourceDir = (resourceDirectory in (esaDeploy, Compile)).value.toPath
+  val deployResourceDir = (resourceDirectory in (kafkaQueryDeploy, Compile)).value.toPath
 
   // contains the web resources
-  val webResourceDir = (resourceDirectory in (esaClientXhr, Compile)).value.toPath.resolve("web")
+  val webResourceDir = (resourceDirectory in (kafkaQueryClientXhr, Compile)).value.toPath.resolve("web")
   val jsArtifacts = {
-    val path            = (fullOptJS in (esaClientXhr, Compile)).value.data.asPath
+    val path            = (fullOptJS in (kafkaQueryClientXhr, Compile)).value.data.asPath
     val dependencyFiles = path.getParent.find(_.fileName.endsWith("-jsdeps.min.js")).toList
     path :: dependencyFiles
   }
@@ -197,13 +197,13 @@ docker := {
     deployResourceDir = deployResourceDir, //
     jsArtifacts = jsArtifacts, //
     webResourceDir = webResourceDir, //
-    restAssembly = esaAssembly.asPath, //
+    restAssembly = kafkaQueryAssembly.asPath, //
     targetDir = dockerTargetDir, //
     logger = sLog.value //
   )
 }
 
-lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
+lazy val kafkaQueryCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
   .withoutSuffixFor(JVMPlatform)
   .enablePlugins(TestNGPlugin)
@@ -249,20 +249,20 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
     "org.scalatest" %%% "scalatest" % "3.0.7" % "test"
   ))
 
-lazy val esaCoreJVM = esaCoreCrossProject.jvm
-lazy val esaCoreJS  = esaCoreCrossProject.js
+lazy val kafkaQueryCoreJVM = kafkaQueryCoreCrossProject.jvm
+lazy val kafkaQueryCoreJS  = kafkaQueryCoreCrossProject.js
 
-lazy val esaDeploy = project
+lazy val kafkaQueryDeploy = project
   .in(file("kafkaQuery-deploy"))
   .settings(commonSettings: _*)
   .settings(name := s"${repo}-deploy")
-  .dependsOn(esaRest % "compile->compile;test->test")
+  .dependsOn(kafkaQueryRest % "compile->compile;test->test")
 
 
 lazy val pckg = TaskKey[String]("pckg", "Packages artifacts", KeyRanks.ATask)
-lazy val esaClientXhr: Project = project
+lazy val kafkaQueryClientXhr: Project = project
   .in(file("kafkaQuery-client-xhr"))
-  .dependsOn(esaCoreJS % "compile->compile;test->test")
+  .dependsOn(kafkaQueryCoreJS % "compile->compile;test->test")
   .settings(name := s"${repo}-client-xhr")
   .enablePlugins(ScalaJSPlugin)
   .settings(
@@ -273,20 +273,20 @@ lazy val esaClientXhr: Project = project
   .settings(
     //pckg := fullJSOpt.value
   )
-lazy val esaClientJvm = project
+lazy val kafkaQueryClientJvm = project
   .in(file("kafkaQuery-client-jvm"))
-  //.dependsOn(esaMonix % "compile->compile;test->test")
-  .dependsOn(esaCoreJS % "compile->compile;test->test")
+  //.dependsOn(kafkaQueryMonix % "compile->compile;test->test")
+  .dependsOn(kafkaQueryCoreJS % "compile->compile;test->test")
   .settings(name := s"${repo}-client-jvm")
   .settings(
     libraryDependencies += "org.julienrf" %% "endpoints-akka-http-client"       % "0.9.0",
     libraryDependencies += "org.julienrf" %% "endpoints-akka-http-server-circe" % "0.4.0"
   )
 
-lazy val esaRest = project
+lazy val kafkaQueryRest = project
   .in(file("kafkaQuery-rest"))
-  //.dependsOn(esaMonix % "compile->compile;test->test")
-  .dependsOn(esaCoreJVM % "compile->compile;test->test")
+  //.dependsOn(kafkaQueryMonix % "compile->compile;test->test")
+  .dependsOn(kafkaQueryCoreJVM % "compile->compile;test->test")
   .settings(name := s"${repo}-rest")
   .settings(commonSettings: _*)
   .settings(mainClass in (Compile, run) := Some(Build.MainRestClass))
