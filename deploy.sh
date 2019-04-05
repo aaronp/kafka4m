@@ -1,1 +1,1 @@
-sbt "project esaClientXhr" fullOptJS "project esaDeploy" deploy
+sbt "project kafkaqueryClientXhr" fullOptJS "project kafkaqueryDeploy" deploy

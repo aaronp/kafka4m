@@ -11,7 +11,7 @@ object StaticFileRoutes {
     * @return the StaticFileRoutes
     */
   def fromRootConfig(topLevelConfig: Config): StaticFileRoutes = {
-    apply(topLevelConfig.getConfig("esa.www"))
+    apply(topLevelConfig.getConfig("kafkaquery.www"))
   }
 
   /**

@@ -19,4 +19,4 @@ export JVM_ARGS="$JVM_ARGS -Dcom.sun.management.jmxremote.ssl=false"
 
 echo "Starting w/ $JVM_ARGS on $IPADDR with $@"
 
-java ${JVM_ARGS} -cp /app/lib/app.jar:/app/config esa.rest.Main $@
+java ${JVM_ARGS} -cp /app/lib/app.jar:/app/config kafkaquery.rest.Main $@

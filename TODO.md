@@ -1,7 +1,7 @@
 https/tls, local and w/ official cert authority
 db api/impl for gremlin/orientdb
 auth/login
-xhr client + esa scalajs client
+xhr client + kafkaquery scalajs client
 serve static routes for client
 markdown processor functions
 docker compose w/ orientdb image for integration/demo

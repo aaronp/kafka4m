@@ -1,5 +1,5 @@
 enablePlugins(CucumberPlugin)
 
-CucumberPlugin.glue := "classpath:esa.deploy"
+CucumberPlugin.glue := "classpath:kafkaquery.deploy"
 
-CucumberPlugin.features := List("classpath:esa.deploy.test")
+CucumberPlugin.features := List("classpath:kafkaquery.deploy.test")

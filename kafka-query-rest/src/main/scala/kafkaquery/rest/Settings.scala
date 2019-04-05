@@ -31,16 +31,16 @@ object Settings {
     * @return true if we need to set up/configure this service for first time usage (e.g. set up certificates, users, etc)
     */
   def requiresSetup(rootConfig: Config): Boolean = {
-    val tlsConf = rootConfig.getConfig("esa.tls")
+    val tlsConf = rootConfig.getConfig("kafkaquery.tls")
     SslConfig.certPathOpt(tlsConf).isEmpty ||
     SslConfig.tlsSeedOpt(tlsConf).isEmpty ||
     jwtSecret(rootConfig).isEmpty
   }
 
-  def jwtSecret(config: Config) = config.getString("esa.jwt.secret").trim
+  def jwtSecret(config: Config) = config.getString("kafkaquery.jwt.secret").trim
 
   def apply(rootConfig: Config): Settings = {
-    val config                                   = rootConfig.getConfig("esa")
+    val config                                   = rootConfig.getConfig("kafkaquery")
     implicit val system                          = ActorSystem(Main.getClass.getSimpleName.filter(_.isLetter))
     implicit val materializer: ActorMaterializer = ActorMaterializer()
 

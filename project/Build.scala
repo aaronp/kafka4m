@@ -4,7 +4,7 @@ import scala.sys.process._
 import sbt.IO
 
 object Build {
-  val MainRestClass = "esa.rest.Main"
+  val MainRestClass = "kafkaquery.rest.Main"
 
   def docker(deployResourceDir: Path, //
              jsArtifacts: Seq[Path], //
@@ -24,12 +24,12 @@ object Build {
          |
        """.stripMargin)
 
-    val esaJsDir = targetDir.resolve("web/js").mkDirs()
+    val kafkaqueryJsDir = targetDir.resolve("web/js").mkDirs()
     IO.copyDirectory(deployResourceDir.toFile, targetDir.toFile)
     IO.copy(List(restAssembly.toFile -> (targetDir.resolve("app.jar").toFile)))
-    IO.copy(jsArtifacts.map(jsFile => jsFile.toFile -> (esaJsDir.resolve(jsFile.fileName).toFile)))
+    IO.copy(jsArtifacts.map(jsFile => jsFile.toFile -> (kafkaqueryJsDir.resolve(jsFile.fileName).toFile)))
 
-    execIn(targetDir, "docker", "build", "--tag=esa", ".")
+    execIn(targetDir, "docker", "build", "--tag=kafkaquery", ".")
   }
 
   def execIn(inDir: Path, cmd: String*): Unit = {

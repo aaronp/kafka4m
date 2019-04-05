@@ -8,7 +8,7 @@ import kafkaquery.rest.ssl.SslConfig
 /**
   * The main entry point for the REST service
   *
-  * (If you change/rename this, be sure to update esa-deploy/src/main/resources/boot.sh and project/Build.scala)
+  * (If you change/rename this, be sure to update kafkaquery-deploy/src/main/resources/boot.sh and project/Build.scala)
   *
   */
 object Main extends ConfigApp {
@@ -30,7 +30,7 @@ object Main extends ConfigApp {
     if (Settings.requiresSetup(config)) {
       RunningServer.setup(Settings(config))
     } else {
-      val sslConf: SslConfig = SslConfig(config.getConfig("esa.tls"))
+      val sslConf: SslConfig = SslConfig(config.getConfig("kafkaquery.tls"))
       RunningServer(Settings(config), sslConf)
     }
   }
