@@ -3,7 +3,7 @@ import eie.io._
 import sbt.KeyRanks
 import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
 
-val repo = "esa"
+val repo = "kafka-query"
 name := repo
 
 val username            = "aaronp"
@@ -28,12 +28,9 @@ scalafmtOnCompile in ThisBuild := true
 scalafmtVersion in ThisBuild := "1.4.0"
 
 // Define a `Configuration` for each project, as per http://www.scala-sbt.org/sbt-site/api-documentation.html
-val Core        = config("esaCoreJVM")
-val ESARest     = config("esaRest")
-val ESARender   = config("esaRender")
-val ESAOrientDB = config("esaOrientDB")
-val ESAMongoDB  = config("esaMongoDB")
-val ESADeploy   = config("esaDeploy")
+val Core        = config("kafkaQueryCoreJVM")
+val KafkaQueryRest     = config("kafkaQueryRest")
+val KafkaQueryDeploy   = config("kafkaQueryDeploy")
 
 git.remoteRepo := s"git@github.com:$username/$repo.git"
 ghpagesNoJekyll := true
@@ -51,7 +48,7 @@ val monix = List("monix", "monix-execution", "monix-eval", "monix-reactive", "mo
 val simulacrum: ModuleID = "com.github.mpilquist" %% "simulacrum" % "0.13.0"
 
 lazy val scaladocSiteProjects =
-  List((esaCoreJVM, Core), (esaRest, ESARest), (esaRender, ESARender), (esaMongoDB, ESAMongoDB), (esaOrientDB, ESAOrientDB), (esaDeploy, ESADeploy))
+  List((esaCoreJVM, Core), (esaRest, KafkaQueryRest), (esaDeploy, KafkaQueryDeploy))
 
 lazy val scaladocSiteSettings = scaladocSiteProjects.flatMap {
   case (project: Project, conf) =>
@@ -214,7 +211,7 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .enablePlugins(TestNGPlugin)
   .settings(
-    name := "esa-core",
+    name := "kafkaQuery-core",
     libraryDependencies ++= List(
       // http://julienrf.github.io/endpoints/quick-start.html
       "org.julienrf" %%% "endpoints-algebra"             % "0.9.0",
@@ -232,10 +229,10 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
       "io.circe" %%% "circe-literal"
     ).map(_ % "0.11.1"))
   )
-  .in(file("esa-core"))
+  .in(file("kafkaQuery-core"))
   .jvmSettings(commonSettings: _*)
   .jvmSettings(
-    name := "esa-core-jvm",
+    name := "kafkaQuery-core-jvm",
     coverageMinimum := 85,
     coverageFailOnMinimum := true,
     libraryDependencies ++= testLogging ++ List(
@@ -249,7 +246,7 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
     // put scaladocs under 'api/latest'
     siteSubdirName in SiteScaladoc := "api/latest"
   )
-  .jsSettings(name := "esa-core-js")
+  .jsSettings(name := "kafkaQuery-core-js")
   .jsSettings(libraryDependencies ++= List(
     "com.lihaoyi"   %%% "scalatags" % "0.6.8",
     "org.scalatest" %%% "scalatest" % "3.0.7" % "test"
@@ -259,7 +256,7 @@ lazy val esaCoreJVM = esaCoreCrossProject.jvm
 lazy val esaCoreJS  = esaCoreCrossProject.js
 
 lazy val esaOrientDB = project
-  .in(file("esa-orientdb"))
+  .in(file("kafkaQuery-orientdb"))
   .settings(commonSettings: _*)
   .settings(parallelExecution in Test := false)
   .settings(libraryDependencies += typesafeConfig)
@@ -276,7 +273,7 @@ lazy val esaOrientDB = project
   .dependsOn(esaCoreJVM % "compile->compile;test->test")
 
 lazy val esaMongoDB = project
-  .in(file("esa-mongodb"))
+  .in(file("kafkaQuery-mongodb"))
   .settings(commonSettings: _*)
   .settings(parallelExecution in Test := false)
   .settings(libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % "2.6.0")
@@ -285,14 +282,14 @@ lazy val esaMongoDB = project
   .dependsOn(esaCoreJVM % "compile->compile;test->test")
 
 lazy val esaDeploy = project
-  .in(file("esa-deploy"))
+  .in(file("kafkaQuery-deploy"))
   .settings(commonSettings: _*)
   .settings(name := s"${repo}-deploy")
   .dependsOn(esaRest % "compile->compile;test->test")
 
 //https://github.com/rjeschke/txtmark
 lazy val esaRender = project
-  .in(file("esa-render"))
+  .in(file("kafkaQuery-render"))
   //.dependsOn(esaMonix % "compile->compile;test->test")
   .dependsOn(esaCoreJVM % "compile->compile;test->test")
   .settings(name := s"${repo}-render")
@@ -301,7 +298,7 @@ lazy val esaRender = project
 
 lazy val pckg = TaskKey[String]("pckg", "Packages artifacts", KeyRanks.ATask)
 lazy val esaClientXhr: Project = project
-  .in(file("esa-client-xhr"))
+  .in(file("kafkaQuery-client-xhr"))
   .dependsOn(esaCoreJS % "compile->compile;test->test")
   .settings(name := s"${repo}-client-xhr")
   .enablePlugins(ScalaJSPlugin)
@@ -314,7 +311,7 @@ lazy val esaClientXhr: Project = project
     //pckg := fullJSOpt.value
   )
 lazy val esaClientJvm = project
-  .in(file("esa-client-jvm"))
+  .in(file("kafkaQuery-client-jvm"))
   //.dependsOn(esaMonix % "compile->compile;test->test")
   .dependsOn(esaCoreJS % "compile->compile;test->test")
   .settings(name := s"${repo}-client-jvm")
@@ -324,7 +321,7 @@ lazy val esaClientJvm = project
   )
 
 lazy val esaRest = project
-  .in(file("esa-rest"))
+  .in(file("kafkaQuery-rest"))
   //.dependsOn(esaMonix % "compile->compile;test->test")
   .dependsOn(esaCoreJVM % "compile->compile;test->test")
   .settings(name := s"${repo}-rest")

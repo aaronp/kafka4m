@@ -9,3 +9,4 @@ target
 out
 shared-src
 .vertx/
+*.bak
