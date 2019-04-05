@@ -157,11 +157,8 @@ lazy val root = (project in file("."))
     esaCoreJS,
     esaCoreJVM,
     esaRest,
-    esaRender,
     esaClientXhr,
     esaClientJvm,
-    esaOrientDB,
-    esaMongoDB,
     esaDeploy
   )
   .settings(scaladocSiteSettings)
@@ -255,46 +252,12 @@ lazy val esaCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
 lazy val esaCoreJVM = esaCoreCrossProject.jvm
 lazy val esaCoreJS  = esaCoreCrossProject.js
 
-lazy val esaOrientDB = project
-  .in(file("kafkaQuery-orientdb"))
-  .settings(commonSettings: _*)
-  .settings(parallelExecution in Test := false)
-  .settings(libraryDependencies += typesafeConfig)
-  .settings(libraryDependencies ++= typesafeConfig :: List( //
-    "org.scalaz"           %% "scalaz-zio"      % "0.5.3",
-    "com.michaelpollmeier" % "orientdb-gremlin" % "3.2.3.0"
-    //    , "com.michaelpollmeier" %% "gremlin-scala" % "3.2.4.15"
-    ,
-    "com.michaelpollmeier"  %% "gremlin-scala" % "3.3.4.16",
-    "com.orientechnologies" % "orientdb-core"  % "3.0.18"
-    //, "com.orientechnologies" % "orientdb-graphdb" % "2.2.3"
-  ))
-  .settings(name := s"${repo}-orientdb", coverageMinimum := 80, coverageFailOnMinimum := true)
-  .dependsOn(esaCoreJVM % "compile->compile;test->test")
-
-lazy val esaMongoDB = project
-  .in(file("kafkaQuery-mongodb"))
-  .settings(commonSettings: _*)
-  .settings(parallelExecution in Test := false)
-  .settings(libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % "2.6.0")
-  .settings(libraryDependencies ++= typesafeConfig :: testLogging ::: monix)
-  .settings(name := s"${repo}-mongodb", coverageMinimum := 80, coverageFailOnMinimum := true)
-  .dependsOn(esaCoreJVM % "compile->compile;test->test")
-
 lazy val esaDeploy = project
   .in(file("kafkaQuery-deploy"))
   .settings(commonSettings: _*)
   .settings(name := s"${repo}-deploy")
   .dependsOn(esaRest % "compile->compile;test->test")
 
-//https://github.com/rjeschke/txtmark
-lazy val esaRender = project
-  .in(file("kafkaQuery-render"))
-  //.dependsOn(esaMonix % "compile->compile;test->test")
-  .dependsOn(esaCoreJVM % "compile->compile;test->test")
-  .settings(name := s"${repo}-render")
-  .settings(commonSettings: _*)
-  .settings(libraryDependencies += "es.nitaur.markdown" % "txtmark" % "0.16")
 
 lazy val pckg = TaskKey[String]("pckg", "Packages artifacts", KeyRanks.ATask)
 lazy val esaClientXhr: Project = project
