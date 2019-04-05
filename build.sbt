@@ -163,7 +163,7 @@ lazy val root = (project in file("."))
   )
   .settings(scaladocSiteSettings)
   .settings(
-    paradoxProperties += ("project.url" -> "https://aaronp.github.io/esa/docs/current/"),
+    paradoxProperties += ("project.url" -> "https://aaronp.github.io/kafka-query/docs/current/"),
     paradoxTheme := Some(builtinParadoxTheme("generic")),
     siteSourceDirectory := target.value / "paradox" / "site" / "main",
     siteSubdirName in ScalaUnidoc := "api/latest",
