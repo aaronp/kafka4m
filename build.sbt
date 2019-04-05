@@ -28,9 +28,9 @@ scalafmtOnCompile in ThisBuild := true
 scalafmtVersion in ThisBuild := "1.4.0"
 
 // Define a `Configuration` for each project, as per http://www.scala-sbt.org/sbt-site/api-documentation.html
-val Core        = config("kafkaQueryCoreJVM")
-val KafkaQueryRest     = config("kafkaQueryRest")
-val KafkaQueryDeploy   = config("kafkaQueryDeploy")
+val Core             = config("kafkaQueryCoreJVM")
+val KafkaQueryRest   = config("kafkaQueryRest")
+val KafkaQueryDeploy = config("kafkaQueryDeploy")
 
 git.remoteRepo := s"git@github.com:$username/$repo.git"
 ghpagesNoJekyll := true
@@ -257,7 +257,6 @@ lazy val kafkaQueryDeploy = project
   .settings(commonSettings: _*)
   .settings(name := s"${repo}-deploy")
   .dependsOn(kafkaQueryRest % "compile->compile;test->test")
-
 
 lazy val pckg = TaskKey[String]("pckg", "Packages artifacts", KeyRanks.ATask)
 lazy val kafkaQueryClientXhr: Project = project
