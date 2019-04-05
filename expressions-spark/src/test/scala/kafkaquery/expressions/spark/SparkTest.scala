@@ -33,7 +33,7 @@ class SparkTest extends WordSpec with Matchers with BeforeAndAfterAll {
 
   def d8a: Seq[Example] = {
     for {
-      x    <- (10 to 50 by 10)
+      x    <- (10 to 500 by 5)
       y    <- (100 to 500 by 7)
       text <- Seq("allow", "don't allow", "meh")
     } yield {
