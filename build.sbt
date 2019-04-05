@@ -31,6 +31,8 @@ scalafmtVersion in ThisBuild := "1.4.0"
 val Core             = config("kafkaQueryCoreJVM")
 val KafkaQueryRest   = config("kafkaQueryRest")
 val KafkaQueryDeploy = config("kafkaQueryDeploy")
+val KafkaQueryConnect = config("kafkaQueryConnect")
+val KafkaQueryEval = config("kafkaQueryEval")
 val Expressions = config("expressions")
 val ExpressionsAst = config("expressionsAst")
 val ExpressionsSpark = config("expressionsSpark")
@@ -53,7 +55,7 @@ val testDependencies = List(
 
 val simulacrum: ModuleID = "com.github.mpilquist" %% "simulacrum" % "0.13.0"
 
-lazy val scaladocSiteProjects = List((kafkaQueryCoreJVM, Core), (kafkaQueryRest, KafkaQueryRest), (kafkaQueryDeploy, KafkaQueryDeploy), (expressions, Expressions), (ExpressionsAst, ExpressionsAst))
+lazy val scaladocSiteProjects = List((kafkaQueryCoreJVM, Core), (kafkaQueryRest, KafkaQueryRest), (kafkaQueryDeploy, KafkaQueryDeploy), (kafkaQueryConnect, KafkaQueryConnect), (kafkaQueryEval, KafkaQueryEval), (expressions, Expressions), (ExpressionsAst, ExpressionsAst))
 
 lazy val scaladocSiteSettings = scaladocSiteProjects.flatMap {
   case (project: Project, conf) =>
@@ -160,6 +162,9 @@ lazy val root = (project in file("."))
     kafkaQueryClientXhr,
     kafkaQueryClientJvm,
     kafkaQueryDeploy,
+    kafkaQueryEval,
+    kafkaQueryConnect,
+    example,
     expressions,
     expressionsAst,
     expressionsSpark,
@@ -254,17 +259,27 @@ lazy val kafkaQueryCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
 lazy val kafkaQueryCoreJVM = kafkaQueryCoreCrossProject.jvm
 lazy val kafkaQueryCoreJS  = kafkaQueryCoreCrossProject.js
 
+lazy val example = project
+  .in(file("example"))
+  .settings(name := "example", coverageFailOnMinimum := false)
+  .settings(commonSettings: _*)
+  .settings((stringType in AvroConfig) := "String")
+  .settings(libraryDependencies ++= testDependencies)
+  .settings(libraryDependencies ++= List(
+    "com.sksamuel.avro4s" % "avro4s-core_2.12" % "2.0.4"
+  ))
+
 lazy val expressions = project
   .in(file("expressions"))
   .settings(name := "expressions", coverageMinimum := 30, coverageFailOnMinimum := true)
   .settings(commonSettings: _*)
-  .settings((stringType in AvroConfig) := "String")
   .settings(libraryDependencies ++= testDependencies)
   .settings(libraryDependencies ++= List(
     "com.sksamuel.avro4s" % "avro4s-core_2.12" % "2.0.4",
     "org.scala-lang" % "scala-reflect" % "2.12.8", // % "provided",
     "org.scala-lang" % "scala-compiler" % "2.12.8" // % "provided"
   ))
+  .dependsOn(example % "test->compile")
 
 lazy val expressionsAst = project
   .in(file("expressions-ast"))
@@ -275,6 +290,7 @@ lazy val expressionsAst = project
     "com.lihaoyi" %% "fastparse" % "2.1.0"
   ))
   .dependsOn(expressions % "compile->compile;test->test")
+  .dependsOn(example % "test->compile")
 
 
 lazy val expressionsSpark = project
@@ -289,6 +305,7 @@ lazy val expressionsSpark = project
   ))
   .dependsOn(expressions % "compile->compile;test->test")
   .dependsOn(expressionsAst % "compile->compile;test->test")
+  .dependsOn(example % "test->compile")
 
 
 lazy val kafkaQueryDeploy = project
@@ -316,27 +333,39 @@ lazy val kafkaQueryClientJvm = project
     libraryDependencies += "org.julienrf" %% "endpoints-akka-http-server-circe" % "0.4.0"
   )
 
+lazy val kafkaQueryConnect = project
+  .in(file("kafka-query-connect"))
+  .dependsOn(kafkaQueryCoreJVM % "compile->compile;test->test")
+  .settings(name := s"${repo}-connect")
+  .settings(commonSettings: _*)
+  .settings(libraryDependencies += "com.github.aaronp" %% "args4c" % "0.5.0")
+  .settings(libraryDependencies += "org.apache.kafka" % "kafka-clients" % "2.2.0")
+  .settings(libraryDependencies += "org.apache.kafka" % "kafka-streams" % "2.2.0")
+  .settings(libraryDependencies ++= typesafeConfig :: logging)
+  .dependsOn(kafkaQueryCoreJVM % "compile->compile;test->test")
+
 lazy val kafkaQueryEval = project
   .in(file("kafka-query-eval"))
-  .dependsOn(kafkaQueryCoreJVM % "compile->compile;test->test")
   .settings(name := s"${repo}-eval")
   .settings(commonSettings: _*)
   .settings(libraryDependencies ++= List("monix", "monix-execution", "monix-eval", "monix-reactive", "monix-tail").map { art =>
     "io.monix" %% art % "3.0.0-RC1"
   })
   .settings(libraryDependencies ++= typesafeConfig :: logging)
+  .dependsOn(kafkaQueryCoreJVM % "compile->compile;test->test")
+  .dependsOn(kafkaQueryConnect % "compile->compile;test->test")
 
 lazy val kafkaQueryRest = project
   .in(file("kafka-query-rest"))
-  //.dependsOn(kafkaQueryMonix % "compile->compile;test->test")
-  .dependsOn(kafkaQueryCoreJVM % "compile->compile;test->test")
+  .dependsOn(kafkaQueryEval % "compile->compile;test->test")
   .settings(name := s"${repo}-rest")
   .settings(commonSettings: _*)
   .settings(mainClass in (Compile, run) := Some(Build.MainRestClass))
   .settings(mainClass in (Compile, packageBin) := Some(Build.MainRestClass))
+  .settings(libraryDependencies ++= typesafeConfig :: logging)
   .settings(libraryDependencies += "com.typesafe.akka" %% "akka-http-testkit" % "10.0.14" % "test")
   .settings(libraryDependencies += "com.github.aaronp" %% "args4c" % "0.5.0")
-  .settings(libraryDependencies ++= typesafeConfig :: logging)
+  .settings(libraryDependencies += "de.heikoseeberger" %% "akka-http-circe" % "1.25.2" % "test")
   .settings(libraryDependencies ++= List(
     "org.julienrf" %% "endpoints-akka-http-server"       % "0.9.0",
     "org.julienrf" %% "endpoints-akka-http-server-circe" % "0.4.0",

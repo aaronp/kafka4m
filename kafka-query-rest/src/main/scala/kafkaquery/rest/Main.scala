@@ -1,7 +1,5 @@
 package kafkaquery.rest
 
-import java.nio.file.Path
-
 import args4c.ConfigApp
 import com.typesafe.config.Config
 import kafkaquery.rest.ssl.SslConfig
@@ -15,20 +13,9 @@ import kafkaquery.rest.ssl.SslConfig
 object Main extends ConfigApp {
   type Result = RunningServer
 
-//  override protected def runWithConfig(secretConfig: SecretConfigResult, parsedConfig: Config): Option[Result] = {
-//    secretConfig match {
-//      case SecretConfigParsed(path: Path, config: Config) => super.runWithConfig(secretConfig, parsedConfig)
-//      case SecretConfigDoesntExist(path: Path) =>
-//      case SecretConfigNotSpecified =>
-//    }
-//  }
-
-  def run(config: Config): RunningServer = {
-    if (Settings.requiresSetup(config)) {
-      RunningServer.setup(Settings(config))
-    } else {
-      val sslConf: SslConfig = SslConfig(config.getConfig("kafkaquery.tls"))
-      RunningServer(Settings(config), sslConf)
-    }
+  def run(uConfig: Config): RunningServer = {
+    val config  = uConfig.resolve()
+    val sslConf = SslConfig(config.getConfig("kafkaquery.tls"))
+    RunningServer(Settings(config), sslConf)
   }
 }

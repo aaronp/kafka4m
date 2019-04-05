@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>The Scala.js Tutorial</title>
-    <!--
--->
+    <title>KafkaQuery</title>
     <link rel="stylesheet" type="text/css" href="css/kafkaquery.css">
     <style>
 </style>
@@ -14,17 +12,21 @@
 <!-- Include JavaScript dependencies -->
 <!-- Include Scala.js compiled code
 <script type="text/javascript" src="./target/scala-2.12/kafkaquery-client-xhr-opt.js"></script>
-<script type="text/javascript" src="js/kafkaquery-client-xhr-fastopt.js"></script>
--->
-<script type="text/javascript" src="js/kafkaquery-client-xhr-jsdeps.js"></script>
 <script type="text/javascript" src="js/kafkaquery-client-xhr-opt.js"></script>
+-->
+<script type="text/javascript" src="js/kafka-query-client-xhr-jsdeps.js"></script>
+<script type="text/javascript" src="js/kafka-query-client-xhr-fastopt.js"></script>
 
-Hello ESA XHR!
+
+Hello XHR!
 
 <br/>
 
 <button class="btn" id="click-me-button" type="button" onclick="addClickedMessage()">
     Click me!
+</button>
+<button class="btn" type="button" onclick="listTopics()">
+    List Topics
 </button>
 </body>
 </html>

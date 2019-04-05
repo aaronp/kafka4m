@@ -1,5 +1,6 @@
 package kafkaquery.admin
 
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import kafkaquery.core.BaseEndpoint
 import kafkaquery.users.{CreateUserRequest, CreateUserResponse}
 
@@ -11,6 +12,6 @@ trait CreateUserEndpoints extends BaseEndpoint {
   def createUserResponse = jsonResponse[CreateUserResponse]()
 
   val createUserEndpoint: Endpoint[CreateUserRequest, CreateUserResponse]                     = endpoint(createUserRequest, createUserResponse)
-  implicit lazy val `JsonSchema[CreateUserRequest]` : JsonSchema[CreateUserRequest]   = genericJsonSchema
-  implicit lazy val `JsonSchema[CreateUserResponse]` : JsonSchema[CreateUserResponse] = genericJsonSchema
+  implicit lazy val `JsonSchema[CreateUserRequest]` : JsonSchema[CreateUserRequest]   = JsonSchema(deriveEncoder[CreateUserRequest], deriveDecoder[CreateUserRequest])
+  implicit lazy val `JsonSchema[CreateUserResponse]` : JsonSchema[CreateUserResponse] = JsonSchema(deriveEncoder[CreateUserResponse], deriveDecoder[CreateUserResponse])
 }

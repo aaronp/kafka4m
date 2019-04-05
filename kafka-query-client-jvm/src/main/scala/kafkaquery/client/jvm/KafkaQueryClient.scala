@@ -1,24 +1,39 @@
 package kafkaquery.client.jvm
 
 import akka.actor.ActorSystem
+import akka.http.scaladsl.model.Uri
 import akka.stream.{ActorMaterializer, Materializer}
 import endpoints.akkahttp.client.{AkkaHttpRequestExecutor, Endpoints, EndpointsSettings, JsonEntitiesFromCodec}
 import endpoints.algebra.BasicAuthentication
-import kafkaquery.users.UserEndpoints
+import kafkaquery.kafka.KafkaEndpoints
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
 
-abstract class BaseClient(settings: EndpointsSettings)(implicit ec: ExecutionContext, mat: Materializer)
-    extends Endpoints(settings) with BasicAuthentication with JsonEntitiesFromCodec //with circe.JsonEntitiesFromCodec {}
+//BasicAuthentication with
+abstract class KafkaQueryClient(settings: EndpointsSettings)(implicit ec: ExecutionContext, mat: Materializer) extends Endpoints(settings) with KafkaEndpoints { //with endpoints.algebra.circe.JsonEntitiesFromCodec with JsonEntitiesFromCodec {
+
+}
 
 object KafkaQueryClient {
 
-  def apply(host: String, port: Int)(implicit mat: ActorMaterializer) = {
+  def apply(host: String, port: Int, toStrictTimeout: FiniteDuration)(implicit mat: ActorMaterializer): KafkaQueryClient = {
+    implicit val system: ActorSystem = mat.system
+    implicit val ec                  = system.dispatcher
+    val settings                     = settingsFor(host, port, toStrictTimeout)
+    //new KafkaQueryClient(settings)
+    ???
+  }
+
+  def settingsFor(host: String, port: Int, toStrictTimeout: FiniteDuration)(implicit mat: ActorMaterializer) = {
     implicit val system: ActorSystem = mat.system
     implicit val ec                  = system.dispatcher
 
-    //new EsaClient(EndpointsSettings(AkkaHttpRequestExecutor.cachedHostConnectionPool(host, port)))
-
-    ???
+    val requestExecutor = AkkaHttpRequestExecutor.cachedHostConnectionPool(host, port)
+    EndpointsSettings(
+      requestExecutor = requestExecutor,
+      baseUri = Uri("/"),
+      toStrictTimeout = toStrictTimeout
+    )
   }
 }

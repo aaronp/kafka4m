@@ -3,7 +3,8 @@ package kafkaquery.rest
 import akka.http.scaladsl.{Http, HttpsConnectionContext}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.RoutingSettings
-import kafkaquery.rest.routes.{KafkaQueryRoutes, StaticFileRoutes}
+import com.typesafe.scalalogging.StrictLogging
+import kafkaquery.rest.routes.{AppRoutes, KafkaRoutes, StaticFileRoutes}
 import kafkaquery.rest.ssl.{HttpsUtil, SslConfig}
 
 import scala.concurrent.Future
@@ -11,26 +12,16 @@ import scala.util.Try
 
 class RunningServer private (val settings: Settings, bindingFuture: Future[Http.ServerBinding])
 
-object RunningServer {
-
-  def dev(settings: Settings) = {
-
-    import settings.implicits._
-    // TODO - check the schema in the route, not offer a different port ... perhaps
-    val httpBindingFuture = {
-      val httpRoutes: Route = KafkaQueryRoutes.setupRoutes(StaticFileRoutes.dev.http())
-      Http().bindAndHandle(httpRoutes, settings.host, settings.port + 1)
-    }
-    new RunningServer(settings, httpBindingFuture)
-  }
+object RunningServer extends StrictLogging {
 
   def setup(settings: Settings): RunningServer = {
 
+    logger.info(s"Configuration requires setup, running with ${settings}")
     import settings.implicits._
     // TODO - check the schema in the route, not offer a different port ... perhaps
     val httpBindingFuture = {
-      val httpRoutes: Route = KafkaQueryRoutes.setupRoutes(StaticFileRoutes.fromRootConfig(settings.rootConfig))
-
+      val static            = StaticFileRoutes.fromRootConfig(settings.rootConfig).copy(landingPage = "setup.html")
+      val httpRoutes: Route = AppRoutes.setupRoutes(static)
       Http().bindAndHandle(httpRoutes, settings.host, settings.port)
     }
     new RunningServer(settings, httpBindingFuture)
@@ -38,15 +29,18 @@ object RunningServer {
 
   def apply(settings: Settings, sslConf: SslConfig) = {
     import settings.implicits._
-    val httpsRoutes: Route            = makeRoutes
+    val httpsRoutes: Route            = makeRoutes(settings.staticRoutes, settings.kafkaRoutes)
     val https: HttpsConnectionContext = loadHttps(sslConf).get
-    val httpsBindingFuture            = Http().bindAndHandle(httpsRoutes, settings.host, settings.port, connectionContext = https)
-    val bindingFuture                 = httpsBindingFuture
+
+    logger.info(s"Starting with ${settings}")
+
+    val httpsBindingFuture = Http().bindAndHandle(httpsRoutes, settings.host, settings.port, connectionContext = https)
+    val bindingFuture      = httpsBindingFuture
     new RunningServer(settings, bindingFuture)
   }
 
-  def makeRoutes(implicit routingSettings: RoutingSettings): Route = {
-    val route = KafkaQueryRoutes.https(StaticFileRoutes.dev())
+  def makeRoutes(static: StaticFileRoutes, kafka: KafkaRoutes)(implicit routingSettings: RoutingSettings): Route = {
+    val route = AppRoutes.https(static, kafka)
     Route.seal(route)
   }
 

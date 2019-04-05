@@ -3,6 +3,7 @@ package kafkaquery.rest
 import endpoints.openapi
 import endpoints.openapi.model.{Info, OpenApi}
 import kafkaquery.admin.AdminEndpoints
+import kafkaquery.kafka.KafkaEndpoints
 import kafkaquery.users.UserEndpoints
 
 /**
@@ -11,15 +12,18 @@ import kafkaquery.users.UserEndpoints
 object Documentation //
     extends openapi.Endpoints       //
     with openapi.JsonSchemaEntities //
-    with UserEndpoints  //
-    with AdminEndpoints //
+//    with UserEndpoints  //
+//    with KafkaEndpoints //
+//    with AdminEndpoints //
     {
 
   val documentedEndpoints: List[Documentation.DocumentedEndpoint] = {
-    userEndpoints ++ adminEndpoints
+//    userEndpoints ++ adminEndpoints
+    Nil
   }
 
   val api: OpenApi = openApi(
-    Info(title = "ESA documentation", version = "1.0.0")
+    Info(title = "OpenApi schema", version = "1.0.0")
   )(documentedEndpoints: _*)
+
 }

@@ -1,4 +1,4 @@
-package kafkaquery.client.app
+package kafkaquery.client
 
 import scalatags.JsDom.all._
 

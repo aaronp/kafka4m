@@ -1,7 +1,8 @@
 package kafkaquery.admin
 
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import kafkaquery.core.BaseEndpoint
-import kafkaquery.users.{LoginRequest, LoginResponse}
+import kafkaquery.users.{CreateUserResponse, LoginRequest, LoginResponse}
 
 trait LoginEndpoints extends BaseEndpoint {
 
@@ -27,7 +28,7 @@ trait LoginEndpoints extends BaseEndpoint {
     */
   val loginEndpoint: Endpoint[(LoginRequest, Option[String]), LoginResponse] = endpoint(loginRequest, loginResponse)
 
-  implicit lazy val `JsonSchema[LoginRequest]` : JsonSchema[LoginRequest]   = genericJsonSchema
-  implicit lazy val `JsonSchema[LoginResponse]` : JsonSchema[LoginResponse] = genericJsonSchema
+  implicit lazy val `JsonSchema[LoginRequest]` : JsonSchema[LoginRequest]   = JsonSchema(deriveEncoder[LoginRequest], deriveDecoder[LoginRequest])
+  implicit lazy val `JsonSchema[LoginResponse]` : JsonSchema[LoginResponse] = JsonSchema(deriveEncoder[LoginResponse], deriveDecoder[LoginResponse])
 
 }

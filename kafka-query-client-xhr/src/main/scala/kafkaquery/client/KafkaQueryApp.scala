@@ -1,9 +1,13 @@
-package kafkaquery.client.app
+package kafkaquery.client
+
+import kafkaquery.kafka.ListTopicsResponse
 import org.scalajs.dom
 import org.scalajs.dom.document
 import org.scalajs.dom.window
 import org.scalajs.dom.html
+import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.scalajs.js.Thenable
 import scala.scalajs.js.annotation.JSExportTopLevel
 
 /**
@@ -11,11 +15,22 @@ import scala.scalajs.js.annotation.JSExportTopLevel
   * http://scala-js.github.io/scala-js-dom/
   *
   */
-object Main {
+object KafkaQueryApp {
 
   @JSExportTopLevel("addClickedMessage")
   def addClickedMessage(): Unit = {
     appendPar(document.body, "You clicked the button!")
+  }
+
+  @JSExportTopLevel("listTopics")
+  def listTopics(): Unit = {
+    val topics = KafkaQueryXhrClient.listTopics.listTopicsEndpoint()
+
+    topics.onComplete {
+      case result =>
+        dom.window.alert(s"ListTopics returned: ${result}")
+    }
+
   }
 
   @JSExportTopLevel("showAlert")

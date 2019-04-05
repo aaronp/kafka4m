@@ -3,9 +3,15 @@ package kafkaquery.rest.routes
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.Config
+import kafkaquery.rest.Main
 
 object StaticFileRoutes {
+
+  def dev(): StaticFileRoutes = {
+    import args4c.implicits._
+    fromRootConfig(Array("dev.conf").asConfig(Main.defaultConfig()).resolve())
+  }
 
   /** @param topLevelConfig the top-level config, e.g. the result of calling 'ConfigFactory.load()'
     * @return the StaticFileRoutes
@@ -26,20 +32,6 @@ object StaticFileRoutes {
       cssRootDir = wwwConfig.getString("cssDir")
     )
   }
-
-  /**
-    * The local development routes
-    */
-  object dev {
-    def apply(): StaticFileRoutes = fromRootConfig(config)
-
-    def http(): StaticFileRoutes = fromRootConfig(httpConfig)
-
-    def config: Config = ConfigFactory.load("dev.conf")
-
-    def httpConfig: Config = ConfigFactory.load("devHttp.conf")
-  }
-
 }
 
 /**

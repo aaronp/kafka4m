@@ -42,7 +42,7 @@ object SslConfig {
     )
   }
 
-  def tlsSeed(config: Config)                   = config.getString("tls_seed")
+  def tlsSeed(config: Config)                   = config.getString("seed")
   def tlsSeedOpt(config: Config)                = Option(tlsSeed(config)).filterNot(_.isEmpty)
   def certPathString(config: Config)            = config.getString("certificate")
   def certPathOpt(config: Config): Option[Path] = Option(certPathString(config)).map(_.asPath).filter(_.isFile)

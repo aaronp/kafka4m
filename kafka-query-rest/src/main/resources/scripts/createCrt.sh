@@ -2,17 +2,18 @@
 
 source ./createCA.sh
 
-#ensureCA
 
 trap "cleanCrt" EXIT
 
 # some lovely shared variables
 export CRT_DIR=${CRT_DIR:-target/crt}
-mkdir -p $CRT_DIR
+mkdir -p ${CRT_DIR}
 
 
 export CRT_PWFILE=${PWFILE:-"$CRT_DIR/crtpass.txt"}
+export CRT_DEFAULT_PWD=${CRT_DEFAULT_PWD:-"password"}
 export CRT_NAME=${CRT_NAME:-`hostname`}
+export DNS_NAME=${DNS_NAME:-"${CRT_NAME}"}
 export CRT_KEY_FILE=${CRT_KEY_FILE:-"$CRT_DIR/$CRT_NAME.pem"}
 export CRT_CSR_FILE=${CRT_CSR_FILE:-"$CRT_DIR/$CRT_NAME.csr"}
 export CRT_CERT_FILE=${CRT_CERT_FILE:-"$CRT_DIR/$CRT_NAME.crt"}
@@ -56,10 +57,10 @@ cleanCrt () {
 
 ensureCRTPassword () {
 	CRT_CREATED_PW_FILE=false
-	if [ ! -f $CRT_PWFILE ]; then
+	if [[ ! -f ${CRT_PWFILE} ]]; then
 	  CRT_CREATED_PW_FILE=true
 	  echo "$INFO CRT_PWFILE $CRT_PWFILE doesn't exist, creating default password..."
-	  echo password > ${CRT_PWFILE}
+	  echo "${CRT_DEFAULT_PWD}" > ${CRT_PWFILE}
 	else
 	  echo "$INFO Using pw file $CRT_PWFILE"
 	fi
@@ -67,7 +68,7 @@ ensureCRTPassword () {
 
 ensureCrtKey () {
 
-	if [ ! -f $CRT_KEY_FILE ]; then
+	if [[ ! -f ${CRT_KEY_FILE} ]]; then
   		echo "$INFO creating CRT_KEY_FILE $CRT_KEY_FILE"
   		ensureCRTPassword
   		openssl genrsa -passout file:$CRT_PWFILE  -out ${CRT_KEY_FILE} 2048	
@@ -78,7 +79,7 @@ ensureCrtKey () {
 
 
 ensureCRTSubject () {
-    if [ ! -f $CRT_DETAILS_FILE ];then
+    if [[ ! -f ${CRT_DETAILS_FILE} ]];then
 		echo "$INFO CRT details '$CRT_DETAILS_FILE' doesn't exist, creating"
 
     		cat > ${CRT_DETAILS_FILE} <<-EOF
@@ -96,15 +97,14 @@ L=$CRT_DETAILS_L
 O=$CRT_DETAILS_O
 OU=$CRT_DETAILS_OU
 emailAddress=$CRT_DETAILS_emailAddress
-CN = $CRT_NAME
+CN = ${CRT_NAME}
 
 [ req_ext ]
 subjectAltName = @alt_names
 
 [ alt_names ]
-DNS.1 = $CRT_NAME
-DNS.2 = www.$CRT_NAME
-DNS.3 = localhost
+DNS.1 = ${DNS_NAME}
+DNS.2 = localhost
 EOF
 	else
         echo "$INFO CRT_DETAILS_FILE ${CRT_DETAILS_FILE} already exists"
@@ -115,7 +115,7 @@ EOF
 # encrypted using our CRT_KEY_FILE file
 ensureCrtCR () {
 	echo "+ + + + + + + + + + + + + + + Ensuring Cert CRT file $CRT_CSR_FILE + + + + + + + + + + + + + + + "
-	if [ ! -f $CRT_CSR_FILE ]; then
+	if [[ ! -f ${CRT_CSR_FILE} ]]; then
   		echo "$INFO creating CRT_CSR_FILE $CRT_CSR_FILE"
   		ensureCrtKey
   		ensureCRTSubject
@@ -129,7 +129,7 @@ ensureCrtCR () {
 ensureCrtCSRConfFile () {
 
 	echo "+ + + + + + + + + + + + + + + Ensuring Cert CSR config file $CRT_CSR_DETAILS_FILE + + + + + + + + + + + + + + + "
-	if [ ! -f $CRT_CSR_DETAILS_FILE ]; then
+	if [[ ! -f ${CRT_CSR_DETAILS_FILE} ]]; then
   		echo "$INFO creating CRT config file CRT_CSR_DETAILS_FILE $CRT_CSR_DETAILS_FILE"
 
     		cat > ${CRT_CSR_DETAILS_FILE} <<-EOF
@@ -139,7 +139,7 @@ keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
 subjectAltName = @alt_names
 
 [alt_names]
-DNS.1 = $CRT_NAME
+DNS.1 = ${DNS_NAME}
 EOF
   	else
   		echo "$INFO  CRT config file CRT_CSR_DETAILS_FILE $CRT_CSR_DETAILS_FILE exists, skipping"
@@ -171,7 +171,7 @@ ensureSignedCrt () {
 # Converts the CRT_CERT_FILE into a .jks format
 ensureJKSFromSignedCertificate () {
   echo "+ + + + + + + + + + + + + + + Ensuring JKS file $CRT_CERT_FILE_JKS + + + + + + + + + + + + + + + "
-  if [ ! -f $CRT_CERT_FILE_JKS ]; then
+  if [[ ! -f ${CRT_CERT_FILE_JKS} ]]; then
       echo "$INFO creating CRT_CERT_FILE_JKS $CRT_CERT_FILE_JKS"
 
       ensureSignedCrt
@@ -190,21 +190,17 @@ ensureJKSFromSignedCertificate () {
 # Converts the CRT_CERT_FILE into a .p12 format
 ensureP12FromSignedCertificate () {
   echo "+ + + + + + + + + + + + + + + Ensuring .p12 file $CRT_CERT_FILE_P12 + + + + + + + + + + + + + + + "
-  if [ ! -f $CRT_CERT_FILE_P12 ]; then
+  if [[ ! -f ${CRT_CERT_FILE_P12} ]]; then
       echo "$INFO creating CRT_CERT_FILE_P12 $CRT_CERT_FILE_P12"
 
-
-      # ensyre a password for this .p12 file
+      # ensure a password for this .p12 file
       ensureCRTPassword
-
-      #ensureCA
 
       # we need our signed .crt file to convert
       ensureSignedCrt
 
       # https://www.ssl.com/how-to/create-a-pfx-p12-certificate-file-using-openssl/
-      #openssl pkcs12 -export -out $CRT_CERT_FILE_P12 -inkey $CRT_KEY_FILE -in ${CRT_CERT_FILE} -certfile ${CA_FILE}
-      openssl pkcs12 -passout file:$CRT_PWFILE -export -out $CRT_CERT_FILE_P12 -inkey $CRT_KEY_FILE -in ${CRT_CERT_FILE}
+      openssl pkcs12 -passout file:${CRT_PWFILE} -export -out ${CRT_CERT_FILE_P12} -inkey ${CRT_KEY_FILE} -in ${CRT_CERT_FILE}
     else
       echo "$INFO p12 file CRT_CERT_FILE_P12 $CRT_CERT_FILE_P12 exists, skipping"
     fi

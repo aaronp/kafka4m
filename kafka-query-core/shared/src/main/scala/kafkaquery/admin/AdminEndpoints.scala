@@ -2,6 +2,7 @@ package kafkaquery.admin
 
 import kafkaquery.core.BaseEndpoint
 import kafkaquery.core.GenericMessageResult
+import io.circe.generic.semiauto._
 
 trait AdminEndpoints extends BaseEndpoint {
 
@@ -19,8 +20,8 @@ trait AdminEndpoints extends BaseEndpoint {
     }
     def response: Response[GenerateServerCertResponse] = jsonResponse[GenerateServerCertResponse](Option("returns the contents of the new certificate"))
 
-    implicit lazy val `JsonSchema[GenerateServerCertRequest]` : JsonSchema[GenerateServerCertRequest]   = genericJsonSchema
-    implicit lazy val `JsonSchema[GenerateServerCertResponse]` : JsonSchema[GenerateServerCertResponse] = genericJsonSchema
+    implicit lazy val `JsonSchema[GenerateServerCertRequest]` : JsonSchema[GenerateServerCertRequest]   = JsonSchema(deriveEncoder[GenerateServerCertRequest], deriveDecoder[GenerateServerCertRequest])
+    implicit lazy val `JsonSchema[GenerateServerCertResponse]` : JsonSchema[GenerateServerCertResponse] = JsonSchema(deriveEncoder[GenerateServerCertResponse], deriveDecoder[GenerateServerCertResponse])
 
     val generateEndpoint: Endpoint[GenerateServerCertRequest, GenerateServerCertResponse] = endpoint(request, response)
   }
@@ -32,7 +33,7 @@ trait AdminEndpoints extends BaseEndpoint {
     def request: Request[UpdateServerCertRequest] = {
       post(path / "admin" / "update-cert", jsonRequest[UpdateServerCertRequest](Option("Updates a server certificate")))
     }
-    implicit lazy val `JsonSchema[UpdateServerCertRequest]` : JsonSchema[UpdateServerCertRequest] = genericJsonSchema
+    implicit lazy val `JsonSchema[UpdateServerCertRequest]` : JsonSchema[UpdateServerCertRequest] = JsonSchema(deriveEncoder[UpdateServerCertRequest], deriveDecoder[UpdateServerCertRequest])
     val updateEndpoint: Endpoint[UpdateServerCertRequest, GenericMessageResult] = endpoint(request, genericMessageResponse)
   }
 
@@ -43,7 +44,7 @@ trait AdminEndpoints extends BaseEndpoint {
         jsonRequest[SetJWTSeedRequest](Option("Sets the 'seed' used for the JWT certificates. Any existing Json Web Tokens will be invalid once this seed is set"))
       )
     }
-    implicit lazy val schema: JsonSchema[SetJWTSeedRequest] = genericJsonSchema
+    implicit lazy val schema: JsonSchema[SetJWTSeedRequest] = JsonSchema(deriveEncoder[SetJWTSeedRequest], deriveDecoder[SetJWTSeedRequest])
 
     val seedEndpoint: Endpoint[SetJWTSeedRequest, GenericMessageResult] = endpoint(request, genericMessageResponse)
   }

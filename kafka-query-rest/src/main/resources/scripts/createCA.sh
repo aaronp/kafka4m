@@ -5,11 +5,12 @@ trap "cleanupCA" EXIT
 
 # some lovely shared variables
 export CA_DIR=${CA_DIR:-target/ca}
-mkdir -p $CA_DIR
+mkdir -p ${CA_DIR}
 
 export CA_DOMAIN=${CA_DOMAIN:-`hostname`}
 
 export CA_PWFILE=${CA_PWFILE:-"$CA_DIR/capass.txt"}
+export CA_DEFAULT_PWD=${CA_DEFAULT_PWD:-"password"}
 export CA_PRIVATE_KEY_FILE=${CA_PRIVATE_KEY_FILE:-"$CA_DIR/secret.key"}
 export CA_PUBLIC_KEY_FILE=${CA_PUBLIC_KEY_FILE:-"$CA_DIR/secret.pub"}
 export CA_DETAILS_FILE=${CA_DETAILS_FILE:-$CA_DIR/ca-options.conf}
@@ -26,13 +27,13 @@ export CA_DETAILS_emailAddress=${CA_DETAILS_emailAddress:-your-administrative-ad
 
 CA_CREATED_PW_FILE=false
 INFO=">>> "
-# ensure ther is a $CA_PWFILE
+# ensure there is a $CA_PWFILE
 ensureCAPassword () {
 	CA_CREATED_PW_FILE=false
-	if [ ! -f $CA_PWFILE ]; then
+	if [[ ! -f ${CA_PWFILE}  ]]; then
 	  CA_CREATED_PW_FILE=true
 	  echo "$CA_PWFILE doesn't exist, creating default password..."
-	  echo password > ${CA_PWFILE}
+	  echo ${CA_DEFAULT_PWD} > ${CA_PWFILE}
 	else
 	  echo "Using pw file $CA_PWFILE"
 	fi
@@ -40,41 +41,41 @@ ensureCAPassword () {
 
 # remove the password if it was created
 cleanupCA () {
-	if [[ $CA_CREATED_PW_FILE="true" ]];then
+	if [[ ${CA_CREATED_PW_FILE}="true" ]];then
 	  echo "removing $CA_PWFILE"
-	  rm $CA_PWFILE
+	  rm ${CA_PWFILE}
 	else
 		echo done
 	fi
 }
 
 
-# create privagte/public keys
+# create private/public keys
 ensureCAKeys () {
 
 	echo "+ + + + + + + + + + + + + + + Ensuring CA key pair + + + + + + + + + + + + + + + "
 
-    if [ ! -f $CA_PRIVATE_KEY_FILE ];then
+    if [[ ! -f ${CA_PRIVATE_KEY_FILE} ]];then
 		echo "$INFO Private key '$CA_PRIVATE_KEY_FILE' doesn't exist, creating"
 
     	ensureCAPassword
-		openssl genrsa -aes128 -passout file:$CA_PWFILE  -out $CA_PRIVATE_KEY_FILE 3072
+		openssl genrsa -aes128 -passout file:${CA_PWFILE}  -out ${CA_PRIVATE_KEY_FILE} 3072
 	else
         echo "$INFO Private key '$CA_PRIVATE_KEY_FILE' already exists"
 	fi
 
-    if [ ! -f $CA_PUBLIC_KEY_FILE ];then
+    if [[ ! -f ${CA_PUBLIC_KEY_FILE} ]];then
 		echo "$INFO public key '$CA_PUBLIC_KEY_FILE' doesn't exist, creating"
 
     	ensureCAPassword
-		openssl rsa -in $CA_PRIVATE_KEY_FILE -passin file:$CA_PWFILE -pubout -out $CA_PUBLIC_KEY_FILE
+		openssl rsa -in ${CA_PRIVATE_KEY_FILE} -passin file:${CA_PWFILE} -pubout -out ${CA_PUBLIC_KEY_FILE}
 	else
 		echo "$INFO public key $CA_PUBLIC_KEY_FILE already exists"
 	fi
 }
 
 ensureCASubject () {
-    if [ ! -f $CA_DETAILS_FILE ];then
+    if [[ ! -f ${CA_DETAILS_FILE} ]];then
 		echo "$INFO CA details CA_DETAILS_FILE '$CA_DETAILS_FILE' doesn't exist, creating"
 
     		cat > ${CA_DETAILS_FILE} <<-EOF
@@ -98,8 +99,8 @@ CN = $CA_DOMAIN
 subjectAltName = @alt_names
 
 [ alt_names ]
-DNS.1 = $CA_DOMAIN
-DNS.2 = www.$CA_DOMAIN
+DNS.1 = ${CA_DOMAIN}
+DNS.2 = www.${CA_DOMAIN}
 DNS.3 = localhost
 EOF
 	else
@@ -111,7 +112,7 @@ EOF
 ensureCA () {
 
 	echo "+ + + + + + + + + + + + + + + Ensuring root CA file $CA_FILE + + + + + + + + + + + + + + + "
-	if [ ! -f $CA_FILE ];then
+	if [[ ! -f ${CA_FILE} ]];then
 		echo "$INFO Certificate Authority file '$CA_FILE' doesn't exist, creating with subject $SUBJECT"
 
 	    ensureCAKeys

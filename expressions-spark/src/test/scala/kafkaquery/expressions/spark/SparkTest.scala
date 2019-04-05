@@ -46,16 +46,11 @@ class SparkTest extends WordSpec with Matchers with BeforeAndAfterAll {
   override def beforeAll = {
     spark = SparkSession
       .builder()
-      . //
-      master("local[*]")
-      . //
-      appName(getClass.getSimpleName)
-      . //
-      config("spark.driver.bindAddress", "localhost")
-      . //
-      config("spark.driver.extraClassPath", ".")
-      . //
-      getOrCreate
+      .master("local[*]")
+      .appName(getClass.getSimpleName)
+      .config("spark.driver.bindAddress", "localhost")
+      .config("spark.driver.extraClassPath", ".")
+      .getOrCreate
   }
 
   override def afterAll = {
