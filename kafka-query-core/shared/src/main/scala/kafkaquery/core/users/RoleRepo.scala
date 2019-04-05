@@ -1,4 +1,4 @@
-package esa.core.users
+package kafkaquery.core.users
 
 /**
   * A means to look up roles for a user

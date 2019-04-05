@@ -1,4 +1,4 @@
-package esa.rest.ssl
+package kafkaquery.rest.ssl
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}

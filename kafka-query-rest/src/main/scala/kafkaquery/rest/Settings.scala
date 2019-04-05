@@ -1,10 +1,10 @@
-package esa.rest
+package kafkaquery.rest
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.settings.RoutingSettings
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
-import esa.rest.ssl.SslConfig
+import kafkaquery.rest.ssl.SslConfig
 
 case class Settings(rootConfig: Config, host: String, port: Int, jwtSecret: String, materializer: ActorMaterializer) {
 

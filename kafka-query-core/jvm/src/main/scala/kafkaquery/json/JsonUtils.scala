@@ -1,4 +1,4 @@
-package esa.json
+package kafkaquery.json
 import io.circe.Json
 
 object JsonUtils {

@@ -1,12 +1,12 @@
-package esa.core.users.jvm
+package kafkaquery.core.users.jvm
 import java.nio.file.attribute.PosixFilePermissions
 import java.nio.file.{LinkOption, Path}
 import java.util.UUID
 
 import eie.io._
-import esa.core.users.User.Id
-import esa.core.users.jvm.UserRepoNio.{UpdateUserResult, UserUpdated, UserValidationFailed}
-import esa.core.users.{EmailValidation, User, UserLookup}
+import kafkaquery.core.users.User.Id
+import kafkaquery.core.users.jvm.UserRepoNio.{UpdateUserResult, UserUpdated, UserValidationFailed}
+import kafkaquery.core.users.{EmailValidation, User, UserLookup}
 
 import scala.collection.mutable.ListBuffer
 import scala.util.{Success, Try}

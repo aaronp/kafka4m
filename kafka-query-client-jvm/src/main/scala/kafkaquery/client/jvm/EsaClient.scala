@@ -1,10 +1,10 @@
-package esa.client.jvm
+package kafkaquery.client.jvm
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import endpoints.akkahttp.client.{AkkaHttpRequestExecutor, Endpoints, EndpointsSettings, JsonEntitiesFromCodec}
 import endpoints.algebra.BasicAuthentication
-import esa.endpoints.UserEndpoints
+import kafkaquery.endpoints.UserEndpoints
 
 import scala.concurrent.ExecutionContext
 

@@ -1,9 +1,9 @@
-package esa.rest
+package kafkaquery.rest
 import java.nio.file.Path
 
 import args4c.{ConfigApp, SecretConfig}
 import com.typesafe.config.Config
-import esa.rest.ssl.SslConfig
+import kafkaquery.rest.ssl.SslConfig
 
 /**
   * The main entry point for the REST service

@@ -1,4 +1,4 @@
-package esa.client.app
+package kafkaquery.client.app
 import org.scalajs.dom
 import org.scalajs.dom.document
 import org.scalajs.dom.window

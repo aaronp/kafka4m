@@ -1,10 +1,10 @@
-package esa.rest.routes
+package kafkaquery.rest.routes
 
 import java.util.concurrent.atomic.AtomicInteger
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import esa.endpoints.{Counter, CounterEndpoints}
+import kafkaquery.endpoints.{Counter, CounterEndpoints}
 
 class CounterRoutes(val value: AtomicInteger = new AtomicInteger(0)) extends CounterEndpoints with BaseRoutes {
 

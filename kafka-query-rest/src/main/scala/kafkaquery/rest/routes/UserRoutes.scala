@@ -1,4 +1,4 @@
-package esa.rest.routes
+package kafkaquery.rest.routes
 
 import akka.http.scaladsl.model.Uri.Query
 import akka.http.scaladsl.model.headers.RawHeader
@@ -6,8 +6,8 @@ import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives.respondWithHeader
 import akka.http.scaladsl.server.{Directives, Route}
 import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport._
-import esa.endpoints.{LoginRequest, _}
-import esa.rest.jwt.{Claims, Hmac256, JsonWebToken}
+import kafkaquery.endpoints.{LoginRequest, _}
+import kafkaquery.rest.jwt.{Claims, Hmac256, JsonWebToken}
 import io.circe.Encoder
 import javax.crypto.spec.SecretKeySpec
 

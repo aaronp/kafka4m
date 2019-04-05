@@ -1,4 +1,4 @@
-package esa.rest.routes
+package kafkaquery.rest.routes
 
 import java.time.{ZoneId, ZonedDateTime}
 
@@ -7,8 +7,8 @@ import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives.{complete, get, pathSingleSlash, _}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport._
-import esa.endpoints.LoginRequest
-import esa.rest.jwt.{Claims, Hmac256}
+import kafkaquery.endpoints.LoginRequest
+import kafkaquery.rest.jwt.{Claims, Hmac256}
 import io.circe.generic.auto._
 import javax.crypto.spec.SecretKeySpec
 import org.scalatest.concurrent.ScalaFutures

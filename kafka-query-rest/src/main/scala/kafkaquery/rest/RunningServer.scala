@@ -1,10 +1,10 @@
-package esa.rest
+package kafkaquery.rest
 
 import akka.http.scaladsl.{Http, HttpsConnectionContext}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.RoutingSettings
-import esa.rest.routes.{EsaRoutes, StaticFileRoutes}
-import esa.rest.ssl.{HttpsUtil, SslConfig}
+import kafkaquery.rest.routes.{EsaRoutes, StaticFileRoutes}
+import kafkaquery.rest.ssl.{HttpsUtil, SslConfig}
 
 import scala.concurrent.Future
 import scala.util.Try

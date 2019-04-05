@@ -1,9 +1,9 @@
-package esa.core.users.jvm
+package kafkaquery.core.users.jvm
 import java.nio.file.Path
 
-import esa.core.users.RoleRepo
-import esa.core.users.RoleRepo.Revision
-import esa.core.users.User.Id
+import kafkaquery.core.users.RoleRepo
+import kafkaquery.core.users.RoleRepo.Revision
+import kafkaquery.core.users.User.Id
 
 import scala.util.Try
 

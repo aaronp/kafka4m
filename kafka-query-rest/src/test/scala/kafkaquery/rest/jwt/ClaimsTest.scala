@@ -1,4 +1,4 @@
-package esa.rest.jwt
+package kafkaquery.rest.jwt
 import java.time.{ZoneId, ZonedDateTime}
 
 import org.scalatest.{Matchers, WordSpec}

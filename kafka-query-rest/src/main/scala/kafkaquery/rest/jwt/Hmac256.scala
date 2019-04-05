@@ -1,4 +1,4 @@
-package esa.rest.jwt
+package kafkaquery.rest.jwt
 
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec

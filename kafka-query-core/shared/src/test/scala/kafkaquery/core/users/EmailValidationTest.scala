@@ -1,4 +1,4 @@
-package esa.core.users
+package kafkaquery.core.users
 import org.scalatest.{Matchers, WordSpec}
 
 class EmailValidationTest extends WordSpec with Matchers {

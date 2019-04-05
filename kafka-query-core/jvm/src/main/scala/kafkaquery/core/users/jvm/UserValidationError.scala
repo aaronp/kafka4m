@@ -1,4 +1,4 @@
-package esa.core.users.jvm
+package kafkaquery.core.users.jvm
 
 sealed trait UserValidationError
 

@@ -1,4 +1,4 @@
-package esa.rest.config
+package kafkaquery.rest.config
 
 import java.nio.file.Path
 

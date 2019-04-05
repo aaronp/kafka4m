@@ -1,4 +1,4 @@
-package esa.rest.jwt
+package kafkaquery.rest.jwt
 import java.util.Base64
 
 import io.circe

@@ -1,4 +1,4 @@
-package esa.rest.jwt
+package kafkaquery.rest.jwt
 import org.scalatest.{Matchers, WordSpec}
 
 class JsonWebTokenTest extends WordSpec with Matchers {

@@ -1,8 +1,8 @@
-package esa.rest
+package kafkaquery.rest
 
 import endpoints.openapi
 import endpoints.openapi.model.{Info, OpenApi}
-import esa.endpoints.{AdminEndpoints, CounterEndpoints, UserEndpoints}
+import kafkaquery.endpoints.{AdminEndpoints, CounterEndpoints, UserEndpoints}
 
 /**
   * Generates OpenAPI documentation for the endpoints described in the `CounterEndpoints` trait.

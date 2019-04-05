@@ -1,4 +1,4 @@
-package esa.endpoints
+package kafkaquery.endpoints
 
 final case class CreateUserRequest(user : String, email : String, password : String)
 final case class CreateUserResponse(ok : Boolean, jwtToken : Option[String])

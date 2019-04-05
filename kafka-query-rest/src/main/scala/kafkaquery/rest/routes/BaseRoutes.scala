@@ -1,4 +1,4 @@
-package esa.rest.routes
+package kafkaquery.rest.routes
 
 import endpoints.akkahttp.server
 import endpoints.akkahttp.server.JsonSchemaEntities

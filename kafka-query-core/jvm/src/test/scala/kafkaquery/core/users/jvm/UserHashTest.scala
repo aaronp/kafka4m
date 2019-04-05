@@ -1,4 +1,4 @@
-package esa.core.users.jvm
+package kafkaquery.core.users.jvm
 import org.scalatest.{Matchers, WordSpec}
 
 class UserHashTest extends WordSpec with Matchers {

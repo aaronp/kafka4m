@@ -1,9 +1,9 @@
-package esa.rest.routes
+package kafkaquery.rest.routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
-import esa.endpoints.{AdminEndpoints, GenerateServerCertRequest}
+import kafkaquery.endpoints.{AdminEndpoints, GenerateServerCertRequest}
 
 import scala.util.control.NonFatal
 

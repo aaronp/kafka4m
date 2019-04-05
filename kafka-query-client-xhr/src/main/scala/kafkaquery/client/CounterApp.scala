@@ -1,5 +1,5 @@
-package esa.client
-import esa.endpoints.{Counter, Increment}
+package kafkaquery.client
+import kafkaquery.endpoints.{Counter, Increment}
 
 object CounterApp {
 

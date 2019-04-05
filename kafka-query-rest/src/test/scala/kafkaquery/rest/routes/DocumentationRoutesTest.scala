@@ -1,7 +1,7 @@
-package esa.rest.routes
+package kafkaquery.rest.routes
 
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import esa.rest.Documentation
+import kafkaquery.rest.Documentation
 import io.circe._
 import io.circe.parser._
 import org.scalatest.{Matchers, WordSpec}

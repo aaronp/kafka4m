@@ -1,4 +1,4 @@
-package esa.core
+package kafkaquery.core
 
 /**
   *

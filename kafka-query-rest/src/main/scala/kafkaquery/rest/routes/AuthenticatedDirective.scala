@@ -1,12 +1,12 @@
-package esa.rest.routes
+package kafkaquery.rest.routes
 import java.time.{ZoneId, ZonedDateTime}
 
 import akka.http.scaladsl.model.{headers, _}
 import akka.http.scaladsl.model.headers.{Authorization, HttpChallenges, OAuth2BearerToken, RawHeader}
 import akka.http.scaladsl.server.Directives.respondWithHeader
 import akka.http.scaladsl.server._
-import esa.rest.jwt.JsonWebToken.JwtError
-import esa.rest.jwt.{Claims, JsonWebToken}
+import kafkaquery.rest.jwt.JsonWebToken.JwtError
+import kafkaquery.rest.jwt.{Claims, JsonWebToken}
 import javax.crypto.spec.SecretKeySpec
 
 /**

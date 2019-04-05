@@ -1,4 +1,4 @@
-package esa.endpoints
+package kafkaquery.endpoints
 
 trait AdminEndpoints extends BaseEndpoint {
 

@@ -1,7 +1,7 @@
-package esa.rest.routes
+package kafkaquery.rest.routes
 import akka.http.scaladsl.server.Route
 import endpoints.openapi.model.{OpenApi, OpenApiSchemas}
-import esa.rest.Documentation
+import kafkaquery.rest.Documentation
 
 object DocumentationRoutes extends OpenApiSchemas with BaseRoutes {
 
