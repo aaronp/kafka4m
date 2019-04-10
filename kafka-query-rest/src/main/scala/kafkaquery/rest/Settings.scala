@@ -4,7 +4,9 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.settings.RoutingSettings
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
-import kafkaquery.rest.routes.{KafkaRoutes, StaticFileRoutes}
+import kafkaquery.connect.RichKafkaProducer
+import kafkaquery.kafka.PublishMessage
+import kafkaquery.rest.routes.{KafkaRoutes, KafkaSupportRoutes, StaticFileRoutes}
 
 case class Settings(rootConfig: Config, host: String, port: Int, materializer: ActorMaterializer) {
 
@@ -14,6 +16,14 @@ case class Settings(rootConfig: Config, host: String, port: Int, materializer: A
     implicit val system                               = actorMaterializer.system
     implicit val executionContext                     = system.dispatcher
     implicit val routingSettings: RoutingSettings     = RoutingSettings(system)
+  }
+
+  val kafkaSupportRoutes: KafkaSupportRoutes = {
+    val producer = RichKafkaProducer.strings(rootConfig)(implicits.scheduler)
+    val publisher = (request: PublishMessage) => {
+      producer.send(request.topic, request.key, request.data)
+    }
+    new KafkaSupportRoutes(rootConfig, publisher)
   }
 
   val kafkaRoutes  = KafkaRoutes(rootConfig)(implicits.actorMaterializer, implicits.scheduler)

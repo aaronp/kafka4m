@@ -3,6 +3,9 @@ package kafkaquery.kafka
 import io.circe.generic.auto._
 import kafkaquery.core.BaseEndpoint
 
+/**
+  * Contains the core set of functionality for querying kafka
+  */
 trait KafkaEndpoints extends BaseEndpoint {
 
   def kafkaEndpoints = List(
@@ -27,15 +30,12 @@ trait KafkaEndpoints extends BaseEndpoint {
   object stream {
 
     def request: Request[StreamRequest] = {
+      val streamRequest = jsonRequest[StreamRequest](Option("request which will open a reactive stream web socket"))
       post(path / "kafka" / "stream", streamRequest)
-    }
-
-    def streamRequest = {
-      jsonRequest[StreamRequest](Option("request which will open a reactive stream web socket"))
     }
     def response = emptyResponse(Option("The response is upgrade response to open a websocket"))
 
-    implicit lazy val `JsonSchema[ListTopicsResponse]` : JsonSchema[Unit] = JsonSchema(implicitly, implicitly)
+    implicit lazy val `JsonSchema[ListTopicsResponse]` : JsonSchema[Unit]     = JsonSchema(implicitly, implicitly)
     implicit lazy val `JsonSchema[StreamRequest]` : JsonSchema[StreamRequest] = JsonSchema(implicitly, implicitly)
 
     val streamEndpoint: Endpoint[StreamRequest, Unit] = endpoint(request, response)

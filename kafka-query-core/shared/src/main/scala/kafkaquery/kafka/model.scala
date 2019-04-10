@@ -10,3 +10,6 @@ final case class ListTopicsResponse(topics: Map[String, Seq[PartitionData]]) ext
 final case class PullLatestResponse(topic: String, keys: Seq[String]) extends KafkaResponse
 
 final case class StreamRequest(clientId: String, groupId: String, topic: String) extends KafkaRequest
+
+sealed trait KafkaSupportRequest
+final case class PublishMessage(topic: String, key: String, data: String) extends KafkaSupportRequest

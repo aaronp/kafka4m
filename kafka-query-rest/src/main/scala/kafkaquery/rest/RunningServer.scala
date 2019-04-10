@@ -4,7 +4,7 @@ import akka.http.scaladsl.{Http, HttpsConnectionContext}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.RoutingSettings
 import com.typesafe.scalalogging.StrictLogging
-import kafkaquery.rest.routes.{AppRoutes, KafkaRoutes, StaticFileRoutes}
+import kafkaquery.rest.routes.{AppRoutes, KafkaRoutes, KafkaSupportRoutes, StaticFileRoutes}
 import kafkaquery.rest.ssl.{HttpsUtil, SslConfig}
 
 import scala.concurrent.Future
@@ -29,7 +29,7 @@ object RunningServer extends StrictLogging {
 
   def apply(settings: Settings, sslConf: SslConfig) = {
     import settings.implicits._
-    val httpsRoutes: Route            = makeRoutes(settings.staticRoutes, settings.kafkaRoutes)
+    val httpsRoutes: Route            = makeRoutes(settings.staticRoutes, settings.kafkaRoutes, settings.kafkaSupportRoutes.routes)
     val https: HttpsConnectionContext = loadHttps(sslConf).get
 
     logger.info(s"Starting with ${settings}")
@@ -39,8 +39,8 @@ object RunningServer extends StrictLogging {
     new RunningServer(settings, bindingFuture)
   }
 
-  def makeRoutes(static: StaticFileRoutes, kafka: KafkaRoutes)(implicit routingSettings: RoutingSettings): Route = {
-    val route = AppRoutes.https(static, kafka)
+  def makeRoutes(static: StaticFileRoutes, kafka: KafkaRoutes, theRest: Route*)(implicit routingSettings: RoutingSettings): Route = {
+    val route = AppRoutes.https(static, kafka, theRest: _*)
     Route.seal(route)
   }
 

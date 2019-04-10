@@ -12,7 +12,7 @@ import args4c.RichConfig
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import kafkaquery.connect.{Bytes, KafkaFacade, RichKafkaConsumer}
-import kafkaquery.kafka.{KafkaEndpoints, ListTopicsResponse, StreamRequest}
+import kafkaquery.kafka.{KafkaEndpoints, StreamRequest}
 
 class KafkaRoutes(kafka: KafkaFacade, newStreamHandler: StreamRequest => Flow[Message, Message, NotUsed]) extends KafkaEndpoints with BaseRoutes with StrictLogging {
 
