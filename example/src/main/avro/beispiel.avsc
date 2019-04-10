@@ -1,0 +1,26 @@
+{
+  "namespace": "example",
+  "type": "record",
+  "name": "Beispiel",
+  "fields": [
+    {
+      "name": "kennzeichnen",
+      "type": "string",
+      "default" : ""
+    },
+    {
+      "name": "wort",
+      "type": "string",
+      "default" : ""
+    },
+    {
+      "name": "tag",
+      "type": {
+        "name": "tagDesWoche",
+        "type": "enum",
+        "symbols": [ "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag" ]
+      },
+      "default" : "Montag"
+    }
+  ]
+}

@@ -54,7 +54,7 @@ class KafkaRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wit
     }
   }
 
-  def greeterWebSocketService = {
+  def greeterWebSocketService: Flow[Message, Message, NotUsed] = {
     Flow[Message]
       .mapConcat {
         // we match but don't actually consume the text message here,

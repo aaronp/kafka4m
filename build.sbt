@@ -230,7 +230,8 @@ lazy val kafkaQueryCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
       "io.circe" %%% "circe-generic",
       "io.circe" %%% "circe-parser",
       "io.circe" %%% "circe-java8",
-      "io.circe" %%% "circe-literal"
+      "io.circe" %%% "circe-literal",
+      "io.circe" %%% "circe-shapes"
     ).map(_ % "0.11.1"))
   )
   .in(file("kafka-query-core"))
@@ -354,6 +355,8 @@ lazy val kafkaQueryEval = project
   .settings(libraryDependencies ++= typesafeConfig :: logging)
   .dependsOn(kafkaQueryCoreJVM % "compile->compile;test->test")
   .dependsOn(kafkaQueryConnect % "compile->compile;test->test")
+  .dependsOn(expressionsAst % "compile->compile;test->test")
+  .dependsOn(example % "compile->test")
 
 lazy val kafkaQueryRest = project
   .in(file("kafka-query-rest"))

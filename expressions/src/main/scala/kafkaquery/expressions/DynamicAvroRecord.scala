@@ -1,5 +1,6 @@
 package kafkaquery
 
+import kafkaquery.expressions.Record
 import org.apache.avro.specific.SpecificRecordBase
 
 import scala.language.dynamics
@@ -15,7 +16,7 @@ import scala.util.Try
   * Alternatively we could return our own 'Value' class which supports a Numeric typeclass instance, which
   * would only error/throw when it wrapped a non-numeric type AND it was tried to be used as a comparison
   */
-class DynamicAvroRecord(val msg: SpecificRecordBase) extends AnyVal with Dynamic {
+class DynamicAvroRecord(val msg: Record) extends AnyVal with Dynamic {
 
   def selectDynamic(fieldName: String): DynamicAvroRecord.Value = {
     val schema = msg.getSchema

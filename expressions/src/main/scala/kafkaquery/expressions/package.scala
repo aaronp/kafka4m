@@ -1,6 +1,6 @@
 package kafkaquery
 
-import org.apache.avro.specific.SpecificRecordBase
+import org.apache.avro.generic.{GenericRecord, IndexedRecord}
 
 /**
   * The main entry point:
@@ -14,10 +14,10 @@ import org.apache.avro.specific.SpecificRecordBase
   */
 package object expressions {
 
-  type Record    = SpecificRecordBase
+  type Record    = IndexedRecord // SpecificRecordBase, GenericRecord
   type Predicate = Record => Boolean
 
   def parseRule(rule: String): Predicate = Expressions.Predicate(rule)
 
-  implicit def asDynamic(msg: SpecificRecordBase): DynamicAvroRecord = new DynamicAvroRecord(msg)
+  implicit def asDynamic(msg: Record): DynamicAvroRecord = new DynamicAvroRecord(msg)
 }
