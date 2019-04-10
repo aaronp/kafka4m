@@ -2,23 +2,20 @@ package kafkaquery.rest
 
 import endpoints.openapi
 import endpoints.openapi.model.{Info, OpenApi}
-import kafkaquery.admin.AdminEndpoints
-import kafkaquery.kafka.KafkaEndpoints
-import kafkaquery.users.UserEndpoints
 
 /**
   * Generates OpenAPI documentation for the endpoints described in the `CounterEndpoints` trait.
   */
 object Documentation //
-    extends openapi.Endpoints       //
-    with openapi.JsonSchemaEntities //
-//    with UserEndpoints  //
-//    with KafkaEndpoints //
-//    with AdminEndpoints //
-    {
+    extends openapi.Endpoints
+//    with UserEndpoints      //
+//    with KafkaEndpoints        //
+//    with KafkaSupportEndpoints //
+//    with AdminEndpoints        //
+    with openapi.JsonSchemaEntities {
 
   val documentedEndpoints: List[Documentation.DocumentedEndpoint] = {
-//    userEndpoints ++ adminEndpoints
+//    userEndpoints ++ adminEndpoints ++ kafkaEndpoints ++ kafkaSupportEndpoints
     Nil
   }
 

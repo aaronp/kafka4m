@@ -23,15 +23,16 @@
 <script type="text/javascript" src="js/kafka-query-client-xhr-fastopt.js"></script>
 
 
-Go <a href="publish.html">here</a> to publish
+<form>
+    Topic:<br>
+    <input type="text" id="topic"><br>
+    Key:<br>
+    <input type="text" id="key">
+    Message:<br>
+    <textarea id="message" rows="10" cols="30">
+    </textarea>
+</form>
 
-<br/>
-
-<button class="btn" id="click-me-button" type="button" onclick="addClickedMessage()">
-    Click me!
-</button>
-<button class="btn" type="button" onclick="listTopics()">
-    List Topics
-</button>
+<button class="btn" type="button" onclick="publish('topic', 'key', 'message')">Publish 2</button>
 </body>
 </html>

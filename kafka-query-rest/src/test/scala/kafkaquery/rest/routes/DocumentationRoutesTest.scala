@@ -10,7 +10,7 @@ class DocumentationRoutesTest extends WordSpec with Matchers with ScalatestRoute
 
   "DocumentationRoutes.route" should {
     // this is broken w/ circe schemas -- a conflict in the imports
-    "serve docs" ignore {
+    "serve docs" in {
       Get("/openapi.json") ~> DocumentationRoutes.route ~> check {
         val docs        = responseAs[String]
         val Right(json) = decode[Json](docs)
