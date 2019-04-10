@@ -13,7 +13,7 @@ import akka.util.ByteString
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import io.circe.generic.auto._
 import kafkaquery.connect.KafkaFacade
-import kafkaquery.kafka.{ListTopicsResponse, PartitionData, PullLatestResponse, StreamRequest}
+import kafkaquery.kafka.{Latest, ListTopicsResponse, PartitionData, PullLatestResponse, StreamRequest}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpec}
 
@@ -72,7 +72,7 @@ class KafkaRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wit
   def stream(implicit sys: ActorMaterializer): Route = {
     path("greeter") {
       get {
-        val flow: Flow[Message, TextMessage, NotUsed] = greeterWebSocketService
+        val flow: Flow[Message, Message, NotUsed] = greeterWebSocketService
 
         val r: Route = handleWebSocketMessages(flow)
         r
@@ -84,7 +84,7 @@ class KafkaRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wit
     post {
       path("posting") {
         entity(as[StreamRequest]) { rqt: StreamRequest =>
-          val flow: Flow[Message, TextMessage, NotUsed] = greeterWebSocketService
+          val flow: Flow[Message, Message, NotUsed] = greeterWebSocketService
           handleWebSocketMessages(flow)
         }
       }
@@ -96,7 +96,7 @@ class KafkaRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wit
       val wsClient       = WSProbe()
       val websocketRoute = postStream
 
-      val body = StreamRequest("client", "group", "topic")
+      val body = StreamRequest("client", "group", "topic", "", None, None, Latest)
 
       val request = WS("/posting", wsClient.flow).withMethod(HttpMethods.POST).withEntity(Marshal(body).to[RequestEntity].futureValue)
 

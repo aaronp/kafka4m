@@ -11,11 +11,12 @@ import org.apache.avro.specific.SpecificDatumReader
 
 import scala.reflect.ClassTag
 
-case class AvroReader(reader: DatumReader[_ <: Record], decoderFactory: DecoderFactory = org.apache.avro.io.DecoderFactory.get) {
+case class AvroReader[A <: Record](reader: DatumReader[A], decoderFactory: DecoderFactory = org.apache.avro.io.DecoderFactory.get) {
 
-  def read(bytes: Bytes): Record = {
+  def read(bytes: Bytes): A = {
     val d8a: BinaryDecoder = decoderFactory.binaryDecoder(bytes, null)
-    reader.read(null, d8a)
+    val record : A = null.asInstanceOf[A]
+    reader.read(record, d8a)
   }
 
   def matches(bytes: Bytes, expression: String) = {
@@ -27,23 +28,24 @@ case class AvroReader(reader: DatumReader[_ <: Record], decoderFactory: DecoderF
 
 object AvroReader {
 
-  def apply[T <: Record: ClassTag]: AvroReader = {
-    val c1ass: Class[Record]                = implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[Record]]
-    val reader: SpecificDatumReader[Record] = new SpecificDatumReader[Record](c1ass)
-    new AvroReader(reader)
+  def apply[A <: Record: ClassTag]: AvroReader[A] = {
+    val rtc = implicitly[ClassTag[A]].runtimeClass
+    val c1ass: Class[A]                = rtc.asInstanceOf[Class[A]]
+    val reader: SpecificDatumReader[A] = new SpecificDatumReader[A](c1ass)
+    new AvroReader[A](reader)
   }
 
-  def apply(schema: Schema): AvroReader = {
+  def apply(schema: Schema): AvroReader[GenericRecord] = {
     val reader: GenericDatumReader[GenericRecord] = new GenericDatumReader[GenericRecord](schema)
     new AvroReader(reader)
   }
 
-  def apply(pathToSchema: Path): AvroReader = {
+  def apply(pathToSchema: Path): AvroReader[GenericRecord] = {
     import eie.io._
     apply(pathToSchema.text)
   }
 
-  def apply(schemaContent: String): AvroReader = {
+  def apply(schemaContent: String): AvroReader[GenericRecord] = {
     apply(new Schema.Parser().parse(schemaContent))
   }
 

@@ -17,7 +17,7 @@ object KafkaQuery {
     val c: RichKafkaConsumer[String, Bytes]           = ???
     val data: Iterator[ConsumerRecord[String, Bytes]] = c.pull(timeout)
 
-    val reader: AvroReader = AvroReader[GenericRecord]
+    val reader = AvroReader[GenericRecord]
 
     val predicate = kafkaquery.expressions.Expressions.cache(request.filterExpression)
 

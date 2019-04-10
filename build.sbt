@@ -339,7 +339,7 @@ lazy val kafkaQueryConnect = project
   .dependsOn(kafkaQueryCoreJVM % "compile->compile;test->test")
   .settings(name := s"${repo}-connect")
   .settings(commonSettings: _*)
-  .settings(libraryDependencies += "com.github.aaronp" %% "args4c" % "0.5.0")
+  .settings(libraryDependencies += "com.github.aaronp" %% "args4c" % "0.6.0")
   .settings(libraryDependencies += "org.apache.kafka" % "kafka-clients" % "2.2.0")
   .settings(libraryDependencies += "org.apache.kafka" % "kafka-streams" % "2.2.0")
   .settings(libraryDependencies ++= typesafeConfig :: logging)
@@ -350,7 +350,7 @@ lazy val kafkaQueryEval = project
   .settings(name := s"${repo}-eval")
   .settings(commonSettings: _*)
   .settings(libraryDependencies ++= List("monix", "monix-execution", "monix-eval", "monix-reactive", "monix-tail").map { art =>
-    "io.monix" %% art % "3.0.0-RC1"
+    "io.monix" %% art % "3.0.0-RC2"
   })
   .settings(libraryDependencies ++= typesafeConfig :: logging)
   .dependsOn(kafkaQueryCoreJVM % "compile->compile;test->test")
@@ -367,7 +367,7 @@ lazy val kafkaQueryRest = project
   .settings(mainClass in (Compile, packageBin) := Some(Build.MainRestClass))
   .settings(libraryDependencies ++= typesafeConfig :: logging)
   .settings(libraryDependencies += "com.typesafe.akka" %% "akka-http-testkit" % "10.0.14" % "test")
-  .settings(libraryDependencies += "com.github.aaronp" %% "args4c" % "0.5.0")
+  .settings(libraryDependencies += "com.github.aaronp" %% "args4c" % "0.6.0")
   .settings(libraryDependencies += "de.heikoseeberger" %% "akka-http-circe" % "1.25.2" % "test")
   .settings(libraryDependencies ++= List(
     "org.julienrf" %% "endpoints-akka-http-server"       % "0.9.0",

@@ -2,8 +2,6 @@ package kafkaquery.kafka
 import io.circe.Decoder.Result
 import io.circe.{DecodingFailure, HCursor, Json}
 
-import scala.collection.immutable
-
 sealed trait KafkaRequest
 sealed trait KafkaResponse
 
@@ -23,10 +21,11 @@ final case class PullLatestResponse(topic: String, keys: Seq[String]) extends Ka
   *
   */
 sealed class StreamStrategy(val name: String)
-final case object Latest extends StreamStrategy("latest")
-final case object All    extends StreamStrategy("all")
 
 object StreamStrategy {
+  final case object Latest extends StreamStrategy("latest")
+  final case object All    extends StreamStrategy("all")
+
   lazy val values: List[StreamStrategy] = List(Latest, All)
   implicit object StrategyEncoder extends io.circe.Encoder[StreamStrategy] {
     override def apply(a: StreamStrategy): Json = {
@@ -52,7 +51,9 @@ final case class StreamRequest(clientId: String,
                                fromOffset: Option[Long],
                                messageLimitPerSecond: Option[Int],
                                streamStrategy: StreamStrategy)
-    extends KafkaRequest
+    extends KafkaRequest {
+  messageLimitPerSecond.foreach(limit => require(limit > 0))
+}
 
 sealed trait KafkaSupportRequest
 final case class PublishMessage(topic: String, key: String, data: String) extends KafkaSupportRequest

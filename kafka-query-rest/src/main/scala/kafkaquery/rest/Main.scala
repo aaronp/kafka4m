@@ -13,6 +13,8 @@ import kafkaquery.rest.ssl.SslConfig
 object Main extends ConfigApp {
   type Result = RunningServer
 
+  override protected val configKeyForRequiredEntries = "kafkaquery.requiredConfig"
+
   def run(uConfig: Config): RunningServer = {
     val config  = uConfig.resolve()
     val sslConf = SslConfig(config.getConfig("kafkaquery.tls"))
