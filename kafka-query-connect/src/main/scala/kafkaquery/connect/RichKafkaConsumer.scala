@@ -11,9 +11,9 @@ import org.apache.kafka.common.serialization.Deserializer
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.FiniteDuration
 
-class RichKafkaConsumer[K, V](val client: KafkaConsumer[K, V]) extends AutoCloseable {
+class RichKafkaConsumer[K, V](val client: KafkaConsumer[K, V], defaultTimeout : FiniteDuration) extends AutoCloseable {
 
-  def pullLatest(topic: String, offset: Long, limit: Long, pollTimeout: FiniteDuration, timeout: FiniteDuration, formatKey: K => String): PullLatestResponse = {
+  def pullLatest(topic: String, limit: Long, pollTimeout: FiniteDuration, timeout: FiniteDuration, formatKey: K => String): PullLatestResponse = {
     import scala.collection.JavaConverters._
     client.subscribe(List(topic).asJava)
 
@@ -50,7 +50,7 @@ class RichKafkaConsumer[K, V](val client: KafkaConsumer[K, V]) extends AutoClose
     }.toMap
   }
 
-  def pull(timeout: FiniteDuration): Iterator[ConsumerRecord[K, V]] = {
+  def pull(timeout: FiniteDuration = defaultTimeout): Iterator[ConsumerRecord[K, V]] = {
     val all: Iterator[Iterable[ConsumerRecord[K, V]]] = Iterator.continually(pullOrEmpty(timeout))
     all.flatten
   }

@@ -6,11 +6,32 @@ import org.reactivestreams.Publisher
 
 import scala.concurrent.duration._
 
+/**
+  * Provides a functions for ensuring observables are throttled/sampled according to a 'messageLimitPerSecond' and whether
+  * we those messages should be dropped to ensure the latest values are sent
+  */
 object KafkaReactive {
 
-  def selectSimple[A](data: Seq[A], max: Int) = data.take(max)
+  def apply[A](input: Publisher[A], messageLimitPerSecond: Option[Int], strategy: StreamStrategy): Observable[A] = {
+    val obs: Observable[A] = Observable.fromReactivePublisher(input)
+    apply(obs, messageLimitPerSecond, strategy)
+  }
 
-  /**
+  def apply[A](input: Observable[A], messageLimitPerSecond: Option[Int], strategy: StreamStrategy): Observable[A] = {
+    (messageLimitPerSecond, strategy) match {
+      case (Some(limit), StreamStrategy.Latest) =>
+        input.bufferTimed(1.second).whileBusyDropEvents.map(select(_, limit)).flatMap(Observable.fromIterable)
+      case (Some(limit), StreamStrategy.All) =>
+        input.bufferTimed(1.second).map(select(_, limit)).flatMap(Observable.fromIterable)
+      case (None, StreamStrategy.Latest) =>
+        input.whileBusyDropEvents
+      case (None, StreamStrategy.All) =>
+        input
+    }
+  }
+
+  /** samples 'max' elements from the given sequence
+    *
     * @param data the data to sample
     * @param max the number of elements to keep
     * @tparam A
@@ -29,24 +50,6 @@ object KafkaReactive {
         }
         iter.toSeq.take(max)
       }
-    }
-  }
-
-  def apply[A](input: Publisher[A], messageLimitPerSecond: Option[Int], strategy: StreamStrategy): Observable[A] = {
-    val obs: Observable[A] = Observable.fromReactivePublisher(input)
-    apply(obs, messageLimitPerSecond, strategy)
-  }
-
-  def apply[A](input: Observable[A], messageLimitPerSecond: Option[Int], strategy: StreamStrategy): Observable[A] = {
-    (messageLimitPerSecond, strategy) match {
-      case (Some(limit), StreamStrategy.Latest) =>
-        input.bufferTimed(1.second).whileBusyDropEvents.map(select(_, limit)).flatMap(Observable.fromIterable)
-      case (Some(limit), StreamStrategy.All) =>
-        input.bufferTimed(1.second).map(select(_, limit)).flatMap(Observable.fromIterable)
-      case (None, StreamStrategy.Latest) =>
-        input.whileBusyDropEvents
-      case (None, StreamStrategy.All) =>
-        input
     }
   }
 

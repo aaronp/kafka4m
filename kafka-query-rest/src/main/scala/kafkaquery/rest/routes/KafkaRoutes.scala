@@ -12,7 +12,11 @@ import args4c.RichConfig
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import kafkaquery.connect.{Bytes, KafkaFacade, RichKafkaConsumer}
+import kafkaquery.eval.{KafkaQuery, KafkaReactive}
 import kafkaquery.kafka.{KafkaEndpoints, StreamRequest}
+import monix.execution.Scheduler
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.reactivestreams.Publisher
 
 class KafkaRoutes(kafka: KafkaFacade, newStreamHandler: StreamRequest => Flow[Message, Message, NotUsed]) extends KafkaEndpoints with BaseRoutes with StrictLogging {
 
@@ -26,6 +30,10 @@ class KafkaRoutes(kafka: KafkaFacade, newStreamHandler: StreamRequest => Flow[Me
 
   val streamRoute: Route = {
     stream.streamEndpoint.request { query: StreamRequest =>
+
+    val data: Publisher[ConsumerRecord[String, Bytes]] = kafka.stream(query)
+
+
       val handler = newStreamHandler(query)
       handleWebSocketMessages(handler)
     }
@@ -38,24 +46,11 @@ object KafkaRoutes {
   import args4c.implicits._
   def apply(rootConfig: Config)(implicit mat: ActorMaterializer, scheduler: ScheduledExecutorService): KafkaRoutes = forRoot(rootConfig)
 
-  def greeterWebSocketService(implicit mat: ActorMaterializer, scheduler: ScheduledExecutorService): Flow[Message, Message, NotUsed] = {
-    Flow[Message]
-      .mapConcat {
-        // we match but don't actually consume the text message here,
-        // rather we simply stream it back as the tail of the response
-        // this means we might start sending the response even before the
-        // end of the incoming message has been received
-        case tm: TextMessage   => TextMessage(Source.single("Hello ") ++ tm.textStream) :: Nil
-        case bm: BinaryMessage =>
-          // ignore binary messages but drain content to avoid the stream being clogged
-          bm.dataStream.runWith(Sink.ignore)
-          Nil
-      }
-  }
-
   private def forRoot(rootConfig: RichConfig)(implicit mat: ActorMaterializer, scheduler: ScheduledExecutorService): KafkaRoutes = {
     val consumerConfig                             = rootConfig.kafkaquery.consumer.config
+
     val consumer: RichKafkaConsumer[String, Bytes] = RichKafkaConsumer.byteArrayValues(rootConfig.config)
+
     val facade = KafkaFacade(
       kafka = consumer,
       pollTimeout = consumerConfig.asFiniteDuration("pollTimeout"),

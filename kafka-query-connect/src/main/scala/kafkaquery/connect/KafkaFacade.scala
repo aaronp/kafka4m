@@ -1,12 +1,16 @@
 package kafkaquery.connect
 
-import kafkaquery.kafka.{ListTopicsResponse, PullLatestResponse}
+import kafkaquery.kafka.{ListTopicsResponse, PullLatestResponse, StreamRequest}
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.reactivestreams.Publisher
 
 import scala.concurrent.duration.FiniteDuration
 
 trait KafkaFacade {
   def listTopics(): ListTopicsResponse
   def pullLatest(topic: String, offset: Long, limit: Long): PullLatestResponse
+
+  def stream(request: StreamRequest): Publisher[ConsumerRecord[String, Bytes]]
 }
 
 object KafkaFacade {
@@ -18,6 +22,11 @@ object KafkaFacade {
 
     override def pullLatest(topic: String, offset: Long, limit: Long) = {
       kafka.pullLatest(topic, offset, limit, pollTimeout, timeout, identity)
+    }
+
+    override def stream(request: StreamRequest): Publisher[ConsumerRecord[String, Bytes]] = {
+      request.groupId
+      request.clientId
     }
   }
 }

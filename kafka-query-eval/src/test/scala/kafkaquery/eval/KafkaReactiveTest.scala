@@ -18,7 +18,7 @@ class KafkaReactiveTest extends WordSpec with Matchers {
 
       val ints = Observable.fromIterator(Task.eval(Iterator.from(0))).delayOnNext(1.millis)
 
-      val reactive: Observable[Int] = KafkaReactive(ints, messageLimitPerSecond = Option(10), StreamStrategy.Latest)
+      val reactive: Observable[Int] = KafkaReactive(ints, messageLimitPerSecond = Option(100), StreamStrategy.Latest)
 
       val done = new CountDownLatch(1)
       object S extends Subscriber[Int] {
@@ -32,6 +32,7 @@ class KafkaReactiveTest extends WordSpec with Matchers {
 
         override def onNext(t: Int): Unit = {
           println(s"onNext($t)")
+          Thread.sleep(2000)
           subscription.request(1)
           if (t > 10000) {
             done.countDown()

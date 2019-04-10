@@ -12,8 +12,10 @@ import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.util.ByteString
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import io.circe.generic.auto._
-import kafkaquery.connect.KafkaFacade
-import kafkaquery.kafka.{Latest, ListTopicsResponse, PartitionData, PullLatestResponse, StreamRequest}
+import kafkaquery.connect.{Bytes, KafkaFacade}
+import kafkaquery.kafka.{ListTopicsResponse, PartitionData, PullLatestResponse, StreamRequest, StreamStrategy}
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.reactivestreams.Publisher
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpec}
 
@@ -41,6 +43,8 @@ class KafkaRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wit
       override def pullLatest(topic: String, offset: Long, limit: Long): PullLatestResponse = {
         PullLatestResponse(topic, List("fake-key"))
       }
+
+      override def stream(request: StreamRequest): Publisher[ConsumerRecord[String, Bytes]] = ???
     }
 
     "list the topics" in {
@@ -96,7 +100,7 @@ class KafkaRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wit
       val wsClient       = WSProbe()
       val websocketRoute = postStream
 
-      val body = StreamRequest("client", "group", "topic", "", None, None, Latest)
+      val body = StreamRequest("client", "group", "topic", "", None, None, StreamStrategy.Latest)
 
       val request = WS("/posting", wsClient.flow).withMethod(HttpMethods.POST).withEntity(Marshal(body).to[RequestEntity].futureValue)
 
