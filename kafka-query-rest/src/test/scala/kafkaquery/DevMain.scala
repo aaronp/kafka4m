@@ -6,7 +6,7 @@ import java.nio.file.Path
 
 import com.typesafe.scalalogging.StrictLogging
 import kafkaquery.connect.DockerEnv
-import kafkaquery.rest.GenCerts
+import kafkaquery.rest.ssl.GenCerts
 
 import scala.io.StdIn
 

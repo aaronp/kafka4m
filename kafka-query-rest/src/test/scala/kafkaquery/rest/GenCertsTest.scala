@@ -2,6 +2,7 @@ package kafkaquery.rest
 
 import java.util.UUID
 
+import kafkaquery.rest.ssl.GenCerts
 import org.scalatest.{Matchers, WordSpec}
 
 class GenCertsTest extends WordSpec with Matchers {

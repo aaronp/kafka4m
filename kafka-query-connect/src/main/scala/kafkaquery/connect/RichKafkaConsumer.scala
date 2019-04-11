@@ -11,7 +11,7 @@ import org.apache.kafka.common.serialization.Deserializer
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration.FiniteDuration
 
-class RichKafkaConsumer[K, V](val client: KafkaConsumer[K, V], defaultTimeout : FiniteDuration) extends AutoCloseable {
+class RichKafkaConsumer[K, V](val client: KafkaConsumer[K, V], defaultTimeout: FiniteDuration) extends AutoCloseable {
 
   def pullLatest(topic: String, limit: Long, pollTimeout: FiniteDuration, timeout: FiniteDuration, formatKey: K => String): PullLatestResponse = {
     import scala.collection.JavaConverters._
@@ -74,7 +74,8 @@ class RichKafkaConsumer[K, V](val client: KafkaConsumer[K, V], defaultTimeout : 
 object RichKafkaConsumer {
 
   object implicits {
-    implicit def asRichConsumer[K, V](client: KafkaConsumer[K, V]) = new RichKafkaConsumer[K, V](client)
+    import concurrent.duration._
+    implicit def asRichConsumer[K, V](client: KafkaConsumer[K, V]) = new RichKafkaConsumer[K, V](client, 5.seconds)
   }
 
   def apply[K, V](rootConfig: Config, keySerializer: Deserializer[K], valueSerializer: Deserializer[V])(implicit scheduler: ScheduledExecutorService): RichKafkaConsumer[K, V] = {

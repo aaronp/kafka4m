@@ -3,18 +3,16 @@ package kafkaquery.rest.routes
 import java.util.concurrent.ScheduledExecutorService
 
 import akka.NotUsed
-import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
+import akka.http.scaladsl.model.ws.Message
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Flow, Sink, Source}
+import akka.stream.scaladsl.Flow
 import args4c.RichConfig
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import kafkaquery.connect.{Bytes, KafkaFacade, RichKafkaConsumer}
-import kafkaquery.eval.{KafkaQuery, KafkaReactive}
 import kafkaquery.kafka.{KafkaEndpoints, StreamRequest}
-import monix.execution.Scheduler
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.reactivestreams.Publisher
 
@@ -30,9 +28,7 @@ class KafkaRoutes(kafka: KafkaFacade, newStreamHandler: StreamRequest => Flow[Me
 
   val streamRoute: Route = {
     stream.streamEndpoint.request { query: StreamRequest =>
-
-    val data: Publisher[ConsumerRecord[String, Bytes]] = kafka.stream(query)
-
+      val data: Publisher[ConsumerRecord[String, Bytes]] = kafka.stream(query)
 
       val handler = newStreamHandler(query)
       handleWebSocketMessages(handler)
@@ -47,7 +43,7 @@ object KafkaRoutes {
   def apply(rootConfig: Config)(implicit mat: ActorMaterializer, scheduler: ScheduledExecutorService): KafkaRoutes = forRoot(rootConfig)
 
   private def forRoot(rootConfig: RichConfig)(implicit mat: ActorMaterializer, scheduler: ScheduledExecutorService): KafkaRoutes = {
-    val consumerConfig                             = rootConfig.kafkaquery.consumer.config
+    val consumerConfig = rootConfig.kafkaquery.consumer.config
 
     val consumer: RichKafkaConsumer[String, Bytes] = RichKafkaConsumer.byteArrayValues(rootConfig.config)
 
@@ -56,6 +52,6 @@ object KafkaRoutes {
       pollTimeout = consumerConfig.asFiniteDuration("pollTimeout"),
       timeout = consumerConfig.asFiniteDuration("timeout")
     )
-    new KafkaRoutes(facade, _ => greeterWebSocketService)
+    new KafkaRoutes(facade, _ => SocketAdapter.greeterWebSocketService)
   }
 }

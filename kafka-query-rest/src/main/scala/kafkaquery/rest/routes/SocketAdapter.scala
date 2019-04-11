@@ -8,7 +8,7 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.Decoder.Result
-import io.circe.{Decoder, Encoder, HCursor, Json}
+import io.circe.{Decoder, DecodingFailure, Encoder, HCursor, Json}
 import kafkaquery.connect.{Bytes, RichKafkaConsumer}
 import kafkaquery.eval.KafkaReactive
 import kafkaquery.kafka.StreamRequest
@@ -31,15 +31,28 @@ object SocketAdapter extends StrictLogging {
   sealed trait WebSocketClientRequest
 
   object WebSocketClientRequest {
-    implicit object Format extends Encoder[WebSocketClientRequest] with Decoder[WebSocketClientRequest] {
-      override def apply(a: WebSocketClientRequest): Json = {
-        ???
-      }
+    import cats.syntax.functor._
+    import io.circe.{Decoder, Encoder}, io.circe.generic.auto._
+    import io.circe.syntax._
 
-      override def apply(c: HCursor): Result[WebSocketClientRequest] = {
-        ???
+    implicit val encodeRequest: Encoder[WebSocketClientRequest] = Encoder.instance[WebSocketClientRequest] {
+      case CancelFeed           => Json.fromString("cancel")
+      case inst @ UpdateFeed(_) => inst.asJson
+    }
+    implicit val decodeCancelFeed= new Decoder[CancelFeed.type] {
+      override def apply(c: HCursor): Result[CancelFeed.type] = {
+        c.as[String] match {
+          case Right("cancel") => Right(CancelFeed)
+          case Right(other) => Left(DecodingFailure(s"Expected 'cancel' but got '$other'", c.history))
+          case Left(err) => Left(err)
+        }
       }
     }
+    implicit val decodeEvent: Decoder[WebSocketClientRequest] =
+      List[Decoder[WebSocketClientRequest]](
+        Decoder[UpdateFeed].widen,
+        Decoder[CancelFeed.type].widen
+      ).reduceLeft(_ or _)
   }
   final case object CancelFeed                      extends WebSocketClientRequest
   final case class UpdateFeed(query: StreamRequest) extends WebSocketClientRequest

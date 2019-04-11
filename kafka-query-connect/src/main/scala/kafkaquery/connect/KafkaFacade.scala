@@ -21,12 +21,13 @@ object KafkaFacade {
     }
 
     override def pullLatest(topic: String, offset: Long, limit: Long) = {
-      kafka.pullLatest(topic, offset, limit, pollTimeout, timeout, identity)
+      kafka.pullLatest(topic, limit, pollTimeout, timeout, identity)
     }
 
     override def stream(request: StreamRequest): Publisher[ConsumerRecord[String, Bytes]] = {
-      request.groupId
-      request.clientId
+//      request.groupId
+//      request.clientId
+      ???
     }
   }
 }

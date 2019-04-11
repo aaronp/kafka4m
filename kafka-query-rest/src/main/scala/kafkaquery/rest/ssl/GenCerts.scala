@@ -1,4 +1,4 @@
-package kafkaquery.rest
+package kafkaquery.rest.ssl
 
 import java.nio.file.{Path, Paths}
 
