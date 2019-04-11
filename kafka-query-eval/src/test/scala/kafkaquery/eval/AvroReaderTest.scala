@@ -11,7 +11,7 @@ class AvroReaderTest extends WordSpec with Matchers {
       val deReader = AvroReader[Beispiel]
 
       val input1 = Beispiel.newBuilder().setKennzeichnen("de").setTag(tagDesWoche.Mittwoch).setWort("text").build()
-      val bytes = input1.toByteBuffer.array()
+      val bytes  = input1.toByteBuffer.array()
       deReader.read(bytes) shouldBe input1
 
       val enReader = AvroReader[Example]

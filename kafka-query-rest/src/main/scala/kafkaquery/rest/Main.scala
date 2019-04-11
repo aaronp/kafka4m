@@ -15,8 +15,7 @@ object Main extends ConfigApp {
 
   override protected val configKeyForRequiredEntries = "kafkaquery.requiredConfig"
 
-  def run(uConfig: Config): RunningServer = {
-    val config  = uConfig.resolve()
+  def run(config: Config): RunningServer = {
     val sslConf = SslConfig(config.getConfig("kafkaquery.tls"))
     RunningServer(Settings(config), sslConf)
   }

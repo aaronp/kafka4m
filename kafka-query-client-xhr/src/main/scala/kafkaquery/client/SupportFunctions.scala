@@ -15,7 +15,7 @@ trait SupportFunctions extends HtmlUtils {
       dom.window.console.log(s"Publishing $request")
       KafkaQueryXhrClient.publish.publishEndpoint(request).onComplete {
         case result =>
-          showAlert(s"publish returned: ${result}")
+          dom.window.console.log(s"publish returned: ${result}")
       }
     }
   }

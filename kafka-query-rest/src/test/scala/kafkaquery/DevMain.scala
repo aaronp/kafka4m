@@ -27,7 +27,7 @@ object DevMain extends StrictLogging {
       val pwd                          = "password"
       val (resValue, buffer, certPath) = GenCerts.genCert(certFile.getParent, certFile.fileName, "", pwd, pwd, pwd)
       logger.info(s"created ${certPath}:\n\n${buffer.allOutput}\n\n")
-      require(resValue == 0)
+      require(resValue == 0, s"Gen cert script exited w/ non-zero value $resValue")
     } else {
       logger.info("dev cert exists, cracking on...")
     }

@@ -22,7 +22,7 @@ class JsonWebToken(val header: JwtHeader, val claims: Claims, val signature: Str
   }
 
   def resetExpiry(newExpiry: ZonedDateTime, secret: SecretKeySpec): JsonWebToken = {
-    require(isHs256)
+    require(isHs256, "not an HS256 token")
     val newClaims    = claims.copy(exp = Claims.asNumericDate(newExpiry))
     val newPayload   = s"${header.toJsonBase64}.${newClaims.toJsonBase64}"
     val newSignature = JsonWebToken.hmac256SignPayload(newPayload, secret)

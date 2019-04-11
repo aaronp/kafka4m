@@ -1,44 +1,61 @@
 package kafkaquery.client
 
+import kafkaquery.kafka.{Heartbeat, StreamingFeedRequest}
 import org.scalajs.dom
-import org.scalajs.dom.raw.WebSocket
+import org.scalajs.dom.raw.{MessageEvent, WebSocket}
+
+import scala.concurrent.duration._
 
 object KafkaWSClient {
 
-  def apply() = {
+  def apply(initialHandshakeMessage: String, hbFrequency: FiniteDuration = 3.seconds)(onNext: MessageEvent => Unit): WebSocket = {
     val loc = dom.window.location
+    import dom.window.console
 
-    dom.window.console.log(s"host:${loc.host}")
-    dom.window.console.log(s"hostname:${loc.hostname}")
-    dom.window.console.log(s"href:${loc.href}")
-    dom.window.console.log(s"pathname:${loc.pathname}")
-    dom.window.console.log(s"protocol:${loc.protocol}")
-    dom.window.console.log(s"search:${loc.search}")
-    dom.window.console.log(s"origin:${loc.origin}")
+    console.log(s"host:${loc.host}")
+    console.log(s"hostname:${loc.hostname}")
+    console.log(s"href:${loc.href}")
+    console.log(s"pathname:${loc.pathname}")
+    console.log(s"protocol:${loc.protocol}")
+    console.log(s"search:${loc.search}")
+    console.log(s"origin:${loc.origin}")
 
-    val socket: WebSocket = new WebSocket(s"wss://${loc.hostname}/kafka/connect")
+    val url = s"wss://${loc.host}/kafka/stream"
+    console.log(s"connecting to ${url}")
+    val socket: WebSocket = new WebSocket(url)
+
+    var heartbeatHandle = Option.empty[Int]
+    def startHeartbeat() = {
+      import io.circe.syntax._
+      val heartbeat = (Heartbeat: StreamingFeedRequest).asJson.noSpaces
+      dom.window.setInterval(() => socket.send(heartbeat), hbFrequency.toMillis)
+    }
+    def stopHeartbeat() = {
+      heartbeatHandle.foreach { id =>
+        dom.window.clearInterval(id)
+        heartbeatHandle = None
+      }
+    }
+
     socket.onclose = { evt =>
-      dom.window.console.log(s"onClose ${evt.reason}")
+      console.log(s"onClose ${evt.reason}")
+      stopHeartbeat()
     }
     socket.onerror = { evt =>
-      dom.window.console.log(s"onError ${evt}")
+      stopHeartbeat()
+      console.log(s"onError ${evt}")
     }
     socket.onmessage = { msg =>
-      dom.window.console.log(s"onMessage ${msg}")
+      console.log(s"onMessage ${msg}")
+      onNext(msg)
     }
     socket.onopen = { msg =>
-      dom.window.console.log(s"onopen ${msg}")
+      console.log(s"onopen ${msg}")
+      socket.send(initialHandshakeMessage)
+      heartbeatHandle = Option(startHeartbeat)
     }
 
-    def send(id: Int) = {
-      socket.send(s"value:$id")
-    }
-
-    (0 to 100).map(_ + 1).foreach { i =>
-      val after = i * 1000
-      dom.window.setTimeout(() => send(i), after)
-    }
-
+    socket
   }
 
 }

@@ -15,7 +15,7 @@ case class AvroReader[A <: Record](reader: DatumReader[A], decoderFactory: Decod
 
   def read(bytes: Bytes): A = {
     val d8a: BinaryDecoder = decoderFactory.binaryDecoder(bytes, null)
-    val record : A = null.asInstanceOf[A]
+    val record: A          = null.asInstanceOf[A]
     reader.read(record, d8a)
   }
 
@@ -29,7 +29,7 @@ case class AvroReader[A <: Record](reader: DatumReader[A], decoderFactory: Decod
 object AvroReader {
 
   def apply[A <: Record: ClassTag]: AvroReader[A] = {
-    val rtc = implicitly[ClassTag[A]].runtimeClass
+    val rtc                            = implicitly[ClassTag[A]].runtimeClass
     val c1ass: Class[A]                = rtc.asInstanceOf[Class[A]]
     val reader: SpecificDatumReader[A] = new SpecificDatumReader[A](c1ass)
     new AvroReader[A](reader)

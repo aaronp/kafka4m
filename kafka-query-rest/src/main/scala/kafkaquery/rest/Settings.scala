@@ -7,14 +7,15 @@ import com.typesafe.config.Config
 import kafkaquery.connect.RichKafkaProducer
 import kafkaquery.kafka.PublishMessage
 import kafkaquery.rest.routes.{KafkaRoutes, KafkaSupportRoutes, StaticFileRoutes}
+import monix.execution.Scheduler
 
 case class Settings(rootConfig: Config, host: String, port: Int, materializer: ActorMaterializer) {
 
   object implicits {
     implicit val scheduler                            = kafkaquery.connect.newSchedulerService()
+    implicit val monixScheduler                       = Scheduler.computation()
     implicit val actorMaterializer: ActorMaterializer = materializer
     implicit val system                               = actorMaterializer.system
-    implicit val executionContext                     = system.dispatcher
     implicit val routingSettings: RoutingSettings     = RoutingSettings(system)
   }
 
@@ -26,7 +27,7 @@ case class Settings(rootConfig: Config, host: String, port: Int, materializer: A
     new KafkaSupportRoutes(rootConfig, publisher)
   }
 
-  val kafkaRoutes  = KafkaRoutes(rootConfig)(implicits.actorMaterializer, implicits.scheduler)
+  val kafkaRoutes  = KafkaRoutes(rootConfig)(implicits.actorMaterializer, implicits.monixScheduler)
   val staticRoutes = StaticFileRoutes.fromRootConfig(rootConfig)
 
   override def toString = {

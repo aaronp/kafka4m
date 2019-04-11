@@ -1,6 +1,6 @@
 package kafkaquery
 
-import org.apache.avro.generic.{GenericRecord, IndexedRecord}
+import org.apache.avro.generic.IndexedRecord
 
 /**
   * The main entry point:
@@ -16,6 +16,8 @@ package object expressions {
 
   type Record    = IndexedRecord // SpecificRecordBase, GenericRecord
   type Predicate = Record => Boolean
+
+  val PassThrough: Predicate = (_ => true)
 
   def parseRule(rule: String): Predicate = Expressions.Predicate(rule)
 

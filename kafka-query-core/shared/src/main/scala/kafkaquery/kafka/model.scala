@@ -1,6 +1,11 @@
 package kafkaquery.kafka
+import java.time
+
 import io.circe.Decoder.Result
-import io.circe.{DecodingFailure, HCursor, Json}
+import io.circe.java8.time.{JavaTimeDecoders, JavaTimeEncoders}
+import io.circe._
+
+import scala.concurrent.duration._
 
 sealed trait KafkaRequest
 sealed trait KafkaResponse
@@ -44,16 +49,91 @@ object StreamStrategy {
   }
 }
 
-final case class StreamRequest(clientId: String,
-                               groupId: String,
-                               topic: String,
-                               filterExpression: String,
-                               fromOffset: Option[Long],
-                               messageLimitPerSecond: Option[Int],
-                               streamStrategy: StreamStrategy)
-    extends KafkaRequest {
-  messageLimitPerSecond.foreach(limit => require(limit > 0))
+final case class Rate(messages: Int, per: FiniteDuration) {
+  require(messages > 0, s"rate must specify > 0 messages: $messages")
 }
 
+object Rate extends JavaTimeEncoders {
+  def perSecond(messages: Int) = Rate(messages, 1.second)
+
+  implicit val rateEncoder = Encoder.instance[Rate] { r8 =>
+    val jDuration = java.time.Duration.ofMillis(r8.per.toMillis)
+    Json.obj("messages" -> Json.fromInt(r8.messages), "per" -> encodeDuration(jDuration))
+  }
+
+  implicit object RateDecoder extends Decoder[Rate] with JavaTimeDecoders {
+    override def apply(c: HCursor): Result[Rate] = {
+      val perResult: Result[time.Duration] = c.downField("per") match {
+        case per: HCursor => decodeDuration(per)
+        case other        => Left(DecodingFailure("no 'per' field", other.history))
+      }
+
+      for {
+        msgs     <- c.downField("messages").as[Int]
+        perJTime <- perResult
+        per = perJTime.toMillis.millis
+      } yield {
+        Rate(msgs, per)
+      }
+    }
+  }
+}
+
+final case class QueryRequest(clientId: String,
+                              groupId: String,
+                              topic: String,
+                              filterExpression: String,
+                              fromOffset: Option[String],
+                              messageLimit: Option[Rate],
+                              streamStrategy: StreamStrategy)
+    extends KafkaRequest
+
+object QueryRequest {
+  import io.circe.generic.semiauto._
+  implicit val decoder: Decoder[QueryRequest]       = deriveDecoder[QueryRequest]
+  implicit val encoder: ObjectEncoder[QueryRequest] = deriveEncoder[QueryRequest]
+}
+
+/** Represents messages coming from a consumer of a data feed
+  */
+sealed trait StreamingFeedRequest
+
+object StreamingFeedRequest {
+  import cats.syntax.functor._
+  import io.circe.generic.auto._
+  import io.circe.syntax._
+  import io.circe.{Decoder, Encoder}
+
+  implicit val encodeRequest: Encoder[StreamingFeedRequest] = Encoder.instance[StreamingFeedRequest] {
+    case CancelFeedRequest           => Json.fromString("cancel")
+    case Heartbeat                   => Json.fromString("heartbeat")
+    case inst @ UpdateFeedRequest(_) => inst.asJson
+  }
+  private class DecodeString[A](value: String, constant: A) extends Decoder[A] {
+    override def apply(c: HCursor): Result[A] = {
+      c.as[String] match {
+        case Right(`value`) => Right(constant)
+        case Right(other)   => Left(DecodingFailure(s"Expected '$value' but got '$other'", c.history))
+        case Left(err)      => Left(err)
+      }
+    }
+  }
+  implicit val decodeCancelFeed : Decoder[CancelFeedRequest.type] = new DecodeString[CancelFeedRequest.type]("cancel", CancelFeedRequest)
+  implicit val decodeHeartbeat : Decoder[Heartbeat.type] = new DecodeString[Heartbeat.type]("heartbeat", Heartbeat)
+
+  implicit val decodeEvent: Decoder[StreamingFeedRequest] =
+    List[Decoder[StreamingFeedRequest]](
+      Decoder[Heartbeat.type].widen,
+      Decoder[UpdateFeedRequest].widen,
+      Decoder[CancelFeedRequest.type].widen
+    ).reduceLeft(_ or _)
+}
+final case object Heartbeat                             extends StreamingFeedRequest
+final case object CancelFeedRequest                     extends StreamingFeedRequest
+final case class UpdateFeedRequest(query: QueryRequest) extends StreamingFeedRequest
+
+/**
+  * Rest Requests for debug/admin
+  */
 sealed trait KafkaSupportRequest
 final case class PublishMessage(topic: String, key: String, data: String) extends KafkaSupportRequest

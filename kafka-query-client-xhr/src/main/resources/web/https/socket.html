@@ -13,7 +13,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 </head>
-<body>
+<body onload="renderQuery('results')">
 <!-- Include JavaScript dependencies -->
 <!-- Include Scala.js compiled code
 <script type="text/javascript" src="./target/scala-2.12/kafkaquery-client-xhr-opt.js"></script>
@@ -21,18 +21,31 @@
 -->
 <script type="text/javascript" src="js/kafka-query-client-xhr-jsdeps.js"></script>
 <script type="text/javascript" src="js/kafka-query-client-xhr-fastopt.js"></script>
-
-
+<ul>
+    <li><a href="index.html">home</a></li>
+    <li><a href="publish.html">publish</a></li>
+    <li><a href="socket.html">query</a></li>
+</ul>
 <form>
+    Group Id:<br>
+    <input type="text" id="groupId" value="kafka-web" ><br>
+    Client Id:<br>
+    <input type="text" id="clientId" value="kafka-web" ><br>
     Topic:<br>
-    <input type="text" id="topic"><br>
-    Key:<br>
-    <input type="text" id="key">
-    Message:<br>
-    <textarea id="message" rows="10" cols="30">
+    <input type="text" id="topic" value="test" ><br>
+    Query:<br>
+    <input type="text" id="query" value="" >
+    Offset:<br>
+    <input type="text" id="offset" value="earliest" >
+    Rate (messages / second):<br>
+    <input type="text" id="rate" value="0" >
+    Strategy (latest or all):<br>
+    <input type="text" id="strategy" value="all" >
     </textarea>
 </form>
+<div id="results"></div>
 
-<button class="btn" type="button" onclick="publish('topic', 'key', 'message')">Publish</button>
+<br/>
+
 </body>
 </html>

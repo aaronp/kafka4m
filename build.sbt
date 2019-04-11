@@ -50,7 +50,7 @@ val testDependencies = List(
   "junit" % "junit" % "4.12" % "test",
   "org.scalatest" %% "scalatest" % "3.0.7" % "test",
   "org.scala-lang.modules" %% "scala-xml" % "1.1.1" % "test",
-  "org.pegdown" % "pegdown" % "1.6.0" % "test",
+  "org.pegdown" % "pegdown" % "1.6.0" % "test"
 )
 
 val simulacrum: ModuleID = "com.github.mpilquist" %% "simulacrum" % "0.13.0"
@@ -254,6 +254,7 @@ lazy val kafkaQueryCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
   .jsSettings(name := "kafka-query-core-js")
   .jsSettings(libraryDependencies ++= List(
     "com.lihaoyi"   %%% "scalatags" % "0.6.8",
+    "com.lihaoyi" %%% "scalarx" % "0.4.0",
     "org.scalatest" %%% "scalatest" % "3.0.7" % "test"
   ))
 

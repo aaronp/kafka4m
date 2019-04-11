@@ -1,10 +1,14 @@
 package kafkaquery.rest
 
-import akka.http.scaladsl.{Http, HttpsConnectionContext}
+import akka.NotUsed
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.RouteResult._
 import akka.http.scaladsl.settings.RoutingSettings
+import akka.http.scaladsl.{Http, HttpsConnectionContext}
+import akka.stream.scaladsl.Flow
 import com.typesafe.scalalogging.StrictLogging
-import kafkaquery.rest.routes.{AppRoutes, KafkaRoutes, KafkaSupportRoutes, StaticFileRoutes}
+import kafkaquery.rest.routes.{AppRoutes, KafkaRoutes, StaticFileRoutes}
 import kafkaquery.rest.ssl.{HttpsUtil, SslConfig}
 
 import scala.concurrent.Future
@@ -14,19 +18,6 @@ class RunningServer private (val settings: Settings, bindingFuture: Future[Http.
 
 object RunningServer extends StrictLogging {
 
-  def setup(settings: Settings): RunningServer = {
-
-    logger.info(s"Configuration requires setup, running with ${settings}")
-    import settings.implicits._
-    // TODO - check the schema in the route, not offer a different port ... perhaps
-    val httpBindingFuture = {
-      val static            = StaticFileRoutes.fromRootConfig(settings.rootConfig).copy(landingPage = "setup.html")
-      val httpRoutes: Route = AppRoutes.setupRoutes(static)
-      Http().bindAndHandle(httpRoutes, settings.host, settings.port)
-    }
-    new RunningServer(settings, httpBindingFuture)
-  }
-
   def apply(settings: Settings, sslConf: SslConfig) = {
     import settings.implicits._
     val httpsRoutes: Route            = makeRoutes(settings.staticRoutes, settings.kafkaRoutes, settings.kafkaSupportRoutes.routes)
@@ -34,8 +25,9 @@ object RunningServer extends StrictLogging {
 
     logger.info(s"Starting with ${settings}")
 
-    val httpsBindingFuture = Http().bindAndHandle(httpsRoutes, settings.host, settings.port, connectionContext = https)
-    val bindingFuture      = httpsBindingFuture
+    val flow: Flow[HttpRequest, HttpResponse, NotUsed] = route2HandlerFlow(httpsRoutes)
+    val httpsBindingFuture                             = Http().bindAndHandle(flow, settings.host, settings.port, connectionContext = https)
+    val bindingFuture                                  = httpsBindingFuture
     new RunningServer(settings, bindingFuture)
   }
 

@@ -18,14 +18,18 @@ object Expressions {
 
     private var predicateByRule = Map[String, Predicate]()
 
-    private def createUnsafe(rule: String): Predicate = {
-      val p = Predicate(rule)
-      predicateByRule = predicateByRule.updated(rule, p)
+    private def createUnsafe(expression: String): Predicate = {
+      val p = Predicate(expression)
+      predicateByRule = predicateByRule.updated(expression, p)
       p
     }
 
-    def apply(rule: String): Predicate = {
-      Lock.synchronized(predicateByRule.getOrElse(rule, createUnsafe(rule)))
+    def apply(expression: String): Predicate = {
+      if (Option(expression).map(_.trim).filter(_.nonEmpty).isDefined) {
+        Lock.synchronized(predicateByRule.getOrElse(expression, createUnsafe(expression)))
+      } else {
+        PassThrough
+      }
     }
   }
 

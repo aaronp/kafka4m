@@ -28,17 +28,10 @@ trait KafkaEndpoints extends BaseEndpoint {
   }
 
   object stream {
+    def request: Request[Unit] = get(path / "kafka" / "stream")
+    def response: Response[Unit] = emptyResponse(Option("The response is upgrade response to open a websocket"))
 
-    def request: Request[StreamRequest] = {
-      val streamRequest = jsonRequest[StreamRequest](Option("request which will open a reactive stream web socket"))
-      post(path / "kafka" / "stream", streamRequest)
-    }
-    def response = emptyResponse(Option("The response is upgrade response to open a websocket"))
-
-    implicit lazy val `JsonSchema[ListTopicsResponse]` : JsonSchema[Unit]     = JsonSchema(implicitly, implicitly)
-    implicit lazy val `JsonSchema[StreamRequest]` : JsonSchema[StreamRequest] = JsonSchema(implicitly, implicitly)
-
-    val streamEndpoint: Endpoint[StreamRequest, Unit] = endpoint(request, response)
+    val streamEndpoint: Endpoint[Unit, Unit] = endpoint(request, response)
   }
 
   object pullLatest {
