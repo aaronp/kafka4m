@@ -1,1 +1,1 @@
-sbt "project kafkaqueryClientXhr" fullOptJS "project kafkaqueryDeploy" deploy
+sbt "project pipelinesClientXhr" fullOptJS "project pipelinesDeploy" deploy
