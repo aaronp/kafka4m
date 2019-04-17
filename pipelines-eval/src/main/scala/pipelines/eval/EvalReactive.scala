@@ -65,20 +65,13 @@ object EvalReactive extends StrictLogging {
     (messageLimit, strategy) match {
       case (Some(Rate(limit, per)), StreamStrategy.Latest) =>
         input. //
-        dump(s"\t$limit per $per w/ latest"). //
         bufferTimed(per). //
-        dump(s"\t\t(timed) $limit per $per"). //
         whileBusyDropEvents
           .map(select(_, limit))
-          . //
-          dump(s"\t\t\t(timed, dropped) $limit per $per")
-          . //
-          switchMap(Observable.fromIterable)
+          .switchMap(Observable.fromIterable)
       case (Some(Rate(limit, per)), StreamStrategy.All) =>
         input. //
-        dump(s"\t$limit per $per w/ all"). //
         bufferTimed(per). //
-        dump(s"\t$limit per $per"). //
         map(select(_, limit)). //
         switchMap(Observable.fromIterable)
       case (None, StreamStrategy.Latest) =>

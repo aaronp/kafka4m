@@ -10,11 +10,11 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 //BasicAuthentication with
-class PipelinesClient(settings: EndpointsSettings)(implicit ec: ExecutionContext, mat: Materializer)
+abstract class PipelinesClient(settings: EndpointsSettings)(implicit ec: ExecutionContext, mat: Materializer)
     extends Endpoints(settings)
-    with KafkaEndpoints
-    with endpoints.algebra.circe.JsonEntitiesFromCodec
-    with JsonEntitiesFromCodec {}
+    with JsonEntitiesFromCodec
+//    with endpoints.algebra.circe.JsonEntitiesFromCodec
+//    with KafkaEndpoints
 
 object PipelinesClient {
 
@@ -22,7 +22,8 @@ object PipelinesClient {
     implicit val system: ActorSystem = mat.system
     implicit val ec                  = system.dispatcher
     val settings                     = settingsFor(host, port, toStrictTimeout)
-    new PipelinesClient(settings)
+    //new PipelinesClient(settings)
+    ???
   }
 
   def settingsFor(host: String, port: Int, toStrictTimeout: FiniteDuration)(implicit mat: ActorMaterializer): EndpointsSettings = {

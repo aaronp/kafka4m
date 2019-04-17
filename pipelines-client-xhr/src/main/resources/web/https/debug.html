@@ -13,7 +13,8 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 </head>
-<body>
+<body style="margin: 0px">
+
 <!-- Include JavaScript dependencies -->
 <!-- Include Scala.js compiled code
 <script type="text/javascript" src="./target/scala-2.12/pipelines-client-xhr-opt.js"></script>
@@ -22,17 +23,13 @@
 <script type="text/javascript" src="js/pipelines-client-xhr-jsdeps.js"></script>
 <script type="text/javascript" src="js/pipelines-client-xhr-fastopt.js"></script>
 
+<div style="border: solid 1px red">
+<canvas style="display: block" id="canvas" width="255" height="255"/>
+</div>
 
-<ul>
-    <li><a href="index.html">home</a></li>
-    <li><a href="publish.html">publish</a></li>
-    <li><a href="socket.html">query</a></li>
-</ul>
+<script>
+    pipelines.client.DrawApp().main(document.getElementById('canvas'));
+</script>
 
-<br/>
-
-<button class="btn" type="button" onclick="listTopics()">
-    List Topics
-</button>
 </body>
 </html>
