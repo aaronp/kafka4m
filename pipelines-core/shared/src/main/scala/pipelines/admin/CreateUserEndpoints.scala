@@ -1,17 +1,14 @@
 package pipelines.admin
 
-import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import pipelines.core.BaseEndpoint
 import pipelines.users.{CreateUserRequest, CreateUserResponse}
 
 trait CreateUserEndpoints extends BaseEndpoint {
 
-  def createUserRequest: Request[CreateUserRequest] = {
-    post(path / "createUser", jsonRequest[CreateUserRequest]())
+  def createUserRequest(implicit req: JsonRequest[CreateUserRequest]): Request[CreateUserRequest] = {
+    post(path / "users" / "create", jsonRequest[CreateUserRequest]())
   }
-  def createUserResponse = jsonResponse[CreateUserResponse]()
+  def createUserResponse(implicit resp: JsonResponse[CreateUserResponse]): Response[CreateUserResponse] = jsonResponse[CreateUserResponse]()
 
-  val createUserEndpoint: Endpoint[CreateUserRequest, CreateUserResponse]                     = endpoint(createUserRequest, createUserResponse)
-  implicit lazy val `JsonSchema[CreateUserRequest]` : JsonSchema[CreateUserRequest]   = JsonSchema(deriveEncoder[CreateUserRequest], deriveDecoder[CreateUserRequest])
-  implicit lazy val `JsonSchema[CreateUserResponse]` : JsonSchema[CreateUserResponse] = JsonSchema(deriveEncoder[CreateUserResponse], deriveDecoder[CreateUserResponse])
+  def createUserEndpoint(implicit req: JsonRequest[CreateUserRequest], resp: JsonResponse[CreateUserResponse]): Endpoint[CreateUserRequest, CreateUserResponse]                     = endpoint(createUserRequest, createUserResponse)
 }

@@ -6,10 +6,10 @@ import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives.respondWithHeader
 import akka.http.scaladsl.server.{Directives, Route}
 import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport._
-
 import pipelines.rest.jwt.{Claims, Hmac256, JsonWebToken}
 import io.circe.Encoder
 import javax.crypto.spec.SecretKeySpec
+import pipelines.admin.GenerateServerCertRequest
 import pipelines.users.{LoginRequest, LoginResponse, UserEndpoints}
 
 object UserRoutes {
@@ -23,10 +23,11 @@ object UserRoutes {
   }
 }
 
-class UserRoutes(secret: SecretKeySpec, doLogin: LoginRequest => Option[Claims]) extends UserEndpoints with BaseRoutes {
+class UserRoutes(secret: SecretKeySpec, doLogin: LoginRequest => Option[Claims]) extends UserEndpoints with BaseCirceRoutes {
 
-  override def loginResponse: LoginResponse => Route = { resp: LoginResponse =>
-    implicit def encoder: Encoder[LoginResponse] = implicitly[JsonSchema[LoginResponse]].encoder
+  override def loginResponse(implicit resp : JsonResponse[LoginResponse]): LoginResponse => Route = { resp: LoginResponse =>
+
+//    implicit def encoder: Encoder[LoginResponse] = implicitly[JsonSchema[LoginResponse]].encoder
     resp.jwtToken match {
       case Some(token) =>
         respondWithHeader(RawHeader("X-Access-Token", token)) {
@@ -43,6 +44,11 @@ class UserRoutes(secret: SecretKeySpec, doLogin: LoginRequest => Option[Claims])
   }
 
   def loginRoute: Route = {
+
+    implicit def LoginRequestSchema: JsonSchema[LoginRequest]   = JsonSchema(implicitly, implicitly)
+    implicit def loginResponseSchema: JsonSchema[LoginResponse]   = JsonSchema(implicitly, implicitly)
+
+
     Directives.extractRequest { rqt =>
       // An anonymous user may have tried to browse a page which requires login (e.g. a JWT token), and so upon a successful login,
       // we should redirect to the URL as specified by the 'redirectToHeader' (if set)

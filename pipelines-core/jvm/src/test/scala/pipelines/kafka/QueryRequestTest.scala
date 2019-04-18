@@ -22,7 +22,7 @@ object QueryRequestTest {
     fromOffset = Option("latest"),
     messageLimit = Option(Rate.perSecond(123)),
     format = Option(ResponseFormat(List("key", "foo"))),
-    streamStrategy = StreamStrategy.Latest)
-
+    streamStrategy = StreamStrategy.Latest
+  )
 
 }

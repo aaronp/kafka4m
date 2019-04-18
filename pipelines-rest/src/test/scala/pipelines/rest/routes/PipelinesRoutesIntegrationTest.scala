@@ -6,12 +6,12 @@ import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.{ScalatestRouteTest, WSProbe}
 import io.circe.generic.auto._
+import io.circe.parser._
 import monix.execution.Scheduler
 import org.scalatest.Matchers
-import pipelines.connect.{BaseDockerSpec, RichKafkaProducer}
+import pipelines.Using
+import pipelines.connect.{BaseDockerSpec, RecordJson, RichKafkaProducer}
 import pipelines.kafka._
-
-import scala.collection.mutable.ListBuffer
 
 /**
   * See
@@ -23,7 +23,7 @@ import scala.collection.mutable.ListBuffer
   * https://doc.akka.io/docs/akka-http/current/server-side/websocket-support.html
   *
   */
-class PipelinesRoutesIntegrationTest extends BaseDockerSpec("scripts/kafka") with Matchers with ScalatestRouteTest { //
+class PipelinesRoutesIntegrationTest extends BaseDockerSpec("scripts/kafka") with Matchers with ScalatestRouteTest {
 
   "GET /kafka/stream" should {
     "open a web socket to pull all data from a query" in {
@@ -38,129 +38,64 @@ class PipelinesRoutesIntegrationTest extends BaseDockerSpec("scripts/kafka") wit
       val topic = s"testTopic${UUID.randomUUID}"
 
       val schedulerService = Scheduler.io("PipelinesRoutesIntegrationTest")
-      try {
-        val publisher: RichKafkaProducer[String, String] = RichKafkaProducer.strings(rootConfig)(schedulerService)
-
-        expectedData.foreach { msg =>
-          publisher.send(topic, msg, msg)
-        }
-        publisher.flush()
-
-        val clientRequest = UpdateFeedRequest(
-          new QueryRequest(
-            clientId = "clientId" + UUID.randomUUID,
-            groupId = "groupId" + UUID.randomUUID,
-            topic = topic,
-            filterExpression = "",
-            filterExpressionIncludeMatches = true,
-            fromOffset = Option("earliest"),
-            messageLimit = None, //Option(Rate.perSecond(expectedData.size * 2)),
-            format = None,
-            streamStrategy = StreamStrategy.All
-          ))
-
-        val websocketRoute: Route = PipelinesRoutes(rootConfig)(materializer, schedulerService).routes
-
-        val req: HttpRequest = WS("/kafka/stream", wsClient.flow)
-
-        req ~> websocketRoute ~> check {
-          // check response for WS Upgrade headers
-          isWebSocketUpgrade shouldEqual true
-
-          // manually run a WS conversation
-          import io.circe.syntax._
-          val fromClient = clientRequest.asJson
-
-          println(expectedData.indices.size)
-          println()
-          wsClient.sendMessage(fromClient.noSpaces)
-          val received = (0 until expectedData.size).map { _ =>
-            wsClient.expectMessage()
+      Using(RichKafkaProducer.strings(rootConfig)(schedulerService)) { publisher: RichKafkaProducer[String, String] =>
+        try {
+          expectedData.foreach { msg =>
+            publisher.send(topic, msg, msg)
           }
-          received.size shouldBe expectedData.size
+          publisher.flush()
 
-          val textReceived = received.map(_.asTextMessage.getStrictText)
-          textReceived.foreach { json =>
-            println(json)
-            println()
+          val clientRequest = UpdateFeedRequest(
+            new QueryRequest(
+              clientId = "clientId" + UUID.randomUUID,
+              groupId = "groupId" + UUID.randomUUID,
+              topic = topic,
+              filterExpression = "",
+              filterExpressionIncludeMatches = true,
+              fromOffset = Option("earliest"),
+              messageLimit = None, //Option(Rate.perSecond(expectedData.size * 2)),
+              format = None,
+              streamStrategy = StreamStrategy.All
+            ))
+
+          Using(PipelinesRoutes(rootConfig)(materializer, schedulerService)) { kafkaRoutes =>
+            val websocketRoute: Route = kafkaRoutes.routes
+
+            val req: HttpRequest = WS("/kafka/stream", wsClient.flow)
+
+            req ~> websocketRoute ~> check {
+              // check response for WS Upgrade headers
+              isWebSocketUpgrade shouldEqual true
+
+              // manually run a WS conversation
+              import io.circe.syntax._
+              val fromClient = clientRequest.asJson
+
+              wsClient.sendMessage(fromClient.noSpaces)
+              val received = (0 until expectedData.size).map { _ =>
+                wsClient.expectMessage()
+              }
+              received.size shouldBe expectedData.size
+
+              val textReceived = received.map(_.asTextMessage.getStrictText)
+              val messages = textReceived.map { json =>
+                decode[RecordJson](json).right.get
+              }
+              messages.size shouldBe expectedData.size
+              messages.foreach { msg =>
+                msg.topic shouldBe topic
+              }
+              messages.map(_.key) should contain theSameElementsAs (expectedData)
+              messages.map(_.offset) should contain theSameElementsAs (expectedData.indices)
+
+              wsClient.sendCompletion()
+              //          wsClient.expectCompletion()
+            }
           }
-
-          wsClient.sendCompletion()
-//          wsClient.expectCompletion()
+        } finally {
+          schedulerService.shutdown()
         }
-      } finally {
-//        schedulerService.shutdown()
       }
     }
-//    "open a web socket to rate limit data from a query" ignore {
-//      val wsClient = WSProbe()
-//
-//      import args4c.implicits._
-//
-//      val rootConfig = Array("dev.conf").asConfig()
-//
-//      println()
-//      println(rootConfig.getConfig("pipelines").summary())
-//      println()
-//
-//      val expectedData = (0 to 10).map(i => s"data $i")
-//
-//      val topic = s"testTopic${UUID.randomUUID}"
-//
-//      implicit val schedulerService = Scheduler.io("PipelinesRoutesIntegrationTest2")
-//      try {
-//        val publisher = RichKafkaProducer.strings(rootConfig)
-//
-//        expectedData.foreach { msg =>
-//          publisher.send(topic, msg, msg)
-//        }
-//        publisher.flush()
-//
-//        val clientRequest = UpdateFeedRequest(
-//          new QueryRequest(
-//            clientId = "clientId" + UUID.randomUUID,
-//            groupId = "groupId" + UUID.randomUUID,
-//            topic = topic,
-//            filterExpression = "",
-//            filterExpressionIncludeMatches = true,
-//            fromOffset = Option("earliest"),
-//            messageLimit = None, //Option(Rate.perSecond(expectedData.size * 2)),
-//            format = None,
-//            streamStrategy = StreamStrategy.All
-//          ))
-//
-//        val receivedRequests = ListBuffer[StreamingFeedRequest]()
-//        val websocketRoute: Route = PipelinesRoutes(rootConfig).routes
-//
-//        WS("/kafka/stream", wsClient.flow) ~> websocketRoute ~> check {
-//          // check response for WS Upgrade headers
-//          isWebSocketUpgrade shouldEqual true
-//
-//          // manually run a WS conversation
-//          import io.circe.syntax._
-//          val fromClient = clientRequest.asJson
-//
-//          println(expectedData.indices.size)
-//          println()
-//          wsClient.sendMessage(fromClient.noSpaces)
-//          val received = (0 until expectedData.size).map { _ =>
-//            wsClient.expectMessage()
-//          }
-//          received.size shouldBe expectedData.size
-//
-//          val textReceived = received.map(_.asTextMessage.getStrictText)
-//          textReceived.foreach { json =>
-//            println(json)
-//            println()
-//          }
-//
-//          wsClient.sendCompletion()
-//          wsClient.expectCompletion()
-//        }
-//      } finally {
-//        schedulerService.shutdown()
-//      }
-//    }
-
   }
 }

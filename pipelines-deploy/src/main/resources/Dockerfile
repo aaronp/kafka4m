@@ -15,6 +15,7 @@ EXPOSE 9010
 RUN mkdir -p /app/web
 RUN mkdir -p /app/data
 RUN mkdir -p /app/logs
+RUN mkdir -p /app/scripts
 RUN mkdir -p /app/lib
 RUN mkdir -p /app/heapdump/
 ENV DATA_DIR /app/data/

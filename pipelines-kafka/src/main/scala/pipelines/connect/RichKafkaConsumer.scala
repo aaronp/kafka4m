@@ -207,13 +207,8 @@ object RichKafkaConsumer extends StrictLogging {
       config.pipelines.consumer.config
     }
     logger.debug(s"creating new kafka consumer client for:\n${consumerConf.summary()}\n")
-    val pollFreq = {
-      val maxPollFreq = consumerConf.getInt("max.poll.interval.ms").millis
-      val freq        = consumerConf.asFiniteDuration("poll.interval")
-      require(freq < maxPollFreq, s"poll.interval '${freq}' is not less than the max.poll.interval.ms '${maxPollFreq}'")
-      freq
-    }
-    val props = propertiesForConfig(consumerConf)
+    val pollFreq = consumerConf.asFiniteDuration("poll.interval")
+    val props    = propertiesForConfig(consumerConf)
 
     val consumer = new KafkaConsumer[K, V](props, keySerializer, valueSerializer)
     new RichKafkaConsumer[K, V](consumer, pollFreq)

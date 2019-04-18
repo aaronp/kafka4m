@@ -6,7 +6,7 @@ class RectangleTest extends WordSpec with Matchers {
 
   "Rectangle.scale" should {
     "scale" in {
-      Rectangle(-1, 1, 1, -1).scale(5,5) shouldBe Rectangle(-5, 5, 5, -5)
+      Rectangle(-1, 1, 1, -1).scale(5, 5) shouldBe Rectangle(-5, 5, 5, -5)
     }
   }
   "Rectangle.clip" should {

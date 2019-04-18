@@ -1,6 +1,10 @@
 package pipelines.rest.ssl
 
-import java.nio.file.{Path, Paths}
+import java.net.URL
+import java.nio.file.attribute.PosixFilePermissions
+import java.nio.file.{Files, Path, Paths}
+
+import com.typesafe.scalalogging.StrictLogging
 
 import scala.collection.mutable.ArrayBuffer
 import scala.sys.process
@@ -9,7 +13,7 @@ import scala.sys.process.ProcessLogger
 /**
   * Utility for creating a certificate on a host. This is in 'main' (rather than just test) code, as we could potentially use this for other envs (staging, uat, etc)
   */
-object GenCerts {
+object GenCerts extends StrictLogging {
 
   def genCert(workDir: Path, certificateName: String, hostname: String, crtPassword: String, caPassword: String, jksPassword: String): (Int, BufferLogger, Path) = {
     val p12CertFile = workDir.resolve(certificateName)
@@ -33,9 +37,33 @@ object GenCerts {
   }
 
   private def parseScript(script: String, extraEnv: (String, String)*): process.ProcessBuilder = {
-    val location = getClass.getClassLoader.getResource(script)
+    val location: URL = getClass.getClassLoader.getResource(script)
+    logger.info(s"Resolved $script to be $location, protocol '${location.getProtocol}'")
+
+    val scriptLoc: Path = if (location.getProtocol.startsWith("jar")) {
+      import eie.io._
+      val dir = {
+        val firstChoice = "/app/scripts".asPath
+        if (firstChoice.isDir) {
+          firstChoice
+        } else {
+          Files.createTempDirectory("scripts")
+        }
+      }
+      import PosixFilePermissions._
+      val file = dir.resolve(script)
+      file.mkParentDirs(asFileAttribute(fromString("rw-rw-rw-")))
+
+      java.nio.file.Files.copy(location.openStream(), file)
+      import scala.collection.JavaConverters._
+      file.setFilePermissions(fromString("rwxrwxrwx").asScala.toSet)
+      logger.info(s"Extracted $script under $file")
+      file
+    } else {
+      Paths.get(location.toURI)
+    }
+
     require(location != null, s"Couldn't find $script")
-    val scriptLoc = Paths.get(location.toURI)
     import sys.process._
 
     val scriptFile = s"./${scriptLoc.getFileName.toString}"

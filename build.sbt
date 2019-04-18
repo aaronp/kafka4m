@@ -383,6 +383,7 @@ lazy val pipelinesRest = project
   .settings(libraryDependencies ++= typesafeConfig :: logging)
   .settings(libraryDependencies ++= List("com.typesafe.akka" %% "akka-http-testkit" % "10.1.8" % "test", "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.19" % "test"))
   .settings(libraryDependencies += args4cModule)
+  .settings(mappings in (Compile, packageBin) ~= { _.filter(!_._1.getAbsolutePath.contains("scripts")) }) // don't add script files to the jar
   .settings(libraryDependencies += "de.heikoseeberger" %% "akka-http-circe" % "1.25.2")
   .settings(libraryDependencies ++= List(
     "org.julienrf" %% "endpoints-akka-http-server" % "0.9.0",

@@ -32,9 +32,9 @@ class PlotTest extends WordSpec with Matchers {
       text.foreach(_ should startWith("o"))
     }
     "plot vertical lines" in {
-      val vertical             = LineSegment(Point(5.0, 5.0), Point(5.0, -5.0))
+      val vertical = LineSegment(Point(5.0, 5.0), Point(5.0, -5.0))
 
-      val rows: Plot.AsciiRows = AsciiLineImpl.layout(vertical, Rectangle(0,5,5,-5))
+      val rows: Plot.AsciiRows = AsciiLineImpl.layout(vertical, Rectangle(0, 5, 5, -5))
       rows.rows.size shouldBe 11
       rows.rows shouldBe List(
         (-5, AsciiRow(List((5, 'o')))),
@@ -87,7 +87,7 @@ class PlotTest extends WordSpec with Matchers {
     "plot vertical lines within larger boxes" in {
 
       val box  = Rectangle(-10, 10, 10, -10)
-      val line = LineSegment(5,5, 5, -5)
+      val line = LineSegment(5, 5, 5, -5)
 
       val rows: Plot.AsciiRows = AsciiLineImpl.layout(line, box)
       rows.rows.size shouldBe (11)
@@ -107,7 +107,6 @@ class PlotTest extends WordSpec with Matchers {
     }
   }
   "AsciiRectangle" ignore {
-
 
     "plot rectangles" in {
 

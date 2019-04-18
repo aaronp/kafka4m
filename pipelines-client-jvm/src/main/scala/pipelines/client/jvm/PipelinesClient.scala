@@ -10,9 +10,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 //BasicAuthentication with
-abstract class PipelinesClient(settings: EndpointsSettings)(implicit ec: ExecutionContext, mat: Materializer)
-    extends Endpoints(settings)
-    with JsonEntitiesFromCodec
+abstract class PipelinesClient(settings: EndpointsSettings)(implicit ec: ExecutionContext, mat: Materializer) extends Endpoints(settings) with JsonEntitiesFromCodec
 //    with endpoints.algebra.circe.JsonEntitiesFromCodec
 //    with KafkaEndpoints
 

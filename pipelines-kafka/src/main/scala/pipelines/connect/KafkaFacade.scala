@@ -12,7 +12,7 @@ import scala.io.Source
 /**
   * Represents the pieces of Kafka which we access from our REST endpoints
   */
-trait KafkaFacade {
+trait KafkaFacade extends AutoCloseable {
   def listTopics(): ListTopicsResponse
   def pullLatest(topic: String, offset: Long, limit: Long): PullLatestResponse
 
@@ -21,8 +21,12 @@ trait KafkaFacade {
 
 object KafkaFacade extends LazyLogging {
 
-  def apply(consumer: RichKafkaConsumer[String, Bytes], schemasByTopic: Map[String, String], pollTimeout: FiniteDuration, timeout: FiniteDuration): KafkaFacade =
-    new KafkaFacade with StrictLogging {
+  def apply(consumer: RichKafkaConsumer[String, Bytes],
+            schemasByTopic: Map[String, String],
+            pollTimeout: FiniteDuration,
+            timeout: FiniteDuration,
+            closeConsumer: RichKafkaConsumer[String, Bytes] => Unit): KafkaFacade = {
+    new KafkaFacade with AutoCloseable with StrictLogging {
       override def listTopics() = ListTopicsResponse(consumer.listTopics())
       override def pullLatest(topic: String, offset: Long, limit: Long) = {
         consumer.pullLatest(topic, limit, pollTimeout, timeout, identity)
@@ -31,7 +35,12 @@ object KafkaFacade extends LazyLogging {
       override def schemaForTopic(topic: String): Option[String] = {
         schemasByTopic.get(topic)
       }
+
+      override def close(): Unit = {
+        closeConsumer(consumer)
+      }
     }
+  }
 
   def schemasByTopicForRootConfig(rootConfig: Config) = schemasByTopicForConfig(rootConfig.getConfig("pipelines.avro"))
 

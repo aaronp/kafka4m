@@ -24,12 +24,19 @@
 <script type="text/javascript" src="js/pipelines-client-xhr-fastopt.js"></script>
 
 <div style="border: solid 1px red">
-<canvas style="display: block" id="canvas" width="255" height="255"/>
+    <canvas style="display: block" id="canvas" width="255" height="1255"/>
 </div>
 
-<script>
-    pipelines.client.DrawApp().main(document.getElementById('canvas'));
-</script>
+<form>
+    Trim Vertex Threshold:<br>
+    <input type="text" id="simplify" value="1%"><br>
+</form>
 
+<button class="btn" type="button" onclick="pipelines.client.DrawApp().removeVertices('simplify')">Trim</button>
+<div id="divLog"></div>
+
+<script>
+    pipelines.client.DrawApp().main(document.getElementById('canvas'), document.getElementById('divLog'));
+</script>
 </body>
 </html>

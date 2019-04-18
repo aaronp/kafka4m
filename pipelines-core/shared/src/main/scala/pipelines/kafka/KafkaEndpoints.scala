@@ -1,6 +1,5 @@
 package pipelines.kafka
 
-import io.circe.generic.auto._
 import pipelines.core.BaseEndpoint
 
 /**
@@ -8,9 +7,9 @@ import pipelines.core.BaseEndpoint
   */
 trait KafkaEndpoints extends BaseEndpoint {
 
-  def kafkaEndpoints = List(
+  def kafkaEndpoints(implicit resp1: JsonResponse[ListTopicsResponse], resp2: JsonResponse[PullLatestResponse]) = List(
     listTopics.listTopicsEndpoint,
-    pullLatest.pullEndpoint,
+    query.pullEndpoint,
     stream.streamEndpoint
   )
 
@@ -18,22 +17,20 @@ trait KafkaEndpoints extends BaseEndpoint {
 
     def request: Request[Unit] = get(path / "kafka" / "topics")
 
-    def response: Response[ListTopicsResponse] = jsonResponse[ListTopicsResponse](Option("returns the available topics"))
+    def response(implicit resp: JsonResponse[ListTopicsResponse]): Response[ListTopicsResponse] = jsonResponse[ListTopicsResponse](Option("returns the available topics"))
 
-    implicit lazy val requestSchema : JsonSchema[ListTopicsResponse] = JsonSchema(implicitly, implicitly)
-
-    val listTopicsEndpoint: Endpoint[Unit, ListTopicsResponse] = endpoint(request, response)
+    def listTopicsEndpoint(implicit resp: JsonResponse[ListTopicsResponse]): Endpoint[Unit, ListTopicsResponse] = endpoint(request, response)
   }
 
   object stream {
     type IsBinary = Boolean
     def request: Request[Option[IsBinary]] = get(path / "kafka" / "stream" /? qs[Option[Boolean]]("binary"))
-    def response: Response[Unit] = emptyResponse(Option("The response is upgrade response to open a websocket"))
+    def response: Response[Unit]           = emptyResponse(Option("The response is upgrade response to open a websocket"))
 
     val streamEndpoint: Endpoint[Option[IsBinary], Unit] = endpoint(request, response)
   }
 
-  object pullLatest {
+  object query {
     type Topic  = String
     type Limit  = Long
     type Offset = Long
@@ -41,31 +38,11 @@ trait KafkaEndpoints extends BaseEndpoint {
     type PullLatestRequest = (Topic, Offset, Limit)
 
     def request: Request[PullLatestRequest] = {
-      get(path / "kafka" / "pull" /? (qs[Topic]("topic") & qs[Offset]("offset") & qs[Limit]("limit")))
+      get(path / "kafka" / "query" /? (qs[Topic]("topic") & qs[Offset]("offset") & qs[Limit]("limit")))
     }
 
-    def response: Response[PullLatestResponse] = jsonResponse[PullLatestResponse](Option("returns data from the topic"))
+    def response(implicit resp: JsonResponse[PullLatestResponse]): Response[PullLatestResponse] = jsonResponse[PullLatestResponse](Option("returns data from the topic"))
 
-    implicit lazy val requestSchema : JsonSchema[PullLatestResponse] = JsonSchema(implicitly, implicitly)
-
-    val pullEndpoint: Endpoint[PullLatestRequest, PullLatestResponse] = endpoint(request, response)
+    def pullEndpoint(implicit resp: JsonResponse[PullLatestResponse]): Endpoint[PullLatestRequest, PullLatestResponse] = endpoint(request, response)
   }
-  object associateSchema {
-    type Topic  = String
-    type Limit  = Long
-    type Offset = Long
-
-    type PullLatestRequest = (Topic, Offset, Limit)
-
-    def request: Request[PullLatestRequest] = {
-      get(path / "kafka" / "pull" /? (qs[Topic]("topic") & qs[Offset]("offset") & qs[Limit]("limit")))
-    }
-
-    def response: Response[PullLatestResponse] = jsonResponse[PullLatestResponse](Option("returns data from the topic"))
-
-    implicit lazy val `JsonSchema[PullLatestResponse]` : JsonSchema[PullLatestResponse] = JsonSchema(implicitly, implicitly)
-
-    val pullEndpoint: Endpoint[PullLatestRequest, PullLatestResponse] = endpoint(request, response)
-  }
-
 }

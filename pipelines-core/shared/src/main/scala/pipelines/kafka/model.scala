@@ -5,6 +5,7 @@ import io.circe.Decoder.Result
 import io.circe._
 import io.circe.generic.semiauto._
 import io.circe.java8.time.{JavaTimeDecoders, JavaTimeEncoders}
+import pipelines.admin.UpdateServerCertRequest
 
 import scala.concurrent.duration._
 
@@ -12,10 +13,22 @@ sealed trait KafkaRequest
 sealed trait KafkaResponse
 
 final case class PartitionData(partition: Int, leader: String)
+object PartitionData {
+  implicit val encoder = deriveEncoder[PartitionData]
+  implicit val decoder = deriveDecoder[PartitionData]
+}
 
 final case class ListTopicsResponse(topics: Map[String, Seq[PartitionData]]) extends KafkaResponse
+object ListTopicsResponse {
+  implicit val encoder = deriveEncoder[ListTopicsResponse]
+  implicit val decoder = deriveDecoder[ListTopicsResponse]
+}
 
 final case class PullLatestResponse(topic: String, keys: Seq[String]) extends KafkaResponse
+object PullLatestResponse {
+  implicit val encoder = deriveEncoder[PullLatestResponse]
+  implicit val decoder = deriveDecoder[PullLatestResponse]
+}
 
 /**
   * How should a subscriber consume the data?
@@ -146,3 +159,7 @@ final case class UpdateFeedRequest(query: QueryRequest) extends StreamingFeedReq
   */
 sealed trait KafkaSupportRequest
 final case class PublishMessage(topic: String, key: String, data: String) extends KafkaSupportRequest
+object PublishMessage {
+  implicit val decoder = deriveDecoder[PublishMessage]
+  implicit val encoder = deriveEncoder[PublishMessage]
+}

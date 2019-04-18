@@ -39,6 +39,8 @@ class PipelinesRoutesTest extends WordSpec with Matchers with ScalatestRouteTest
     }
 
     override def schemaForTopic(topic: String): Option[String] = None
+
+    override def close(): Unit = {}
   }
 
   "GET /kafka/topics" should {

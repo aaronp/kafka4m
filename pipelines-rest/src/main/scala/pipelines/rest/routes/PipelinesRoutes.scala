@@ -12,20 +12,25 @@ import com.typesafe.scalalogging.StrictLogging
 import monix.execution.Scheduler
 import org.apache.kafka.clients.consumer.ConsumerConfig.{CLIENT_ID_CONFIG, GROUP_ID_CONFIG}
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import pipelines.admin.GenerateServerCertRequest
 import pipelines.connect.{Bytes, KafkaFacade, RichKafkaConsumer, _}
 import pipelines.eval.{AvroReader, EvalReactive}
-import pipelines.kafka.{KafkaEndpoints, QueryRequest}
+import pipelines.kafka.{KafkaEndpoints, ListTopicsResponse, PullLatestResponse, QueryRequest}
 
 class PipelinesRoutes(kafka: KafkaFacade, newStreamHandler: PipelinesRoutes.IsBinaryStream => Flow[Message, Message, NotUsed])
     extends KafkaEndpoints
-    with BaseRoutes
-    with StrictLogging {
+    with BaseCirceRoutes
+    with AutoCloseable  {
 
-  val listTopicsRoute: Route = listTopics.listTopicsEndpoint.implementedBy { _ =>
+  implicit def generateServerCertRequestSchema: JsonSchema[GenerateServerCertRequest]   = JsonSchema(implicitly, implicitly)
+  implicit def listTopicsResponseSchema: JsonSchema[ListTopicsResponse]   = JsonSchema(implicitly, implicitly)
+  implicit def pullLatestResponseSchema: JsonSchema[PullLatestResponse]   = JsonSchema(implicitly, implicitly)
+
+  def listTopicsRoute : Route = listTopics.listTopicsEndpoint.implementedBy { _ =>
     kafka.listTopics()
   }
 
-  val pullLatestRoute: Route = pullLatest.pullEndpoint.implementedBy {
+  def pullLatestRoute : Route = query.pullEndpoint.implementedBy {
     case (topic, offset, limit) => kafka.pullLatest(topic, offset, limit)
   }
 
@@ -37,6 +42,10 @@ class PipelinesRoutes(kafka: KafkaFacade, newStreamHandler: PipelinesRoutes.IsBi
   }
 
   def routes: Route = streamRoute ~ listTopicsRoute ~ pullLatestRoute
+
+  override def close(): Unit = {
+    kafka.close()
+  }
 }
 
 object PipelinesRoutes extends StrictLogging {
@@ -55,12 +64,12 @@ object PipelinesRoutes extends StrictLogging {
 
     val facade: KafkaFacade = {
       val schemasByTopic = KafkaFacade.schemasByTopicForRootConfig(rootConfig)
-      KafkaFacade(newConsumer(rootConfig), schemasByTopic, pollTimeout, timeout)
+      KafkaFacade(newConsumer(rootConfig), schemasByTopic, pollTimeout, timeout, _.close())
     }
 
     val readerForTopic = (facade.schemaForTopic _).andThen(_.map(AvroReader.generic))
 
-    def newStream(isBinary: PipelinesRoutes.IsBinaryStream) = {
+    def newStream(isBinary: PipelinesRoutes.IsBinaryStream): Flow[Message, Message, NotUsed] = {
       if (isBinary) {
         newBinarySocket(rootConfig, readerForTopic)
       } else {

@@ -1,8 +1,7 @@
 package pipelines.admin
 
-import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import pipelines.core.BaseEndpoint
-import pipelines.users.{CreateUserResponse, LoginRequest, LoginResponse}
+import pipelines.users.{LoginRequest, LoginResponse}
 
 trait LoginEndpoints extends BaseEndpoint {
 
@@ -15,20 +14,16 @@ trait LoginEndpoints extends BaseEndpoint {
     )
   }
 
-  def loginRequest: Request[(LoginRequest, Option[String])] = {
-    post(path / "login", jsonRequest[LoginRequest](Option("Basic user login request")), redirectHeader)
+  def loginRequest(implicit req: JsonRequest[LoginRequest]): Request[(LoginRequest, Option[String])] = {
+    post(path / "users" / "login", jsonRequest[LoginRequest](Option("Basic user login request")), redirectHeader)
   }
 
-  def loginResponse = jsonResponse[LoginResponse](Option("A login response which will also include an X-Access-Token header to use in subsequent requests"))
+  def loginResponse(implicit resp : JsonResponse[LoginResponse]): Response[LoginResponse] = jsonResponse[LoginResponse](Option("A login response which will also include an X-Access-Token header to use in subsequent requests"))
 
   /**
     * Get the counter current value.
     * Uses the HTTP verb “GET” and URL path “/current-value”.
     * The response entity is a JSON document representing the counter value.
     */
-  val loginEndpoint: Endpoint[(LoginRequest, Option[String]), LoginResponse] = endpoint(loginRequest, loginResponse)
-
-  implicit lazy val `JsonSchema[LoginRequest]` : JsonSchema[LoginRequest]   = JsonSchema(deriveEncoder[LoginRequest], deriveDecoder[LoginRequest])
-  implicit lazy val `JsonSchema[LoginResponse]` : JsonSchema[LoginResponse] = JsonSchema(deriveEncoder[LoginResponse], deriveDecoder[LoginResponse])
-
+  def loginEndpoint(implicit req: JsonRequest[LoginRequest], resp : JsonResponse[LoginResponse]): Endpoint[(LoginRequest, Option[String]), LoginResponse] = endpoint(loginRequest, loginResponse)
 }

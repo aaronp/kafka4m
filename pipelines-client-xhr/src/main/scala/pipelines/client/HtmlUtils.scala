@@ -59,12 +59,6 @@ trait HtmlUtils {
     targetNode.appendChild(parNode)
   }
 
-  def appendTo(div: html.Div) = {
-    val child = document.createElement("div")
-    child.textContent = "Hi from Scala-js-dom"
-    div.appendChild(child)
-  }
-
   def mouseMove(pre: html.Pre) = {
     pre.onmousemove = { (e: dom.MouseEvent) =>
       pre.textContent = s"""e.clientX ${e.clientX}

@@ -60,11 +60,14 @@ class PolygonTest extends WordSpec with Matchers {
           val rayAscii = new AsciiLine('r').layout(rayToInfinity, box)
           val plot     = AsciiPolygon.layout(polygon, box).merge(rayAscii)
 
-          val intersectPlot = polygon.edges.filter(rayToInfinity.intersects).foldLeft(plot) {
-            case (p, e) =>
-              val edgeAscii = new AsciiLine('!').layout(e, box)
-              p.merge(edgeAscii)
-          }.merge(new AsciiPoint('?').layout(point, box))
+          val intersectPlot = polygon.edges
+            .filter(rayToInfinity.intersects)
+            .foldLeft(plot) {
+              case (p, e) =>
+                val edgeAscii = new AsciiLine('!').layout(e, box)
+                p.merge(edgeAscii)
+            }
+            .merge(new AsciiPoint('?').layout(point, box))
 
           intersectPlot.toString
         }
