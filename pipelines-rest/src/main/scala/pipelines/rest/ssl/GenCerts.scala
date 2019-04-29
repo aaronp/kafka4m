@@ -40,28 +40,7 @@ object GenCerts extends StrictLogging {
     val location: URL = getClass.getClassLoader.getResource(script)
     logger.info(s"Resolved $script to be $location, protocol '${location.getProtocol}'")
 
-    val scriptLoc: Path = if (location.getProtocol.startsWith("jar")) {
-      import eie.io._
-      val dir = {
-        val firstChoice = "/app/scripts".asPath
-        if (firstChoice.isDir) {
-          firstChoice
-        } else {
-          Files.createTempDirectory("scripts")
-        }
-      }
-      import PosixFilePermissions._
-      val file = dir.resolve(script)
-      file.mkParentDirs(asFileAttribute(fromString("rw-rw-rw-")))
-
-      java.nio.file.Files.copy(location.openStream(), file)
-      import scala.collection.JavaConverters._
-      file.setFilePermissions(fromString("rwxrwxrwx").asScala.toSet)
-      logger.info(s"Extracted $script under $file")
-      file
-    } else {
-      Paths.get(location.toURI)
-    }
+    val scriptLoc: Path = Paths.get(location.toURI)
 
     require(location != null, s"Couldn't find $script")
     import sys.process._

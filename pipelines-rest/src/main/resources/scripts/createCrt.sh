@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-source ./createCA.sh
-
+THIS_DIR="$(dirname ${0})"
+source ${THIS_DIR}/createCA.sh
 
 trap "cleanCrt" EXIT
 
