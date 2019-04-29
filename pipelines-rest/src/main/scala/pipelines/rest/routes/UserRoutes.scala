@@ -25,8 +25,7 @@ object UserRoutes {
 
 class UserRoutes(secret: SecretKeySpec, doLogin: LoginRequest => Option[Claims]) extends UserEndpoints with BaseCirceRoutes {
 
-  override def loginResponse(implicit resp : JsonResponse[LoginResponse]): LoginResponse => Route = { resp: LoginResponse =>
-
+  override def loginResponse(implicit resp: JsonResponse[LoginResponse]): LoginResponse => Route = { resp: LoginResponse =>
 //    implicit def encoder: Encoder[LoginResponse] = implicitly[JsonSchema[LoginResponse]].encoder
     resp.jwtToken match {
       case Some(token) =>
@@ -46,8 +45,7 @@ class UserRoutes(secret: SecretKeySpec, doLogin: LoginRequest => Option[Claims])
   def loginRoute: Route = {
 
     implicit def LoginRequestSchema: JsonSchema[LoginRequest]   = JsonSchema(implicitly, implicitly)
-    implicit def loginResponseSchema: JsonSchema[LoginResponse]   = JsonSchema(implicitly, implicitly)
-
+    implicit def loginResponseSchema: JsonSchema[LoginResponse] = JsonSchema(implicitly, implicitly)
 
     Directives.extractRequest { rqt =>
       // An anonymous user may have tried to browse a page which requires login (e.g. a JWT token), and so upon a successful login,

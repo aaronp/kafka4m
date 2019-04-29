@@ -59,13 +59,13 @@ class AuthenticatedDirectiveTest extends WordSpec with Matchers with ScalatestRo
       }
     }
     "reply w/ an auth error for tokens with invalid secrets" in {
-      Given("A login route '/login' and a route '/' protected which requires an authenticated token")
+      Given("A login route '/users/login' and a route '/' protected which requires an authenticated token")
       val underTest = UnderTest("ARealm")
 
       var jwtToken: String = ""
 
       When("A user logs in successfully")
-      Post("/login", LoginRequest("Alice", "backdoor")) ~> underTest.route ~> check {
+      Post("/users/login", LoginRequest("Alice", "backdoor")) ~> underTest.route ~> check {
         status shouldBe StatusCodes.OK
         val token = header("X-Access-Token").map(_.value()).get
         jwtToken = token
@@ -87,13 +87,13 @@ class AuthenticatedDirectiveTest extends WordSpec with Matchers with ScalatestRo
       }
     }
     "reply w/ an auth reject error for expired tokens" in {
-      Given("A login route '/login' and a route '/' protected which requires an authenticated token")
+      Given("A login route '/users/login' and a route '/' protected which requires an authenticated token")
       val underTest = UnderTest("ARealm")
 
       var jwtToken: String = ""
 
       And("A user successfully logs in")
-      Post("/login", LoginRequest("Alice", "backdoor")) ~> underTest.route ~> check {
+      Post("/users/login", LoginRequest("Alice", "backdoor")) ~> underTest.route ~> check {
         status shouldBe StatusCodes.OK
         val token = header("X-Access-Token").map(_.value()).get
         jwtToken = token
@@ -111,13 +111,13 @@ class AuthenticatedDirectiveTest extends WordSpec with Matchers with ScalatestRo
       }
     }
     "allow routes for valid tokens and reply w/ a successful token" in {
-      Given("A login route '/login' and a route '/' protected which requires an authenticated token")
+      Given("A login route '/users/login' and a route '/' protected which requires an authenticated token")
       val underTest = UnderTest("ARealm")
 
       var jwtToken: String = ""
 
       When("A user logs in successfully")
-      Post("/login", LoginRequest("Alice", "backdoor")) ~> underTest.route ~> check {
+      Post("/users/login", LoginRequest("Alice", "backdoor")) ~> underTest.route ~> check {
         status shouldBe StatusCodes.OK
         val token = header("X-Access-Token").map(_.value()).get
         jwtToken = token

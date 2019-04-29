@@ -26,18 +26,18 @@ class UserRoutesTest extends WordSpec with Matchers with ScalatestRouteTest {
     }
 
     "reject invalid logins" in {
-      Post("/login", LoginRequest("admin", "bad password")) ~> loginRoute.loginRoute ~> check {
+      Post("/users/login", LoginRequest("admin", "bad password")) ~> loginRoute.loginRoute ~> check {
         val LoginResponse(false, None, None) = responseAs[LoginResponse]
         response.headers.find(_.lowercaseName() == "x-access-token").map(_.value()) should be(empty)
       }
-      Post("/login", LoginRequest("guest", "password")) ~> loginRoute.loginRoute ~> check {
+      Post("/users/login", LoginRequest("guest", "password")) ~> loginRoute.loginRoute ~> check {
         val LoginResponse(false, None, None) = responseAs[LoginResponse]
         response.headers.find(_.lowercaseName() == "x-access-token").map(_.value()) should be(empty)
       }
     }
     "redirect successful logins the user was redirected from another attempted page" in {
       val loginRequest: HttpRequest = {
-        val req = Post("/login", LoginRequest("admin", "password"))
+        val req = Post("/users/login", LoginRequest("admin", "password"))
         req.withUri(req.uri.withRawQueryString("redirectTo=/foo/bar"))
       }
       loginRequest ~> loginRoute.loginRoute ~> check {
@@ -55,7 +55,7 @@ class UserRoutesTest extends WordSpec with Matchers with ScalatestRouteTest {
       }
     }
     "be able to login successfully and return a jwt token" in {
-      Post("/login", LoginRequest("admin", "password")) ~> loginRoute.loginRoute ~> check {
+      Post("/users/login", LoginRequest("admin", "password")) ~> loginRoute.loginRoute ~> check {
         val LoginResponse(true, Some(token), None) = responseAs[LoginResponse]
 
         val List(xAccessToken) = header("x-access-token").map(_.value()).toList

@@ -1,5 +1,6 @@
 package pipelines.client
 
+import endpoints.xhr.circe.JsonSchemaEntities
 import io.circe.syntax._
 import org.scalajs.dom
 import org.scalajs.dom.raw.MessageEvent
@@ -10,7 +11,7 @@ import scala.util.Try
 
 trait KafkaFunctions extends HtmlUtils {
 
-  object kafka {
+  object kafka extends JsonSchemaEntities with KafkaSchemas {
 
     def query(request: QueryRequest, isBinary: Boolean)(onNext: MessageEvent => Unit) = {
       val json: String = (UpdateFeedRequest(request): StreamingFeedRequest).asJson.noSpaces
@@ -18,7 +19,7 @@ trait KafkaFunctions extends HtmlUtils {
     }
 
     def listTopics(): Unit = {
-      val topics = KafkaQueryXhrClient.listTopics.listTopicsEndpoint()
+      val topics = KafkaQueryXhrClient.listTopics.listTopicsEndpoint
       topics.onComplete {
         case result => showAlert(s"ListTopics returned: ${result}")
       }

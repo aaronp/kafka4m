@@ -7,6 +7,7 @@ object Build {
   val MainRestClass = "pipelines.rest.Main"
 
   def docker(deployResourceDir: Path, //
+              scriptDir: Path, //
              jsArtifacts: Seq[Path], //
              webResourceDir: Path, //
              restAssembly: Path, //
@@ -17,6 +18,7 @@ object Build {
       s""" Building Docker Image with:
          |
          |   deployResourceDir = ${deployResourceDir.toAbsolutePath}
+         |   scriptDir         = ${scriptDir.toAbsolutePath}
          |   jsArtifacts       = ${jsArtifacts.map(_.toAbsolutePath).mkString(",")}
          |   webResourceDir    = ${webResourceDir.toAbsolutePath}
          |   restAssembly      = ${restAssembly.toAbsolutePath}
@@ -26,6 +28,7 @@ object Build {
 
     val pipelinesJsDir = targetDir.resolve("web/js").mkDirs()
     IO.copyDirectory(deployResourceDir.toFile, targetDir.toFile)
+    IO.copyDirectory(scriptDir.toFile, targetDir.resolve("scripts").toFile)
     IO.copyDirectory(webResourceDir.toFile, targetDir.resolve("web").toFile)
     IO.copy(List(restAssembly.toFile -> (targetDir.resolve("app.jar").toFile)))
     //IO.copy(List("target/certificates/cert.p12".asPath.toFile -> (targetDir.resolve("localcert.p12").toFile)))

@@ -20,17 +20,17 @@ import pipelines.kafka.{KafkaEndpoints, ListTopicsResponse, PullLatestResponse, 
 class PipelinesRoutes(kafka: KafkaFacade, newStreamHandler: PipelinesRoutes.IsBinaryStream => Flow[Message, Message, NotUsed])
     extends KafkaEndpoints
     with BaseCirceRoutes
-    with AutoCloseable  {
+    with AutoCloseable {
 
-  implicit def generateServerCertRequestSchema: JsonSchema[GenerateServerCertRequest]   = JsonSchema(implicitly, implicitly)
-  implicit def listTopicsResponseSchema: JsonSchema[ListTopicsResponse]   = JsonSchema(implicitly, implicitly)
-  implicit def pullLatestResponseSchema: JsonSchema[PullLatestResponse]   = JsonSchema(implicitly, implicitly)
+  implicit def generateServerCertRequestSchema: JsonSchema[GenerateServerCertRequest] = JsonSchema(implicitly, implicitly)
+  implicit def listTopicsResponseSchema: JsonSchema[ListTopicsResponse]               = JsonSchema(implicitly, implicitly)
+  implicit def pullLatestResponseSchema: JsonSchema[PullLatestResponse]               = JsonSchema(implicitly, implicitly)
 
-  def listTopicsRoute : Route = listTopics.listTopicsEndpoint.implementedBy { _ =>
+  def listTopicsRoute: Route = listTopics.listTopicsEndpoint.implementedBy { _ =>
     kafka.listTopics()
   }
 
-  def pullLatestRoute : Route = query.pullEndpoint.implementedBy {
+  def pullLatestRoute: Route = query.pullEndpoint.implementedBy {
     case (topic, offset, limit) => kafka.pullLatest(topic, offset, limit)
   }
 

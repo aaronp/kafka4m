@@ -145,6 +145,7 @@ val commonSettings: Seq[Def.Setting[_]] = Seq(
   scalacOptions ++= scalacSettings,
   buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
   buildInfoPackage := s"${repo}.build",
+  test in assembly := {},
   assemblyMergeStrategy in assembly := {
     case str if str.contains("application.conf") => MergeStrategy.discard
     case x =>
@@ -199,6 +200,8 @@ docker := {
   // contains the docker resources
   val deployResourceDir = (resourceDirectory in (pipelinesDeploy, Compile)).value.toPath
 
+  val restResourceDir = (resourceDirectory in (pipelinesRest, Compile)).value.toPath
+
   // contains the web resources
   val webResourceDir = (resourceDirectory in (pipelinesClientXhr, Compile)).value.toPath.resolve("web")
   val jsArtifacts = {
@@ -214,6 +217,7 @@ docker := {
 
   Build.docker( //
     deployResourceDir = deployResourceDir, //
+    scriptDir = restResourceDir.resolve("scripts"), //
     jsArtifacts = jsArtifacts, //
     webResourceDir = webResourceDir, //
     restAssembly = pipelinesAssembly.asPath, //
