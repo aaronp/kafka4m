@@ -12,19 +12,15 @@ import com.typesafe.scalalogging.StrictLogging
 import monix.execution.Scheduler
 import org.apache.kafka.clients.consumer.ConsumerConfig.{CLIENT_ID_CONFIG, GROUP_ID_CONFIG}
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import pipelines.admin.GenerateServerCertRequest
 import pipelines.connect.{Bytes, KafkaFacade, RichKafkaConsumer, _}
 import pipelines.eval.{AvroReader, EvalReactive}
-import pipelines.kafka.{KafkaEndpoints, ListTopicsResponse, PullLatestResponse, QueryRequest}
+import pipelines.kafka.{KafkaEndpoints, KafkaSchemas, QueryRequest}
 
 class KafkaRoutes(kafka: KafkaFacade, newStreamHandler: KafkaRoutes.IsBinaryStream => Flow[Message, Message, NotUsed])
     extends KafkaEndpoints
     with BaseCirceRoutes
+    with KafkaSchemas
     with AutoCloseable {
-
-  implicit def generateServerCertRequestSchema: JsonSchema[GenerateServerCertRequest] = JsonSchema(implicitly, implicitly)
-  implicit def listTopicsResponseSchema: JsonSchema[ListTopicsResponse]               = JsonSchema(implicitly, implicitly)
-  implicit def pullLatestResponseSchema: JsonSchema[PullLatestResponse]               = JsonSchema(implicitly, implicitly)
 
   def listTopicsRoute: Route = listTopics.listTopicsEndpoint.implementedBy { _ =>
     kafka.listTopics()

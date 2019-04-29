@@ -66,10 +66,10 @@ case class StaticFileRoutes(htmlRootDir: String, landingPage: String, jsRootDir:
     }
   }
 
-  private def jsResource = {
+  private def jsResource: Route = {
     (get & pathPrefix("js")) {
-
       extractUnmatchedPath { unmatchedPath =>
+        // TODO - match the unmatchedPath on either pipelines-client-fastopt.js or pipelines-client-xhr-opt.js and
         logger.debug(s"Serving $unmatchedPath under JS dir ${jsRootDir}")
         getFromDirectory(jsRootDir)
       }

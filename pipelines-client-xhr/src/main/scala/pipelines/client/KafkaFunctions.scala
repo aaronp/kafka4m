@@ -11,7 +11,7 @@ import scala.util.Try
 
 trait KafkaFunctions extends HtmlUtils {
 
-  object kafka extends JsonSchemaEntities with KafkaSchemas {
+  object kafka {
 
     def query(request: QueryRequest, isBinary: Boolean)(onNext: MessageEvent => Unit) = {
       val json: String = (UpdateFeedRequest(request): StreamingFeedRequest).asJson.noSpaces
@@ -19,8 +19,7 @@ trait KafkaFunctions extends HtmlUtils {
     }
 
     def listTopics(): Unit = {
-      //jsonResponse[ListTopicsResponse](None)
-      val topics = KafkaQueryXhrClient.listTopics.listTopicsEndpoint
+      val topics = KafkaQueryXhrClient.listTopics.listTopicsEndpoint.apply()
       topics.onComplete {
         case result => showAlert(s"ListTopics returned: ${result}")
       }
