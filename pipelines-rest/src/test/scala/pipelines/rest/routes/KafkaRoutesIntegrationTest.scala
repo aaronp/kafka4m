@@ -23,7 +23,7 @@ import pipelines.kafka._
   * https://doc.akka.io/docs/akka-http/current/server-side/websocket-support.html
   *
   */
-class PipelinesRoutesIntegrationTest extends BaseDockerSpec("scripts/kafka") with Matchers with ScalatestRouteTest {
+class KafkaRoutesIntegrationTest extends BaseDockerSpec("scripts/kafka") with Matchers with ScalatestRouteTest {
 
   "GET /kafka/stream" should {
     "open a web socket to pull all data from a query" in {
@@ -58,7 +58,7 @@ class PipelinesRoutesIntegrationTest extends BaseDockerSpec("scripts/kafka") wit
               streamStrategy = StreamStrategy.All
             ))
 
-          Using(PipelinesRoutes(rootConfig)(materializer, schedulerService)) { kafkaRoutes =>
+          Using(KafkaRoutes(rootConfig)(materializer, schedulerService)) { kafkaRoutes =>
             val websocketRoute: Route = kafkaRoutes.routes
 
             val req: HttpRequest = WS("/kafka/stream", wsClient.flow)

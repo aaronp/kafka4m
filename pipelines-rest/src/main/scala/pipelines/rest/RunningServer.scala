@@ -8,7 +8,7 @@ import akka.http.scaladsl.settings.RoutingSettings
 import akka.http.scaladsl.{Http, HttpsConnectionContext}
 import akka.stream.scaladsl.Flow
 import com.typesafe.scalalogging.StrictLogging
-import pipelines.rest.routes.{AppRoutes, PipelinesRoutes, StaticFileRoutes}
+import pipelines.rest.routes.{AppRoutes, KafkaRoutes, StaticFileRoutes}
 import pipelines.rest.ssl.{HttpsUtil, SslConfig}
 
 import scala.concurrent.Future
@@ -31,7 +31,7 @@ object RunningServer extends StrictLogging {
     new RunningServer(settings, bindingFuture)
   }
 
-  def makeRoutes(static: StaticFileRoutes, kafka: PipelinesRoutes, theRest: Route*)(implicit routingSettings: RoutingSettings): Route = {
+  def makeRoutes(static: StaticFileRoutes, kafka: KafkaRoutes, theRest: Route*)(implicit routingSettings: RoutingSettings): Route = {
     val route = AppRoutes.https(static, kafka, theRest: _*)
     Route.seal(route)
   }

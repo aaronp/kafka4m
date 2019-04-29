@@ -17,7 +17,7 @@ import pipelines.connect.{Bytes, KafkaFacade, RichKafkaConsumer, _}
 import pipelines.eval.{AvroReader, EvalReactive}
 import pipelines.kafka.{KafkaEndpoints, ListTopicsResponse, PullLatestResponse, QueryRequest}
 
-class PipelinesRoutes(kafka: KafkaFacade, newStreamHandler: PipelinesRoutes.IsBinaryStream => Flow[Message, Message, NotUsed])
+class KafkaRoutes(kafka: KafkaFacade, newStreamHandler: KafkaRoutes.IsBinaryStream => Flow[Message, Message, NotUsed])
     extends KafkaEndpoints
     with BaseCirceRoutes
     with AutoCloseable {
@@ -48,14 +48,14 @@ class PipelinesRoutes(kafka: KafkaFacade, newStreamHandler: PipelinesRoutes.IsBi
   }
 }
 
-object PipelinesRoutes extends StrictLogging {
+object KafkaRoutes extends StrictLogging {
 
   type IsBinaryStream = Boolean
 
   import args4c.implicits._
-  def apply(rootConfig: Config)(implicit mat: ActorMaterializer, ioScheduler: Scheduler): PipelinesRoutes = forRoot(rootConfig)
+  def apply(rootConfig: Config)(implicit mat: ActorMaterializer, ioScheduler: Scheduler): KafkaRoutes = forRoot(rootConfig)
 
-  private def forRoot(rootConfig: Config)(implicit mat: ActorMaterializer, ioScheduler: Scheduler): PipelinesRoutes = {
+  private def forRoot(rootConfig: Config)(implicit mat: ActorMaterializer, ioScheduler: Scheduler): KafkaRoutes = {
 
     import args4c.implicits._
 
@@ -69,14 +69,14 @@ object PipelinesRoutes extends StrictLogging {
 
     val readerForTopic = (facade.schemaForTopic _).andThen(_.map(AvroReader.generic))
 
-    def newStream(isBinary: PipelinesRoutes.IsBinaryStream): Flow[Message, Message, NotUsed] = {
+    def newStream(isBinary: KafkaRoutes.IsBinaryStream): Flow[Message, Message, NotUsed] = {
       if (isBinary) {
         newBinarySocket(rootConfig, readerForTopic)
       } else {
         newTextSocket(rootConfig, readerForTopic)
       }
     }
-    new PipelinesRoutes(facade, newStream)
+    new KafkaRoutes(facade, newStream)
   }
 
   private def newBinarySocket(rootConfig: Config, readerForTopic: EvalReactive.ReaderLookup)(implicit mat: ActorMaterializer,

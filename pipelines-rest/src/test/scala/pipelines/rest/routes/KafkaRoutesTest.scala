@@ -26,7 +26,7 @@ import scala.collection.mutable.ListBuffer
   * https://doc.akka.io/docs/akka-http/current/server-side/websocket-support.html
   *
   */
-class PipelinesRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with FailFastCirceSupport with ScalaFutures {
+class KafkaRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with FailFastCirceSupport with ScalaFutures {
 
   object testService extends KafkaFacade {
     val cannedResponse = ListTopicsResponse(Map("topic1" -> List(PartitionData(1, "of the pack")), "topic2" -> List(PartitionData(2, "nope"))))
@@ -45,7 +45,7 @@ class PipelinesRoutesTest extends WordSpec with Matchers with ScalatestRouteTest
 
   "GET /kafka/topics" should {
     "list the topics" in {
-      val routes = new PipelinesRoutes(testService, _ => ???).routes
+      val routes = new KafkaRoutes(testService, _ => ???).routes
 
       Get("/kafka/topics") ~> routes ~> check {
         response.status.isSuccess() shouldBe true
@@ -72,7 +72,7 @@ class PipelinesRoutesTest extends WordSpec with Matchers with ScalatestRouteTest
           val data = Observable.fromIterable(expectedData)
           SocketAdapter.asTextFlow(data.toReactivePublisher, onUpdate)
         }
-        new PipelinesRoutes(testService, _ => flow).routes
+        new KafkaRoutes(testService, _ => flow).routes
       }
 
       WS("/kafka/stream", wsClient.flow) ~> websocketRoute ~> check {

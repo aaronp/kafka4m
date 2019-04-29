@@ -19,6 +19,7 @@ trait KafkaFunctions extends HtmlUtils {
     }
 
     def listTopics(): Unit = {
+      //jsonResponse[ListTopicsResponse](None)
       val topics = KafkaQueryXhrClient.listTopics.listTopicsEndpoint
       topics.onComplete {
         case result => showAlert(s"ListTopics returned: ${result}")

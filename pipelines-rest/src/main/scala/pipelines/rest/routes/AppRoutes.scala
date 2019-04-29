@@ -4,7 +4,7 @@ import akka.http.scaladsl.server.Route
 
 object AppRoutes {
 
-  def https(staticRoutes: StaticFileRoutes, kafka: PipelinesRoutes, theRest: Route*): Route = {
+  def https(staticRoutes: StaticFileRoutes, kafka: KafkaRoutes, theRest: Route*): Route = {
     val base = kafka.routes ~ staticRoutes.route ~ DocumentationRoutes.route
     theRest.foldLeft(base)(_ ~ _)
   }

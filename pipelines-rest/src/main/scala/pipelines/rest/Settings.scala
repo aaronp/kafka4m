@@ -6,7 +6,7 @@ import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import pipelines.connect.RichKafkaProducer
 import pipelines.kafka.PublishMessage
-import pipelines.rest.routes.{PipelinesRoutes, SupportRoutes, StaticFileRoutes}
+import pipelines.rest.routes.{KafkaRoutes, SupportRoutes, StaticFileRoutes}
 import monix.execution.Scheduler
 
 case class Settings(rootConfig: Config, host: String, port: Int, materializer: ActorMaterializer) {
@@ -27,7 +27,7 @@ case class Settings(rootConfig: Config, host: String, port: Int, materializer: A
     new SupportRoutes(rootConfig, publisher)
   }
 
-  val kafkaRoutes  = PipelinesRoutes(rootConfig)(implicits.actorMaterializer, implicits.ioScheduler)
+  val kafkaRoutes  = KafkaRoutes(rootConfig)(implicits.actorMaterializer, implicits.ioScheduler)
   val staticRoutes = StaticFileRoutes.fromRootConfig(rootConfig)
 
   override def toString = {
