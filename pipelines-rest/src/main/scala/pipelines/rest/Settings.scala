@@ -4,15 +4,14 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.settings.RoutingSettings
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
+import monix.execution.Scheduler
 import pipelines.connect.RichKafkaProducer
 import pipelines.kafka.PublishMessage
 import pipelines.rest.routes.{KafkaRoutes, StaticFileRoutes, SupportRoutes, UserRoutes}
-import monix.execution.Scheduler
-import pipelines.rest.jwt.Claims
-import pipelines.rest.ssl.SslConfig
-import pipelines.users.LoginRequest
+import pipelines.rest.users.LoginHandler
+import pipelines.ssl.SSLConfig
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 case class Settings(rootConfig: Config, host: String, port: Int, materializer: ActorMaterializer) {
 
@@ -32,14 +31,9 @@ case class Settings(rootConfig: Config, host: String, port: Int, materializer: A
     new SupportRoutes(rootConfig, publisher)
   }
 
-  def userRoutes(sslConf: SslConfig): UserRoutes = {
-    import concurrent.duration._
-    UserRoutes(rootConfig.getString("pipelines.jwtSeed")) {
-      case LoginRequest("admin", "password") =>
-        val adminClaims: Claims = Claims.after(5.minutes).forUser("admin")
-        Future.successful(Option(adminClaims))
-      case _ => Future.successful(None)
-    }(ExecutionContext.global)
+  def userRoutes(sslConf: SSLConfig): UserRoutes = {
+    val handler = LoginHandler(rootConfig)
+    UserRoutes(rootConfig.getString("pipelines.jwtSeed"))(handler.login)(ExecutionContext.global)
   }
 
   val kafkaRoutes  = KafkaRoutes(rootConfig)(implicits.actorMaterializer, implicits.ioScheduler)
@@ -61,10 +55,10 @@ object Settings {
     implicit val system                          = ActorSystem(Main.getClass.getSimpleName.filter(_.isLetter))
     implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-    new Settings(rootConfig, //
+    new Settings(rootConfig,                      //
                  host = config.getString("host"), //
-                 port = config.getInt("port"), //
-                 materializer //
+                 port = config.getInt("port"),    //
+                 materializer                     //
     )
   }
 }

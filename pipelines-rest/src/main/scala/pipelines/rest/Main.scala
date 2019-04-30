@@ -5,7 +5,8 @@ import java.nio.file.Path
 import args4c.ConfigApp
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
-import pipelines.rest.ssl.{GenCerts, SslConfig}
+import pipelines.rest.ssl.GenCerts
+import pipelines.ssl.SSLConfig
 
 /**
   * The main entry point for the REST service
@@ -29,7 +30,7 @@ object Main extends ConfigApp with StrictLogging {
       config
     }
 
-    val sslConf = SslConfig(preparedConf.getConfig("pipelines.tls"))
+    val sslConf: SSLConfig = SSLConfig.fromRootConfig(preparedConf)
     RunningServer(Settings(preparedConf), sslConf)
   }
 
