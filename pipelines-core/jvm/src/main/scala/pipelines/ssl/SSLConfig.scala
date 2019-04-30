@@ -67,6 +67,8 @@ object SSLConfig {
     val tmf = TrustManagerFactory.getInstance("SunX509")
     tmf.init(ks)
 
+
+
     val ctxt: SSLContext = SSLContext.getInstance("TLS")
     ctxt.init(keyManagerFactory.getKeyManagers, tmf.getTrustManagers, random)
     ctxt

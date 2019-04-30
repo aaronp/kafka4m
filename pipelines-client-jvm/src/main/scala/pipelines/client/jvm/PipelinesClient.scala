@@ -5,7 +5,7 @@ import java.net.HttpURLConnection
 import com.softwaremill.sttp
 import com.softwaremill.sttp.{SttpBackend, TryHttpURLConnectionBackend}
 import com.typesafe.config.ConfigFactory
-import javax.net.ssl.{HttpsURLConnection, SSLContext}
+import javax.net.ssl.{HttpsURLConnection, SSLContext, SSLSocketFactory}
 import pipelines.admin.LoginEndpoints
 import pipelines.ssl.SSLConfig
 import pipelines.users.{LoginRequest, LoginResponse}
@@ -31,7 +31,7 @@ object PipelinesClient {
   def apply(host: String): PipelinesClient[Try] = {
 
     val ctxt: SSLContext = {
-      val preparedConf = ConfigFactory.parseString("""
+      val preparedConf       = ConfigFactory.parseString("""
         |pipelines.tls.certificate=/Users/aaronpritzlaff/dev/sandbox/pipelines/target/certificates/cert.p12
         |pipelines.tls.seed=foo
         |pipelines.tls.password=password
@@ -41,7 +41,7 @@ object PipelinesClient {
     }
     val backend: SttpBackend[Try, Nothing] = TryHttpURLConnectionBackend(customizeConnection = {
       case conn: HttpsURLConnection =>
-        conn.setSSLSocketFactory(
+        conn.setSSLSocketFactory(ctxt.getSocketFactory)
       case _ =>
     })
 

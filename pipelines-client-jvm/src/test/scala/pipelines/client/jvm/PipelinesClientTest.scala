@@ -14,7 +14,6 @@ class PipelinesClientTest extends WordSpec with Matchers with ScalaFutures {
     "work" in {
       val client = PipelinesClient("https://localhost:80")
 
-
       val response2: Try[LoginResponse] = client.login(LoginRequest("admin", "wrong"))
       println(response2)
 
