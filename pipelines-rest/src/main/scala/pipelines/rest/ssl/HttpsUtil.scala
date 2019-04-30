@@ -13,7 +13,6 @@ object HttpsUtil {
 
   def apply(password: Array[Char], random: SecureRandom, keystore: InputStream, keyStoreType: String): HttpsConnectionContext = {
     val ks: KeyStore = KeyStore.getInstance(keyStoreType)
-    require(keystore != null, "Null keystore")
     ks.load(keystore, password)
 
     val keyManagerFactory = KeyManagerFactory.getInstance("SunX509")

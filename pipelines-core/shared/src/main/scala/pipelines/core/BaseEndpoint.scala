@@ -4,7 +4,7 @@ import endpoints.algebra
 import io.circe.generic.auto._
 import pipelines.admin.GenerateServerCertResponse
 
-trait BaseEndpoint extends algebra.Endpoints  with algebra.JsonEntities {
+trait BaseEndpoint extends algebra.Endpoints with algebra.JsonEntities {
   //with algebra.JsonEntitiesFromCodec {
   //with algebra.JsonSchemaEntities
   //trait BaseEndpoint extends algebra.Endpoints with endpoints.algebra.CirceEntities with endpoints.circe.JsonSchemas  {

@@ -1,8 +1,8 @@
 package pipelines.users
 
-import io.circe.{Decoder, DecodingFailure, Encoder, Json}
 import io.circe.Decoder.Result
 import io.circe.generic.semiauto._
+import io.circe.{Decoder, Encoder, Json}
 
 import scala.concurrent.duration.FiniteDuration
 

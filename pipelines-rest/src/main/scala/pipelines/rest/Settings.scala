@@ -34,7 +34,7 @@ case class Settings(rootConfig: Config, host: String, port: Int, materializer: A
 
   def userRoutes(sslConf: SslConfig): UserRoutes = {
     import concurrent.duration._
-    UserRoutes(rootConfig.getString("pipelines.users.jwtSeed")) {
+    UserRoutes(rootConfig.getString("pipelines.jwtSeed")) {
       case LoginRequest("admin", "password") =>
         val adminClaims: Claims = Claims.after(5.minutes).forUser("admin")
         Future.successful(Option(adminClaims))

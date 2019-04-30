@@ -345,6 +345,7 @@ lazy val pipelinesClientJvm = project
   .in(file("pipelines-client-jvm"))
   .dependsOn(pipelinesCoreJS % "compile->compile;test->test")
   .settings(name := s"${repo}-client-jvm")
+  .settings(libraryDependencies ++= testDependencies)
   .settings(
     libraryDependencies += "org.julienrf" %% "endpoints-akka-http-client"       % "0.9.0",
     libraryDependencies += "org.julienrf" %% "endpoints-scalaj-client"          % "0.9.0",
