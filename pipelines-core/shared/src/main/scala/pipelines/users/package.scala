@@ -37,5 +37,7 @@ package pipelines
   *
   */
 package object users {
+  type UserName = String
+  type Email = String
 
 }

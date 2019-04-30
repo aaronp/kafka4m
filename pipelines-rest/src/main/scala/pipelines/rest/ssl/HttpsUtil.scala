@@ -22,7 +22,7 @@ object HttpsUtil {
     val tmf = TrustManagerFactory.getInstance("SunX509")
     tmf.init(ks)
 
-    val sslCtxt = SSLContext.getInstance("TLS")
+    val sslCtxt: SSLContext = SSLContext.getInstance("TLS")
     sslCtxt.init(keyManagerFactory.getKeyManagers, tmf.getTrustManagers, random)
 
     ConnectionContext.https(sslCtxt)

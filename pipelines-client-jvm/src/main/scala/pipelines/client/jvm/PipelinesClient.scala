@@ -1,38 +1,42 @@
 package pipelines.client.jvm
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.Uri
-import akka.stream.{ActorMaterializer, Materializer}
-import endpoints.akkahttp.client.{AkkaHttpRequestExecutor, Endpoints, EndpointsSettings, JsonEntitiesFromCodec}
-import pipelines.kafka.KafkaEndpoints
+//import akka.actor.ActorSystem
+//import akka.http.scaladsl.model.Uri
+//import akka.stream.{ActorMaterializer, Materializer}
+//import endpoints.akkahttp.client.{AkkaHttpRequestExecutor, Endpoints, EndpointsSettings, JsonEntitiesFromCodec}
+import com.softwaremill.sttp
+import com.softwaremill.sttp.{SttpBackend, TryHttpURLConnectionBackend}
+import endpoints.algebra.{Codec, Documentation}
+import endpoints.algebra.circe.CirceCodec
+import endpoints.sttp.client.{BasicAuthentication, JsonEntitiesFromCodec}
+import pipelines.admin.LoginEndpoints
+import pipelines.users.{LoginRequest, LoginResponse}
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
+import scala.util.Try
 
 //BasicAuthentication with
-abstract class PipelinesClient(settings: EndpointsSettings)(implicit ec: ExecutionContext, mat: Materializer) extends Endpoints(settings) with JsonEntitiesFromCodec
-//    with endpoints.algebra.circe.JsonEntitiesFromCodec
-//    with KafkaEndpoints
+class PipelinesClient[R[_]](host: String, backend: sttp.SttpBackend[R, _])
+    extends endpoints.sttp.client.Endpoints[R](host, backend)
+    with endpoints.circe.JsonSchemas
+    with endpoints.sttp.client.JsonEntitiesFromCodec[R]
+//    with BasicAuthentication[R]
+    with endpoints.algebra.circe.JsonEntitiesFromCodec
+//    with JsonEntitiesFromCodec[R]
+    with LoginEndpoints {
+
+
+
+  implicit def loginRequestSchema: JsonSchema[LoginRequest]   = JsonSchema(implicitly, implicitly)
+  implicit def loginResponseSchema: JsonSchema[LoginResponse] = JsonSchema(implicitly, implicitly)
+
+  def login(login : LoginRequest): R[LoginResponse] = loginEndpoint.apply(login -> None)
+}
 
 object PipelinesClient {
 
-  def apply(host: String, port: Int, toStrictTimeout: FiniteDuration)(implicit mat: ActorMaterializer): PipelinesClient = {
-    implicit val system: ActorSystem = mat.system
-    implicit val ec                  = system.dispatcher
-    val settings                     = settingsFor(host, port, toStrictTimeout)
-    //new PipelinesClient(settings)
-    ???
+  def apply(host: String): PipelinesClient[Try] = {
+    val backend: SttpBackend[Try, Nothing] = TryHttpURLConnectionBackend()
+    new PipelinesClient[Try](host, backend)
   }
 
-  def settingsFor(host: String, port: Int, toStrictTimeout: FiniteDuration)(implicit mat: ActorMaterializer): EndpointsSettings = {
-    implicit val system: ActorSystem = mat.system
-    implicit val ec                  = system.dispatcher
-
-    val requestExecutor = AkkaHttpRequestExecutor.cachedHostConnectionPool(host, port)
-    EndpointsSettings(
-      requestExecutor = requestExecutor,
-      baseUri = Uri("/"),
-      toStrictTimeout = toStrictTimeout
-    )
-  }
 }

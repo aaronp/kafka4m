@@ -6,8 +6,11 @@ import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import pipelines.connect.RichKafkaProducer
 import pipelines.kafka.PublishMessage
-import pipelines.rest.routes.{KafkaRoutes, SupportRoutes, StaticFileRoutes}
+import pipelines.rest.routes.{KafkaRoutes, StaticFileRoutes, SupportRoutes, UserRoutes}
 import monix.execution.Scheduler
+import pipelines.rest.jwt.Claims
+import pipelines.rest.ssl.SslConfig
+import pipelines.users.LoginRequest
 
 case class Settings(rootConfig: Config, host: String, port: Int, materializer: ActorMaterializer) {
 
@@ -25,6 +28,16 @@ case class Settings(rootConfig: Config, host: String, port: Int, materializer: A
       producer.send(request.topic, request.key, request.data)
     }
     new SupportRoutes(rootConfig, publisher)
+  }
+
+  def userRoutes(sslConf: SslConfig): UserRoutes = {
+    import concurrent.duration._
+    UserRoutes(rootConfig.getString("pipelines.users.jwtSeed")) {
+      case LoginRequest("admin", "password") =>
+        val adminClaims: Claims = Claims.after(5.minutes).forUser("admin")
+        Option(adminClaims)
+      case _ => None
+    }
   }
 
   val kafkaRoutes  = KafkaRoutes(rootConfig)(implicits.actorMaterializer, implicits.ioScheduler)

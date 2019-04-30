@@ -283,10 +283,8 @@ lazy val example = project
   .settings(name := "example", coverageFailOnMinimum := false)
   .settings(commonSettings: _*)
   .settings((stringType in AvroConfig) := "String")
+  .settings(libraryDependencies += "org.apache.avro" % "avro" % "1.8.2")
   .settings(libraryDependencies ++= testDependencies)
-  .settings(libraryDependencies ++= List(
-    "org.apache.avro" % "avro" % "1.8.2"
-  ))
 
 lazy val expressions = project
   .in(file("expressions"))
@@ -349,6 +347,8 @@ lazy val pipelinesClientJvm = project
   .settings(name := s"${repo}-client-jvm")
   .settings(
     libraryDependencies += "org.julienrf" %% "endpoints-akka-http-client"       % "0.9.0",
+    libraryDependencies += "org.julienrf" %% "endpoints-scalaj-client"          % "0.9.0",
+    libraryDependencies += "org.julienrf" %% "endpoints-sttp-client"            % "0.9.0",
     libraryDependencies += "org.julienrf" %% "endpoints-akka-http-server-circe" % "0.4.0"
   )
 
