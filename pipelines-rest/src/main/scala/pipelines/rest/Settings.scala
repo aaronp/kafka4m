@@ -55,10 +55,10 @@ object Settings {
     implicit val system                          = ActorSystem(Main.getClass.getSimpleName.filter(_.isLetter))
     implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-    new Settings(rootConfig,                      //
+    new Settings(rootConfig, //
                  host = config.getString("host"), //
-                 port = config.getInt("port"),    //
-                 materializer                     //
+                 port = config.getInt("port"), //
+                 materializer //
     )
   }
 }

@@ -1,7 +1,7 @@
 package pipelines.client.jvm
 
 import com.typesafe.config.ConfigFactory
-import org.codehaus.jackson.map.MapperConfig.ConfigFeature
+import javax.net.ssl.SSLContext
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpec}
 import pipelines.users.{LoginRequest, LoginResponse}
@@ -14,8 +14,6 @@ class PipelinesClientTest extends WordSpec with Matchers with ScalaFutures {
     "work" in {
       val client = PipelinesClient("https://localhost:80")
 
-      val preparedConf = ConfigFactory.load()
-      val sslConf = SslConfig(preparedConf.getConfig("pipelines.tls"))
 
       val response2: Try[LoginResponse] = client.login(LoginRequest("admin", "wrong"))
       println(response2)

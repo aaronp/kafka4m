@@ -49,7 +49,7 @@ object SSLConfig {
     apply(
       certPathOpt(config).getOrElse(throw new IllegalStateException(s"'certificate' set to '${certPathString(config)}' does not exist")),
       config.getString("password"),
-      tlsSeedOpt(config).getOrElse(throw new IllegalStateException(s"'certificate' set to '${certPathString(config)}' does not exist"))
+      tlsSeedOpt(config).getOrElse(throw new IllegalStateException(s"'pipelines.tls.seed' not set"))
     )
   }
 

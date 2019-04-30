@@ -255,8 +255,8 @@ lazy val pipelinesCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
     name := "pipelines-core-jvm",
     coverageMinimum := 85,
     coverageFailOnMinimum := true,
-    libraryDependencies += typesafeConfig,
     libraryDependencies ++= testLogging ++ List(
+      typesafeConfig,
       "com.lihaoyi"         %% "sourcecode"          % "0.1.5", // % "test",
       "org.scala-js"        %% "scalajs-stubs"       % scalaJSVersion % "provided",
       "com.github.aaronp"   %% "eie"                 % "0.0.5",
@@ -343,14 +343,13 @@ lazy val pipelinesClientXhr: Project = project
   )
 lazy val pipelinesClientJvm = project
   .in(file("pipelines-client-jvm"))
-  .dependsOn(pipelinesCoreJS % "compile->compile;test->test")
+  .dependsOn(pipelinesCoreJVM % "compile->compile;test->test")
   .settings(name := s"${repo}-client-jvm")
   .settings(libraryDependencies ++= testDependencies)
   .settings(
-    libraryDependencies += "org.julienrf" %% "endpoints-akka-http-client"       % "0.9.0",
-    libraryDependencies += "org.julienrf" %% "endpoints-scalaj-client"          % "0.9.0",
-    libraryDependencies += "org.julienrf" %% "endpoints-sttp-client"            % "0.9.0",
-    libraryDependencies += "org.julienrf" %% "endpoints-akka-http-server-circe" % "0.4.0"
+    libraryDependencies += "org.julienrf" %% "endpoints-akka-http-client" % "0.9.0",
+    libraryDependencies += "org.julienrf" %% "endpoints-scalaj-client"    % "0.9.0",
+    libraryDependencies += "org.julienrf" %% "endpoints-sttp-client"      % "0.9.0"
   )
 
 lazy val pipelinesKafka = project
