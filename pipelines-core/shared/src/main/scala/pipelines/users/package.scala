@@ -1,5 +1,9 @@
 package pipelines
 
+import io.circe.{Decoder, Encoder}
+
+import scala.concurrent.duration.FiniteDuration
+
 /**
   *
   * Approach for users is this:
@@ -38,6 +42,13 @@ package pipelines
   */
 package object users {
   type UserName = String
-  type Email = String
+  type Email    = String
 
+  implicit val finiteDurationEncoder = Encoder.instance[FiniteDuration] { d =>
+    Encoder.encodeLong(d.toMillis)
+  }
+  implicit val finiteDurationDecoder = Decoder.instance[FiniteDuration] { cursor =>
+    import concurrent.duration._
+    cursor.as[Long].map(_.millis)
+  }
 }
