@@ -12,6 +12,8 @@ import pipelines.rest.jwt.Claims
 import pipelines.rest.ssl.SslConfig
 import pipelines.users.LoginRequest
 
+import scala.concurrent.{ExecutionContext, Future}
+
 case class Settings(rootConfig: Config, host: String, port: Int, materializer: ActorMaterializer) {
 
   object implicits {
@@ -35,9 +37,9 @@ case class Settings(rootConfig: Config, host: String, port: Int, materializer: A
     UserRoutes(rootConfig.getString("pipelines.users.jwtSeed")) {
       case LoginRequest("admin", "password") =>
         val adminClaims: Claims = Claims.after(5.minutes).forUser("admin")
-        Option(adminClaims)
-      case _ => None
-    }
+        Future.successful(Option(adminClaims))
+      case _ => Future.successful(None)
+    }(ExecutionContext.global)
   }
 
   val kafkaRoutes  = KafkaRoutes(rootConfig)(implicits.actorMaterializer, implicits.ioScheduler)

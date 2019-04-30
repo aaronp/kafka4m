@@ -14,6 +14,7 @@ import pipelines.users.LoginRequest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class AuthenticatedDirectiveTest extends WordSpec with Matchers with ScalatestRouteTest with GivenWhenThen with ScalaFutures {
@@ -30,9 +31,9 @@ class AuthenticatedDirectiveTest extends WordSpec with Matchers with ScalatestRo
     val adminClaims = Claims.after(tokenExpiry, loginTime).forUser("admin")
 
     val loginRoute: UserRoutes = UserRoutes(secret) {
-      case LoginRequest("admin", "password") => Option(adminClaims)
-      case LoginRequest(user, "backdoor")    => Option(Claims.after(5.minutes, loginTime).forUser(user))
-      case _                                 => None
+      case LoginRequest("admin", "password") => Future.successful(Option(adminClaims))
+      case LoginRequest(user, "backdoor")    => Future.successful(Option(Claims.after(5.minutes, loginTime).forUser(user)))
+      case _                                 => Future.successful(None)
     }
 
     def route = loginRoute.routes ~ loggedInRoute

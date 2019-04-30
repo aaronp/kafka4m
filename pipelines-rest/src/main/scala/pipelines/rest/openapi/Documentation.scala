@@ -14,8 +14,8 @@ object OpenApiEncoder extends endpoints.openapi.model.OpenApiSchemas with endpoi
 /**
   * Generates OpenAPI documentation for the endpoints described in the `CounterEndpoints` trait.
   */
-object Documentation //
-    extends openapi.Endpoints //
+object Documentation           //
+    extends openapi.Endpoints  //
     with CirceAdapter          //
     with UserEndpoints         //
     with KafkaEndpoints        //
@@ -29,23 +29,23 @@ object Documentation //
 
   def userEndpointDocs = {
     List(
-      loginEndpoint( //
-                    document(LoginRequest("username", "password")), //
+      loginEndpoint(                                                                        //
+                    document(LoginRequest("username", "password")),                         //
                     document(LoginResponse(true, Option("jwtToken"), Option("redirectTo"))) //
-      ), //
+      ),                                                                                    //
       createUserEndpoint(
         document(CreateUserRequest("username", "em@ail.com", "password")), //
-        document(CreateUserResponse(true, Option("jwtToken"))) //
+        document(CreateUserResponse(true, Option("jwtToken")))             //
       )
     )
   }
   def adminEndpointDocs: List[Documentation.DocumentedEndpoint] = {
     List(
-      generate.generateEndpoint( //
-                                document(GenerateServerCertRequest("saveToPath")), //
+      generate.generateEndpoint(                                                    //
+                                document(GenerateServerCertRequest("saveToPath")),  //
                                 document(GenerateServerCertResponse("certificate")) //
       ),
-      updatecert.updateEndpoint( //
+      updatecert.updateEndpoint(                                                                  //
                                 document(UpdateServerCertRequest("certificate", "save/to/path")), //
                                 genericResp),
       seed.seedEndpoint(document(SetJWTSeedRequest("seed")), genericResp)

@@ -11,6 +11,7 @@ import io.circe.generic.auto._
 import pipelines.users.{LoginRequest, LoginResponse}
 import org.scalatest.{Matchers, WordSpec}
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class UserRoutesTest extends WordSpec with Matchers with ScalatestRouteTest {
@@ -21,8 +22,8 @@ class UserRoutesTest extends WordSpec with Matchers with ScalatestRouteTest {
 
     val adminClaims = Claims.after(5.minutes, loginTime).forUser("admin")
     val loginRoute = UserRoutes("server secret") {
-      case LoginRequest("admin", "password") => Option(adminClaims)
-      case _                                 => None
+      case LoginRequest("admin", "password") => Future.successful(Option(adminClaims))
+      case _                                 => Future.successful(None)
     }
 
     "reject invalid logins" in {

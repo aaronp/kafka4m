@@ -3,7 +3,7 @@ package pipelines.admin
 import pipelines.core.BaseEndpoint
 import pipelines.users.{LoginRequest, LoginResponse}
 
-trait LoginEndpoints extends BaseEndpoint with endpoints.circe.JsonSchemas {
+trait LoginEndpoints extends BaseEndpoint {
 
   def redirectHeader: RequestHeaders[Option[String]] = {
     optHeader(

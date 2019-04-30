@@ -14,22 +14,28 @@ import pipelines.users.{LoginRequest, LoginResponse}
 
 import scala.util.Try
 
-//BasicAuthentication with
-class PipelinesClient[R[_]](host: String, backend: sttp.SttpBackend[R, _])
-    extends endpoints.sttp.client.Endpoints[R](host, backend)
-    with endpoints.circe.JsonSchemas
-    with endpoints.sttp.client.JsonEntitiesFromCodec[R]
-//    with BasicAuthentication[R]
-    with endpoints.algebra.circe.JsonEntitiesFromCodec
-//    with JsonEntitiesFromCodec[R]
-    with LoginEndpoints {
+object ClientEncoder extends endpoints.circe.JsonSchemas {
 
-
+//  with endpoints.algebra.circe.JsonEntitiesFromCodec
+  //with endpoints.algebra.circe.JsonEntitiesFromCodec
 
   implicit def loginRequestSchema: JsonSchema[LoginRequest]   = JsonSchema(implicitly, implicitly)
   implicit def loginResponseSchema: JsonSchema[LoginResponse] = JsonSchema(implicitly, implicitly)
 
-  def login(login : LoginRequest): R[LoginResponse] = loginEndpoint.apply(login -> None)
+}
+
+//BasicAuthentication with
+class PipelinesClient[R[_]](host: String, backend: sttp.SttpBackend[R, _])
+    extends endpoints.sttp.client.Endpoints[R](host, backend)
+//    with endpoints.circe.JsonSchemas
+    with endpoints.sttp.client.JsonEntitiesFromCodec[R]
+    with endpoints.algebra.circe.JsonEntitiesFromCodec
+//    with BasicAuthentication[R]
+//    with JsonEntitiesFromCodec[R]
+    with LoginEndpoints {
+  import ClientEncoder._
+
+  def login(login: LoginRequest): R[LoginResponse] = loginEndpoint.apply(login -> None)
 }
 
 object PipelinesClient {
