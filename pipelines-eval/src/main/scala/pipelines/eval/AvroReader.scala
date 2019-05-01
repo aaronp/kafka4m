@@ -2,12 +2,12 @@ package pipelines.eval
 
 import java.nio.file.Path
 
-import pipelines.DynamicAvroRecord
-import pipelines.expressions.Record
 import org.apache.avro.Schema
 import org.apache.avro.generic.{GenericData, GenericRecord}
 import org.apache.avro.message.BinaryMessageDecoder
 import org.apache.avro.specific.SpecificData
+import pipelines.DynamicAvroRecord
+import pipelines.expressions.Record
 
 import scala.reflect.ClassTag
 import scala.util.Try

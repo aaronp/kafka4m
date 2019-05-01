@@ -1,8 +1,9 @@
 package pipelines.eval
 
 import io.circe.syntax._
-import pipelines.kafka.{CancelFeedRequest, QueryRequest, Rate, ResponseFormat, StreamStrategy, StreamingFeedRequest, UpdateFeedRequest}
+import pipelines.kafka.{CancelFeedRequest, QueryRequest, ResponseFormat, StreamingFeedRequest, UpdateFeedRequest}
 import org.scalatest.{Matchers, WordSpec}
+import pipelines.core.{Rate, StreamStrategy}
 
 class StreamingFeedRequestTest extends WordSpec with Matchers {
 

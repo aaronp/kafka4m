@@ -1,7 +1,7 @@
 package pipelines.connect
 
 class DockerEnvTest extends BaseDockerSpec("scripts/kafka") {
-  "DockerEnv" should {
+  "DockerEnv" ignore {
     "start/stop docker" in {
       if (isDockerRunning()) {
         stopDocker() shouldBe true

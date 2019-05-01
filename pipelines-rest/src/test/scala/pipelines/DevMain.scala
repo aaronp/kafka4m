@@ -2,11 +2,9 @@ package pipelines
 
 import java.awt.Desktop
 import java.net.URI
-import java.nio.file.Path
 
 import com.typesafe.scalalogging.StrictLogging
 import pipelines.connect.DockerEnv
-import pipelines.rest.ssl.GenCerts
 
 import scala.io.StdIn
 

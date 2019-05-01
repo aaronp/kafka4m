@@ -5,8 +5,7 @@ import java.nio.file.Path
 import args4c.ConfigApp
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
-import pipelines.rest.ssl.GenCerts
-import pipelines.ssl.SSLConfig
+import pipelines.ssl.{GenCerts, SSLConfig}
 
 /**
   * The main entry point for the REST service

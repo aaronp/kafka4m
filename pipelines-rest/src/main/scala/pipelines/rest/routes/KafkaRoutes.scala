@@ -5,18 +5,26 @@ import akka.http.scaladsl.model.ws.Message
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.Flow
+import akka.stream.scaladsl.{Flow, Source}
+import akka.util.ByteString
 import args4c.RichConfig
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import monix.execution.Scheduler
+import monix.reactive.Observable
 import org.apache.kafka.clients.consumer.ConsumerConfig.{CLIENT_ID_CONFIG, GROUP_ID_CONFIG}
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import pipelines.connect.{Bytes, KafkaFacade, RichKafkaConsumer, _}
-import pipelines.eval.{AvroReader, EvalReactive}
-import pipelines.kafka.{KafkaEndpoints, KafkaSchemas, QueryRequest}
+import pipelines.connect.{Bytes, KafkaFacade, RichKafkaConsumer}
+import pipelines.eval.EvalReactive
+import pipelines.kafka.{KafkaEndpoints, KafkaSchemas, QueryRequest, StreamingFeedRequest}
 
-class KafkaRoutes(kafka: KafkaFacade, newStreamHandler: KafkaRoutes.IsBinaryStream => Flow[Message, Message, NotUsed])
+/** @param kafka a facade over kafka
+  * @param createPublishingHandler the means to create a message flow for pushing our data to consumers and receiving [[StreamingFeedRequest]] messages
+  * @param createConsumingHandler the means to create a message flow for taking data from publishers and sending back [[pipelines.kafka.StreamingRequest]] messages
+  */
+class KafkaRoutes(kafka: KafkaFacade,
+                  createPublishingHandler: KafkaRoutes.IsBinaryStream => Flow[Message, Message, NotUsed],
+                  createConsumingHandler: KafkaRoutes.IsBinaryStream => Flow[Message, Message, NotUsed])
     extends KafkaEndpoints
     with BaseCirceRoutes
     with KafkaSchemas
@@ -30,14 +38,20 @@ class KafkaRoutes(kafka: KafkaFacade, newStreamHandler: KafkaRoutes.IsBinaryStre
     case (topic, offset, limit) => kafka.pullLatest(topic, offset, limit)
   }
 
-  val streamRoute: Route = {
-    stream.streamEndpoint.request { isBinary =>
-      val handler: Flow[Message, Message, NotUsed] = newStreamHandler(isBinary.getOrElse(false))
+  def publishingRoute: Route = {
+    publish.streamEndpoint.request { isBinary =>
+      val handler: Flow[Message, Message, NotUsed] = createPublishingHandler(isBinary.getOrElse(false))
+      handleWebSocketMessages(handler)
+    }
+  }
+  def consumingRoute: Route = {
+    consume.streamEndpoint.request { isBinary =>
+      val handler: Flow[Message, Message, NotUsed] = createConsumingHandler(isBinary.getOrElse(false))
       handleWebSocketMessages(handler)
     }
   }
 
-  def routes: Route = streamRoute ~ listTopicsRoute ~ pullLatestRoute
+  def routes: Route = publishingRoute ~ consumingRoute ~ listTopicsRoute ~ pullLatestRoute
 
   override def close(): Unit = {
     kafka.close()
@@ -48,6 +62,7 @@ object KafkaRoutes extends StrictLogging {
 
   type IsBinaryStream = Boolean
 
+  type RecordFormatter[A] = (ConsumerRecord[String, Bytes]) => Observable[A]
   import args4c.implicits._
   def apply(rootConfig: Config)(implicit mat: ActorMaterializer, ioScheduler: Scheduler): KafkaRoutes = forRoot(rootConfig)
 
@@ -63,31 +78,35 @@ object KafkaRoutes extends StrictLogging {
       KafkaFacade(newConsumer(rootConfig), schemasByTopic, pollTimeout, timeout, _.close())
     }
 
-    val readerForTopic = (facade.schemaForTopic _).andThen(_.map(AvroReader.generic))
+    def newPublishingStream(isBinary: KafkaRoutes.IsBinaryStream): Flow[Message, Message, NotUsed] = {
+      val reactive: EvalReactive[ConsumerRecord[String, Bytes]]                         = EvalReactive(clientForRequest(rootConfig, _))
+      val queriesWithRecords: Observable[(QueryRequest, ConsumerRecord[String, Bytes])] = reactive.source
+      val obs: Observable[Message] = queriesWithRecords.flatMap {
+        case (query, record) => SocketAdapter.asMessage(isBinary, query, record, facade.descriptorForTopic)
+      }
+      Flow.fromSinkAndSource(SocketAdapter.asSink(reactive.update), Source.fromPublisher(obs.toReactivePublisher))
+    }
 
-    def newStream(isBinary: KafkaRoutes.IsBinaryStream): Flow[Message, Message, NotUsed] = {
+    def newConsumingStream(isBinary: KafkaRoutes.IsBinaryStream): Flow[Message, Message, NotUsed] = {
+      val heartbeatFrequency = rootConfig.asFiniteDuration("pipelines.publisher.heartbeatFrequency")
       if (isBinary) {
-        newBinarySocket(rootConfig, readerForTopic)
+        SocketAdapter.consuming.asFlow(heartbeatFrequency) { binaryData: ByteString =>
+          //
+          // TODO
+          //
+          ???
+        }
       } else {
-        newTextSocket(rootConfig, readerForTopic)
+        SocketAdapter.consuming.asTextFlow(heartbeatFrequency) { textData: String =>
+          //
+          // TODO
+          //
+          ???
+        }
       }
     }
-    new KafkaRoutes(facade, newStream)
-  }
 
-  private def newBinarySocket(rootConfig: Config, readerForTopic: EvalReactive.ReaderLookup)(implicit mat: ActorMaterializer,
-                                                                                             ioScheduler: Scheduler): Flow[Message, Message, NotUsed] = {
-    val reactive: EvalReactive[ConsumerRecord[String, Bytes]] = EvalReactive(clientForRequest(rootConfig, _))
-    val binaryData                                            = formatBinaryStream(readerForTopic, reactive.source)
-    SocketAdapter.asBinaryFlow(binaryData.toReactivePublisher, reactive.update)
-  }
-
-  private def newTextSocket(rootConfig: Config, readerForTopic: EvalReactive.ReaderLookup)(implicit mat: ActorMaterializer,
-                                                                                           ioScheduler: Scheduler): Flow[Message, Message, NotUsed] = {
-    val reactive: EvalReactive[ConsumerRecord[String, Bytes]] = EvalReactive(clientForRequest(rootConfig, _))
-    val jsonData                                              = formatStream(readerForTopic, reactive.source)
-    val publisher                                             = LoggingPublisher(jsonData.toReactivePublisher, "SOCKET.")
-    SocketAdapter.asTextFlow(publisher, reactive.update)
+    new KafkaRoutes(facade, newPublishingStream, newConsumingStream)
   }
 
   private def clientForRequest(baseConfig: RichConfig, request: QueryRequest)(implicit ioScheduler: Scheduler): RichKafkaConsumer[String, Bytes] = {

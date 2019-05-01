@@ -28,14 +28,14 @@ scalafmtOnCompile in ThisBuild := true
 scalafmtVersion in ThisBuild := "1.4.0"
 
 // Define a `Configuration` for each project, as per http://www.scala-sbt.org/sbt-site/api-documentation.html
-val Core             = config("pipelinesCoreJVM")
-val PipelinesRest    = config("pipelinesRest")
-val PipelinesDeploy  = config("pipelinesDeploy")
-val PipelinesKafka   = config("pipelinesKafka")
-val PipelinesEval    = config("pipelinesEval")
-val Expressions      = config("expressions")
-val ExpressionsAst   = config("expressionsAst")
-val ExpressionsSpark = config("expressionsSpark")
+val Core            = config("pipelinesCoreJVM")
+val PipelinesRest   = config("pipelinesRest")
+val PipelinesDeploy = config("pipelinesDeploy")
+val PipelinesKafka  = config("pipelinesKafka")
+val PipelinesEval   = config("pipelinesEval")
+val Expressions     = config("expressions")
+val ExpressionsAst  = config("expressionsAst")
+val Geometry        = config("geometryJVM")
 
 git.remoteRepo := s"git@github.com:$username/$repo.git"
 ghpagesNoJekyll := true
@@ -63,6 +63,7 @@ lazy val scaladocSiteProjects = List(
   (pipelinesKafka, PipelinesKafka),
   (pipelinesEval, PipelinesEval),
   (expressions, Expressions),
+  (geometryJVM, Geometry),
   (ExpressionsAst, ExpressionsAst)
 )
 
@@ -179,7 +180,8 @@ lazy val root = (project in file("."))
     pipelinesKafka,
     expressions,
     expressionsAst,
-    expressionsSpark
+    geometryJVM,
+    geometryJS
   )
   .settings(scaladocSiteSettings)
   .settings(
@@ -291,13 +293,14 @@ lazy val expressions = project
   .settings(name := "expressions", coverageMinimum := 30, coverageFailOnMinimum := true)
   .settings(commonSettings: _*)
   .settings(libraryDependencies ++= testDependencies)
+  .settings(libraryDependencies ++= List("circe-core", "circe-generic", "circe-parser", "circe-optics").map(artifact => "io.circe" %% artifact % "0.11.0"))
   .settings(
     libraryDependencies ++= List(
       "org.apache.avro" % "avro"           % "1.8.2",
       "org.scala-lang"  % "scala-reflect"  % "2.12.8", // % "provided",
       "org.scala-lang"  % "scala-compiler" % "2.12.8" // % "provided"
     ))
-  .dependsOn(example % "test->compile")
+  .dependsOn(example % "test->test")
 
 lazy val expressionsAst = project
   .in(file("expressions-ast"))
@@ -308,32 +311,39 @@ lazy val expressionsAst = project
     "com.lihaoyi" %% "fastparse" % "2.1.0"
   ))
   .dependsOn(expressions % "compile->compile;test->test")
-  .dependsOn(example % "test->compile")
+  .dependsOn(example % "test->test")
 
-lazy val expressionsSpark = project
-  .in(file("expressions-spark"))
-  .settings(name := "expressions-spark", coverageMinimum := 30, coverageFailOnMinimum := true)
-  .settings(commonSettings: _*)
-  .settings(libraryDependencies ++= testDependencies)
-  .settings(
-    libraryDependencies ++= List(
-      "org.apache.spark" %% "spark-core" % "2.4.0",
-      "org.apache.spark" %% "spark-sql"  % "2.4.0",
-      "org.apache.spark" %% "spark-avro" % "2.4.0"
-    ))
-  .dependsOn(expressions % "compile->compile;test->test")
-  .dependsOn(expressionsAst % "compile->compile;test->test")
-  .dependsOn(example % "test->compile")
+lazy val geometry = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Full)
+  .withoutSuffixFor(JVMPlatform)
+  .enablePlugins(TestNGPlugin)
+  .settings(name := "geometry")
+  .in(file("geometry"))
+  .jvmSettings(commonSettings: _*)
+  .jvmSettings(
+    name := "geometry-jvm",
+    coverageMinimum := 85,
+    coverageFailOnMinimum := true,
+    libraryDependencies ++= testLogging ++ testDependencies,
+    // put scaladocs under 'api/latest'
+    siteSubdirName in SiteScaladoc := "api/latest"
+  )
+  .jsSettings(name := "geometry-js")
+
+lazy val geometryJVM = geometry.jvm
+lazy val geometryJS  = geometry.js
 
 lazy val pipelinesDeploy = project
   .in(file("pipelines-deploy"))
   .settings(commonSettings: _*)
   .settings(name := s"${repo}-deploy")
+  //.settings(libraryDependencies ++= List("cucumber-scala", "cucumber-junit").map { artifact => "io.cucumber" %% artifact % "4.3.0" % "test" })
   .dependsOn(pipelinesRest % "compile->compile;test->test")
 
 lazy val pipelinesClientXhr: Project = project
   .in(file("pipelines-client-xhr"))
   .dependsOn(pipelinesCoreJS % "compile->compile;test->test")
+  .dependsOn(geometryJS % "compile->compile;test->test")
   .settings(name := s"${repo}-client-xhr")
   .enablePlugins(ScalaJSPlugin)
   .settings(
@@ -357,6 +367,7 @@ lazy val pipelinesKafka = project
   .dependsOn(pipelinesCoreJVM % "compile->compile;test->test")
   .settings(name := s"${repo}-kafka")
   .settings(commonSettings: _*)
+  .settings(parallelExecution in Test := false)
   .settings(libraryDependencies += args4cModule)
   .settings(libraryDependencies += "org.apache.kafka" % "kafka-clients" % "2.2.0")
   .settings(libraryDependencies += "org.apache.kafka" % "kafka-streams" % "2.2.0")

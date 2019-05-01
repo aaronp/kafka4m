@@ -13,7 +13,7 @@ trait SupportFunctions extends HtmlUtils {
     def publishData(topic: String, key: String, data: String): Unit = {
       val request = PublishMessage(topic, key, data)
       dom.window.console.log(s"Publishing $request")
-      KafkaQueryXhrClient.publish.publishEndpoint.apply(request).onComplete {
+      KafkaQueryXhrClient.publishSupport.publishEndpoint.apply(request).onComplete {
         case result =>
           dom.window.console.log(s"publish returned: ${result}")
       }

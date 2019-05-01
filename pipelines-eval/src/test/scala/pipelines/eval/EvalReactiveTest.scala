@@ -10,6 +10,7 @@ import monix.reactive.{Observable, Observer}
 import org.reactivestreams.{Subscriber, Subscription}
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
+import pipelines.core.{Rate, StreamStrategy}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.duration._
@@ -21,7 +22,7 @@ class EvalReactiveTest extends WordSpec with Matchers with Eventually with Given
   "KafkaReactive.source" should {
     "close and reconnect a new source when a new query request is made" in {
       Given("A queryable data source")
-      class TestData(override val data: Observable[Int]) extends DataSource[Observable[Int]] {
+      class TestData(override val data: Observable[Int]) extends Provider[Observable[Int]] {
         val closeCalls = new AtomicInteger(0)
         override def close(): Unit = {
           closeCalls.incrementAndGet()
@@ -29,7 +30,7 @@ class EvalReactiveTest extends WordSpec with Matchers with Eventually with Given
       }
 
       val createdSources = ListBuffer[TestData]()
-      def updateSource(query: QueryRequest): DataSource[Observable[Int]] = {
+      def updateSource(query: QueryRequest): Provider[Observable[Int]] = {
         val values   = query.clientId.toInt to query.groupId.toInt
         val instance = new TestData(Observable.fromIterable(values))
         createdSources += instance
@@ -205,7 +206,6 @@ class EvalReactiveTest extends WordSpec with Matchers with Eventually with Given
     }
 
     override def onError(t: Throwable): Unit = {
-      println(s"oops: $t")
       subscription.cancel()
     }
 

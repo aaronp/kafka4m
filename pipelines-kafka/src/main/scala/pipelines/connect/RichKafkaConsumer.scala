@@ -3,7 +3,6 @@ package pipelines.connect
 import java.util
 import java.util.Collections
 
-import args4c.RichConfig
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import monix.execution.Scheduler
@@ -11,7 +10,7 @@ import monix.reactive.{Observable, Observer, Pipe}
 import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.{PartitionInfo, TopicPartition}
-import pipelines.eval.DataSource
+import pipelines.eval.Provider
 import pipelines.kafka.{PartitionData, PullLatestResponse}
 
 import scala.collection.mutable.ArrayBuffer
@@ -27,7 +26,7 @@ import scala.util.Try
   * @tparam V
   */
 class RichKafkaConsumer[K, V](val client: KafkaConsumer[K, V], defaultPollTimeout: FiniteDuration)(implicit scheduler: Scheduler)
-    extends DataSource[Observable[ConsumerRecord[K, V]]]
+    extends Provider[Observable[ConsumerRecord[K, V]]]
     with StrictLogging {
 
   private class Listener(initialTopics: Set[String], offset: String) extends ConsumerRebalanceListener {
@@ -202,10 +201,7 @@ object RichKafkaConsumer extends StrictLogging {
   def apply[K, V](rootConfig: Config, keySerializer: Deserializer[K], valueSerializer: Deserializer[V])(implicit scheduler: Scheduler): RichKafkaConsumer[K, V] = {
 
     import args4c.implicits._
-    val consumerConf: Config = {
-      val config: RichConfig = rootConfig
-      config.pipelines.consumer.config
-    }
+    val consumerConf: Config = rootConfig.getConfig("pipelines.consumer")
     logger.debug(s"creating new kafka consumer client for:\n${consumerConf.summary()}\n")
     val pollFreq = consumerConf.asFiniteDuration("poll.interval")
     val props    = propertiesForConfig(consumerConf)

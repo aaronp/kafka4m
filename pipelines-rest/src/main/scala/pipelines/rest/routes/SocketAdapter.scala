@@ -1,34 +1,87 @@
 package pipelines.rest.routes
 
-import akka.{Done, NotUsed}
+import akka.actor.Cancellable
 import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.util.ByteString
+import akka.{Done, NotUsed}
 import com.typesafe.scalalogging.StrictLogging
-import pipelines.connect.Bytes
-import pipelines.kafka.StreamingFeedRequest
-import org.reactivestreams.{Publisher, Subscriber, Subscription}
+import monix.reactive.Observable
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import pipelines.DynamicAvroRecord
+import pipelines.connect._
+import pipelines.eval.AvroReader
+import pipelines.kafka.{CancelFeedRequest, Heartbeat, QueryRequest, StreamingFeedRequest, StreamingRequest}
 
 import scala.concurrent.Future
+import scala.concurrent.duration.FiniteDuration
+import scala.util.Try
+import io.circe.syntax._
 
 /** Functions to convert a data stream into an akka web socket flow
   */
 object SocketAdapter extends StrictLogging {
 
-  def asTextFlow(source: Publisher[String], onRequest: StreamingFeedRequest => Unit): Flow[Message, Message, NotUsed] = {
-    val akkaSource: Source[String, NotUsed] = Source.fromPublisher(source)
-    val messages: Source[Message, NotUsed]  = akkaSource.map(TextMessage.apply)
-    Flow.fromSinkAndSource(asSink(onRequest), messages)
+  def asMessage(isBinary: Boolean, query: QueryRequest, record: ConsumerRecord[String, Bytes], descriptorForTopic: String => Option[TopicDescriptor]): Observable[Message] = {
+    descriptorForTopic(query.topic) match {
+      case Some(AvroDescriptor(schema)) =>
+        val reader                             = AvroReader.generic(schema)
+        val avroResult: Try[DynamicAvroRecord] = reader.read(record.value)
+        if (isBinary) {
+          avroRecordResultAsBinary(record, avroResult, query).map(bytes => BinaryMessage(ByteString(bytes)))
+        } else {
+          avroRecordResultAsRecordJson(record, avroResult, query).map(jsonRecord => TextMessage(jsonRecord.asJson.noSpaces))
+        }
+      case Some(JsonDescriptor) =>
+        Observable(RecordJson(record, record.key.toString, s"${record.value.length} bytes")).map(jsonRecord => TextMessage(jsonRecord.asJson.noSpaces))
+      case Some(ProtobufDescriptor(protobuffSchema)) =>
+        //
+        // TODO
+        //
+        ???
+      case None =>
+        val x = RecordJson(record, record.key.toString, new String(record.value, "UTF-8"))
+        Observable(TextMessage(x.asJson.noSpaces))
+    }
   }
 
-  def asBinaryFlow(source: Publisher[Bytes], onRequest: StreamingFeedRequest => Unit): Flow[Message, Message, NotUsed] = {
-    val akkaSource: Source[Bytes, NotUsed] = Source.fromPublisher(source)
-    val messages                           = akkaSource.map(data => BinaryMessage(ByteString(data)))
-    Flow.fromSinkAndSource(asSink(onRequest), messages)
+  // the websocket feeds coming into the system
+  object consuming {
+    type Continue = Boolean
+
+    private class Wrapper(var msg: StreamingRequest) {
+      def asTextMessage: TextMessage.Strict = {
+        val json = StreamingRequest.encodeRequest(msg).noSpaces
+        TextMessage(json)
+      }
+    }
+
+    def asTextFlow(heartbeatFrequency: FiniteDuration)(onNext: String => Continue): Flow[Message, Message, NotUsed] = {
+      asFlow(heartbeatFrequency) { bytes =>
+        onNext(bytes.utf8String)
+      }
+    }
+
+    def asFlow(heartbeatFrequency: FiniteDuration)(onNext: ByteString => Continue): Flow[Message, Message, NotUsed] = {
+      val wrapper                                  = new Wrapper(Heartbeat)
+      val akkaSource: Source[Wrapper, Cancellable] = Source.tick(heartbeatFrequency, heartbeatFrequency, wrapper)
+      val sink = Sink.foreach[Message] { fromClient =>
+        val bytes = if (fromClient.isText) {
+          ByteString(fromClient.asTextMessage.getStrictText.getBytes("UTF-8"))
+        } else {
+          fromClient.asBinaryMessage.getStrictData
+        }
+        val continue = onNext(bytes)
+        if (!continue) {
+          logger.info("Cancelling incoming feed")
+          wrapper.msg = CancelFeedRequest
+        }
+      }
+      Flow.fromSinkAndSource(sink, akkaSource.map(_.asTextMessage))
+    }
   }
 
-  def asSink[A](onRequest: StreamingFeedRequest => Unit) = {
-
+  def asSink[A](onRequest: StreamingFeedRequest => Unit): Sink[Message, Future[Done]] = {
     def onMsg(fromClient: Message) =
       if (fromClient.isText) {
         val json = fromClient.asTextMessage.asScala.getStrictText
@@ -40,35 +93,6 @@ object SocketAdapter extends StrictLogging {
       } else {
         logger.warn("Discarding binary message from client")
       }
-
-//
-//    Sink.fromSubscriber(new Subscriber[Message] with StrictLogging {
-//      private var subscription: Subscription = null
-//      private val batchSize                  = 16
-//      @volatile private var pending          = 0
-//      override def onSubscribe(s: Subscription): Unit = {
-//        logger.info(s"SocketAdapter.onSubscribe($s)")
-//        subscription = s
-//        pending = batchSize / 2
-//        subscription.request(batchSize)
-//      }
-//
-//      override def onNext(t: Message): Unit = {
-//        logger.info(s"SocketAdapter.onNext($t) w/ $pending pending")
-//        onMsg(t)
-//        pending = pending - 1
-//        if (pending == 0) {
-//          pending = batchSize / 2
-//          subscription.request(batchSize)
-//        }
-//      }
-//
-//      override def onError(t: Throwable): Unit =
-//        logger.info(s"SocketAdapter.onError($t) w/ $pending pending")
-//
-//      override def onComplete(): Unit =
-//        logger.info(s"SocketAdapter.onComplete() w/ $pending pending")
-//    })
 
     Sink.foreach[Message](onMsg)
   }

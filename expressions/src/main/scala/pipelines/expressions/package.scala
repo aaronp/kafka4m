@@ -14,11 +14,8 @@ import org.apache.avro.generic.IndexedRecord
   */
 package object expressions extends LowPriorityExpressionImplicits {
 
-  type Record    = IndexedRecord // SpecificRecordBase, GenericRecord
-  type Predicate = Record => Boolean
+  type Record = IndexedRecord
 
-  val PassThrough: Predicate = (_ => true)
-
-  def parseRule(rule: String): Predicate = Expressions.Predicate(rule)
+  def asAvroPredicate(rule: String): AvroExpressions.Predicate = AvroExpressions.Predicate(rule)
 
 }

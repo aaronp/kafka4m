@@ -1,11 +1,11 @@
 package pipelines.client
 
-import endpoints.xhr.circe.JsonSchemaEntities
 import io.circe.syntax._
 import org.scalajs.dom
 import org.scalajs.dom.raw.MessageEvent
+import pipelines.core.Rate
 import pipelines.kafka._
-
+import pipelines.core.StreamStrategy
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
 

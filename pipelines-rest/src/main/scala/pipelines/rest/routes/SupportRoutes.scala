@@ -23,7 +23,7 @@ class SupportRoutes(rootConfig: Config, publisher: PublishMessage => Unit) exten
 
   def publishRoute: Route = {
     implicit def requestSchema: JsonSchema[PublishMessage] = JsonSchema(implicitly, implicitly)
-    publish.publishEndpoint.implementedBy { rqst: PublishMessage =>
+    publishSupport.publishEndpoint.implementedBy { rqst: PublishMessage =>
       publisher(rqst)
       GenericMessageResult("ok")
     }

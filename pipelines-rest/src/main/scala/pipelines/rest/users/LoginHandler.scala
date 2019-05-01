@@ -28,8 +28,8 @@ object LoginHandler {
     val c1ass       = Class.forName(c1assName).asInstanceOf[Class[LoginHandler]]
 
     c1ass.getConstructors.find(_.getParameterCount == 1) match {
-      case Some(ctr: Constructor[LoginHandler]) => ctr.newInstance(usersConfig)
-      case None                                 => c1ass.newInstance()
+      case Some(ctr: Constructor[_]) => ctr.asInstanceOf[Constructor[LoginHandler]].newInstance(usersConfig)
+      case None                      => c1ass.newInstance()
     }
 
   }

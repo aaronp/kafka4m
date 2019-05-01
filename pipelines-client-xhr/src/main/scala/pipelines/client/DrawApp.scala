@@ -3,7 +3,7 @@ package pipelines.client
 import org.scalajs.dom
 import org.scalajs.dom.raw.{ClientRect, MouseEvent}
 import org.scalajs.dom.{CanvasRenderingContext2D, html}
-import pipelines.geography._
+import geometry._
 import org.scalajs.dom
 import org.scalajs.dom.document
 import scalatags.JsDom.all._

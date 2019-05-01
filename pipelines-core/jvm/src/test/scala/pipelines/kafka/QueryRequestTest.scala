@@ -2,6 +2,7 @@ package pipelines.kafka
 
 import org.scalatest.{Matchers, WordSpec}
 import io.circe.syntax._
+import pipelines.core.{Rate, StreamStrategy}
 
 class QueryRequestTest extends WordSpec with Matchers {
 

@@ -5,11 +5,11 @@ import pipelines.core.{BaseEndpoint, GenericMessageResult}
 trait KafkaSupportEndpoints extends BaseEndpoint {
 
   def kafkaSupportEndpoints(implicit req: JsonRequest[PublishMessage], resp: JsonResponse[GenericMessageResult]) = List(
-    publish.publishEndpoint,
+    publishSupport.publishEndpoint,
     config.configEndpoint
   )
 
-  object publish {
+  object publishSupport {
 
     def request(implicit req: JsonRequest[PublishMessage]): Request[PublishMessage] = {
       val publishRequest = jsonRequest[PublishMessage](Option("publishes a message to a topic"))

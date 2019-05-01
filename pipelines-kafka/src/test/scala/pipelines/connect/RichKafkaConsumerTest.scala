@@ -18,7 +18,7 @@ class RichKafkaConsumerTest extends BaseDockerSpec("scripts/kafka") {
       implicit val sched = Scheduler.io("RichKafkaConsumerTest")
 
       try {
-        val config = ConnectMain.defaultConfig()
+        val config = ConfigFactory.load()
         Using(RichKafkaProducer.strings(config)) { producer =>
           producer.send("foo", "testkey", "test")
           producer.send("bar", "testkey", "test")
@@ -36,23 +36,4 @@ class RichKafkaConsumerTest extends BaseDockerSpec("scripts/kafka") {
       }
     }
   }
-
-}
-
-object RichKafkaConsumerTest {
-
-  def newKafkaConsumer(rootConfig: Config, topics: Set[String]): KafkaConsumer[String, Bytes] = {
-    val config = {
-      ConfigFactory.parseString(s"""bootstrap.servers : "localhost:9092"
-                                   |group.id : "${BaseDockerSpec.randomString()}"
-                                   |client.id: "${BaseDockerSpec.randomString()}"
-                                   |auto.offset.reset : "earliest"
-        """.stripMargin).withFallback(rootConfig.getConfig("akka.kafka.consumer"))
-    }
-    val properties = propertiesForConfig(config)
-    val consumer   = new KafkaConsumer[String, Bytes](properties)
-    consumer.subscribe(topics.asJava)
-    consumer
-  }
-
 }

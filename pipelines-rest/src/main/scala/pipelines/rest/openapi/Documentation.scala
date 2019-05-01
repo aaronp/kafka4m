@@ -55,11 +55,12 @@ object Documentation //
   def kafkaEndpointsDocs: List[Documentation.DocumentedEndpoint] = List(
     listTopics.listTopicsEndpoint(document(ListTopicsResponse(Map("/some/topic" -> Seq(PartitionData(1, "leader")))))),
     query.pullEndpoint(document(("topic", 1, 2))),
-    stream.streamEndpoint
+    publish.streamEndpoint,
+    consume.streamEndpoint
   )
   def kafkaSupportEndpointsDocs: List[Documentation.DocumentedEndpoint] = {
     List(
-      publish.publishEndpoint(document(PublishMessage("topic", "key", "data")), genericResp),
+      publishSupport.publishEndpoint(document(PublishMessage("topic", "key", "data")), genericResp),
       config.configEndpoint(genericResp)
     )
   }

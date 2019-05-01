@@ -8,7 +8,7 @@ import akka.http.scaladsl.settings.RoutingSettings
 import akka.http.scaladsl.{ConnectionContext, Http, HttpsConnectionContext}
 import akka.stream.scaladsl.Flow
 import com.typesafe.scalalogging.StrictLogging
-import pipelines.rest.routes.{AppRoutes, KafkaRoutes, StaticFileRoutes}
+import pipelines.rest.routes.{AppRoutes, KafkaRoutes, StaticFileRoutes, TraceRoute}
 import pipelines.ssl.SSLConfig
 
 import scala.concurrent.Future
@@ -33,9 +33,11 @@ object RunningServer extends StrictLogging {
   }
 
   def makeRoutes(static: StaticFileRoutes, kafka: KafkaRoutes, theRest: Route*)(implicit routingSettings: RoutingSettings): Route = {
-
     val route = AppRoutes.https(static, kafka, theRest: _*)
-    Route.seal(route)
+
+    // TODO - instead of just logging, actually write down the requests/responses and expose through the front-end.
+    // perhaps just through kafka like any other topic
+    Route.seal(TraceRoute.log.wrap(route))
   }
 
   def loadHttps(sslConf: SSLConfig): Try[HttpsConnectionContext] = sslConf.newContext().map(ctxt => ConnectionContext.https(ctxt))

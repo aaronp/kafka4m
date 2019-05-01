@@ -25,7 +25,7 @@ import pipelines.kafka._
   */
 class KafkaRoutesIntegrationTest extends BaseDockerSpec("scripts/kafka") with Matchers with ScalatestRouteTest {
 
-  "GET /kafka/stream" should {
+  "GET /kafka/pull" should {
     "open a web socket to pull all data from a query" in {
       val wsClient = WSProbe()
 
@@ -61,7 +61,7 @@ class KafkaRoutesIntegrationTest extends BaseDockerSpec("scripts/kafka") with Ma
           Using(KafkaRoutes(rootConfig)(materializer, schedulerService)) { kafkaRoutes =>
             val websocketRoute: Route = kafkaRoutes.routes
 
-            val req: HttpRequest = WS("/kafka/stream", wsClient.flow)
+            val req: HttpRequest = WS("/stream/pull", wsClient.flow)
 
             req ~> websocketRoute ~> check {
               // check response for WS Upgrade headers

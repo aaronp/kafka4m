@@ -10,23 +10,37 @@ trait KafkaEndpoints extends BaseEndpoint {
   def kafkaEndpoints(implicit resp1: JsonResponse[ListTopicsResponse], resp2: JsonResponse[PullLatestResponse]) = List(
     listTopics.listTopicsEndpoint,
     query.pullEndpoint,
-    stream.streamEndpoint
+    publish.streamEndpoint,
+    consume.streamEndpoint
   )
 
   object listTopics {
 
-    def request: Request[Unit] = get(path / "kafka" / "topics")
+    def request: Request[Unit] = get(path / "stream" / "topics")
 
     def response(implicit resp: JsonResponse[ListTopicsResponse]): Response[ListTopicsResponse] = jsonResponse[ListTopicsResponse](Option("returns the available topics"))
 
     def listTopicsEndpoint(implicit resp: JsonResponse[ListTopicsResponse]): Endpoint[Unit, ListTopicsResponse] = endpoint(request, response)
   }
 
-  object stream {
+  /**
+    * The endpoint for creating a websocket which can consume (pull) data from us. We'll send the data and consume [[StreamingFeedRequest]] requests from the endpoint (updated queries, heartbeats or cancel)
+    */
+  object publish {
     type IsBinary = Boolean
-    def request: Request[Option[IsBinary]] = get(path / "kafka" / "stream" /? qs[Option[Boolean]]("binary"))
+    def request: Request[Option[IsBinary]] = get(path / "stream" / "download" /? qs[Option[Boolean]]("binary"))
     def response: Response[Unit]           = emptyResponse(Option("The response is upgrade response to open a websocket"))
 
+    val streamEndpoint: Endpoint[Option[IsBinary], Unit] = endpoint(request, response)
+  }
+
+  /**
+    * The endpoint for creating a websocket which will consume data from the websocket and send StreamingRequest messages (heartbeats or a cancel request) to the connector
+    */
+  object consume {
+    type IsBinary = Boolean
+    def request: Request[Option[IsBinary]]               = get(path / "stream" / "upload" /? qs[Option[Boolean]]("binary"))
+    def response: Response[Unit]                         = emptyResponse(Option("The response is upgrade response to open a websocket"))
     val streamEndpoint: Endpoint[Option[IsBinary], Unit] = endpoint(request, response)
   }
 
@@ -38,7 +52,7 @@ trait KafkaEndpoints extends BaseEndpoint {
     type PullLatestRequest = (Topic, Offset, Limit)
 
     def request: Request[PullLatestRequest] = {
-      get(path / "kafka" / "query" /? (qs[Topic]("topic") & qs[Offset]("offset") & qs[Limit]("limit")))
+      get(path / "stream" / "query" /? (qs[Topic]("topic") & qs[Offset]("offset") & qs[Limit]("limit")))
     }
 
     def response(implicit resp: JsonResponse[PullLatestResponse]): Response[PullLatestResponse] = jsonResponse[PullLatestResponse](Option("returns data from the topic"))

@@ -4,8 +4,8 @@ import com.typesafe.scalalogging.StrictLogging
 import monix.eval.Task
 import monix.execution.Scheduler
 import monix.reactive.{Observable, Observer, Pipe}
-import org.reactivestreams.Publisher
 import pipelines.DynamicAvroRecord
+import pipelines.core.{Rate, StreamStrategy}
 import pipelines.eval.EvalReactive.throttle
 import pipelines.kafka._
 
@@ -17,10 +17,14 @@ import pipelines.kafka._
   * @param queryUpdates
   * @tparam A
   */
-class EvalReactive[A] private (sourceForQuery: QueryRequest => DataSource[Observable[A]], queryFeed: Observer[QueryRequest], queryUpdates: Observable[QueryRequest])
+class EvalReactive[A] private (sourceForQuery: QueryRequest => Provider[Observable[A]], queryFeed: Observer[QueryRequest], queryUpdates: Observable[QueryRequest])
     extends StrictLogging {
 
-  def update(request: StreamingFeedRequest) = {
+  /**
+    *
+    * @param request the message to push to this feed
+    */
+  def update(request: StreamingFeedRequest): Unit = {
     logger.info(s" **> CLIENT SENT  $request")
     request match {
       case CancelFeedRequest           => queryFeed.onComplete()
@@ -37,7 +41,7 @@ class EvalReactive[A] private (sourceForQuery: QueryRequest => DataSource[Observ
       Observable(sourceForQuery(nextQuery)).bracket { source =>
         val dataSource = source.data
         // guard against this obs completing
-        val data = dataSource.map(nextQuery -> _).dump("I T E R A T O R")
+        val data = dataSource.map(nextQuery -> _)
 
         logger.debug(s"Throttling ${nextQuery.messageLimit}}, ${nextQuery.streamStrategy}")
         throttle(data, nextQuery.messageLimit, nextQuery.streamStrategy)
@@ -55,25 +59,18 @@ object EvalReactive extends StrictLogging {
   type TopicName    = String
   type ReaderLookup = TopicName => Option[AvroReader[DynamicAvroRecord]]
 
-  def apply[A](clientForQuery: QueryRequest => DataSource[Observable[A]])(implicit scheduler: Scheduler): EvalReactive[A] = {
+  def apply[A](clientForQuery: QueryRequest => Provider[Observable[A]])(implicit scheduler: Scheduler): EvalReactive[A] = {
     val (queryIn: Observer[QueryRequest], queryOut: Observable[QueryRequest]) = Pipe.behavior((null: QueryRequest)).multicast
-    new EvalReactive[A](clientForQuery, queryIn, queryOut.filter(_ != null).dump("onQueryUpdate"))
+    new EvalReactive[A](clientForQuery, queryIn, queryOut.filter(_ != null))
   }
 
   def throttle[A](input: Observable[A], messageLimit: Option[Rate], strategy: StreamStrategy): Observable[A] = {
 
     (messageLimit, strategy) match {
       case (Some(Rate(limit, per)), StreamStrategy.Latest) =>
-        input. //
-        bufferTimed(per). //
-        whileBusyDropEvents
-          .map(select(_, limit))
-          .switchMap(Observable.fromIterable)
+        input.bufferTimed(per).whileBusyDropEvents.map(select(_, limit)).switchMap(Observable.fromIterable)
       case (Some(Rate(limit, per)), StreamStrategy.All) =>
-        input. //
-        bufferTimed(per). //
-        map(select(_, limit)). //
-        switchMap(Observable.fromIterable)
+        input.bufferTimed(per).map(select(_, limit)).switchMap(Observable.fromIterable)
       case (None, StreamStrategy.Latest) =>
         input.whileBusyDropEvents
       case (None, StreamStrategy.All) =>
