@@ -2,6 +2,7 @@ package pipelines.data
 
 import monix.execution.Scheduler
 import monix.reactive.{Observable, Observer, Pipe}
+import pipelines.stream.{ListSourceResponse, RegisteredSource}
 
 /**
   * An in-memory map of data sources
@@ -14,6 +15,13 @@ class SourceRegistry private (listeners: Observer[SourceRegistryEvent], val even
 
   def keys(): collection.Set[String] = Lock.synchronized {
     sourcesByName.keySet
+  }
+  def list(): ListSourceResponse = Lock.synchronized {
+    val all = sourcesByName.map {
+      case (key, source) =>
+        RegisteredSource(key, source.sourceType.name)
+    }
+    ListSourceResponse(all.toList.sortBy(_.name))
   }
 
   def remove(key: String): Boolean = Lock.synchronized {

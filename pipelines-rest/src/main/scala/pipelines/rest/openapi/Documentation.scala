@@ -5,6 +5,7 @@ import endpoints.openapi.model.{Info, OpenApi}
 import pipelines.admin._
 import pipelines.core.GenericMessageResult
 import pipelines.kafka.{KafkaEndpoints, KafkaSupportEndpoints, ListTopicsResponse, PartitionData, PublishMessage}
+import pipelines.stream.StreamEndpoints
 import pipelines.users.{CreateUserRequest, CreateUserResponse, LoginRequest, LoginResponse, UserEndpoints}
 
 object OpenApiEncoder extends endpoints.openapi.model.OpenApiSchemas with endpoints.circe.JsonSchemas {
@@ -19,6 +20,7 @@ object Documentation //
     with CirceAdapter          //
     with UserEndpoints         //
     with KafkaEndpoints        //
+    with StreamEndpoints        //
     with KafkaSupportEndpoints //
     with AdminEndpoints        //
     with openapi.JsonSchemaEntities {
@@ -65,8 +67,14 @@ object Documentation //
     )
   }
 
-  def documentedEndpoints = {
-    kafkaSupportEndpointsDocs ++ kafkaEndpointsDocs ++ userEndpointDocs ++ adminEndpointDocs
+  def streamEndpoints: List[Documentation.DocumentedEndpoint] = {
+    List(
+
+    )
+  }
+
+  def documentedEndpoints: List[Documentation.DocumentedEndpoint] = {
+    kafkaSupportEndpointsDocs ++ streamEndpoints ++ kafkaEndpointsDocs ++ userEndpointDocs ++ adminEndpointDocs
   }
 
   lazy val api: OpenApi = openApi(
