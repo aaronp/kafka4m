@@ -5,12 +5,12 @@ import java.util.UUID
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.{ScalatestRouteTest, WSProbe}
-import io.circe.generic.auto._
 import io.circe.parser._
 import monix.execution.Scheduler
 import org.scalatest.Matchers
 import pipelines.Using
 import pipelines.connect.{BaseDockerSpec, RecordJson, RichKafkaProducer}
+import pipelines.core.StreamStrategy
 import pipelines.kafka._
 
 /**
