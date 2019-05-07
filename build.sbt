@@ -47,6 +47,12 @@ val logging = List("com.typesafe.scala-logging" %% "scala-logging" % "3.9.2", "c
 
 def testLogging = logging.map(_ % "test")
 
+val monixDependencies = List("monix", "monix-execution", "monix-eval", "monix-reactive", "monix-tail").map { art =>
+  "io.monix" %% art % "3.0.0-RC2"
+}
+
+val circeDependencies = List("circe-core", "circe-generic", "circe-parser", "circe-optics").map(artifact => "io.circe" %% artifact % "0.11.0")
+
 val testDependencies = List(
   "junit"                  % "junit"      % "4.12"  % "test",
   "org.scalatest"          %% "scalatest" % "3.0.7" % "test",
@@ -257,7 +263,7 @@ lazy val pipelinesCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
     name := "pipelines-core-jvm",
     coverageMinimum := 85,
     coverageFailOnMinimum := true,
-    libraryDependencies ++= testLogging ++ List(
+    libraryDependencies ++= monixDependencies ++ testLogging ++ List(
       typesafeConfig,
       "com.lihaoyi"         %% "sourcecode"          % "0.1.5", // % "test",
       "org.scala-js"        %% "scalajs-stubs"       % scalaJSVersion % "provided",
@@ -293,7 +299,7 @@ lazy val expressions = project
   .settings(name := "expressions", coverageMinimum := 30, coverageFailOnMinimum := true)
   .settings(commonSettings: _*)
   .settings(libraryDependencies ++= testDependencies)
-  .settings(libraryDependencies ++= List("circe-core", "circe-generic", "circe-parser", "circe-optics").map(artifact => "io.circe" %% artifact % "0.11.0"))
+  .settings(libraryDependencies ++= circeDependencies)
   .settings(
     libraryDependencies ++= List(
       "org.apache.avro" % "avro"           % "1.8.2",
@@ -301,6 +307,7 @@ lazy val expressions = project
       "org.scala-lang"  % "scala-compiler" % "2.12.8" // % "provided"
     ))
   .dependsOn(example % "test->test")
+  .dependsOn(pipelinesCoreJVM % "compile->compile;test->test")
 
 lazy val expressionsAst = project
   .in(file("expressions-ast"))
@@ -379,9 +386,7 @@ lazy val pipelinesEval = project
   .in(file("pipelines-eval"))
   .settings(name := s"${repo}-eval")
   .settings(commonSettings: _*)
-  .settings(libraryDependencies ++= List("monix", "monix-execution", "monix-eval", "monix-reactive", "monix-tail").map { art =>
-    "io.monix" %% art % "3.0.0-RC2"
-  })
+  .settings(libraryDependencies ++= monixDependencies)
   .settings(libraryDependencies ++= typesafeConfig :: logging)
   .dependsOn(pipelinesCoreJVM % "compile->compile;test->test")
   .dependsOn(expressionsAst % "compile->compile;test->test")

@@ -30,9 +30,9 @@ class RichJsonPath(val path: JsonPath) extends AnyVal {
   def =====(value: String)(implicit json: Json): Boolean = path.string.=====(value)
   def =====(value: Double)(implicit json: Json): Boolean = path.number.=====(value)
   def =====(value: Long)(implicit json: Json): Boolean   = path.string.=====(value)
-  def <=(value: Double)(implicit json: Json): Boolean      = path.number.<=(value)
-  def >=(value: Double)(implicit json: Json): Boolean      = path.number.>=(value)
-  def >(value: Double)(implicit json: Json): Boolean       = path.number.>(value)
-  def <(value: Double)(implicit json: Json): Boolean       = path.number.<(value)
+  def <=(value: Double)(implicit json: Json): Boolean    = path.number.<=(value)
+  def >=(value: Double)(implicit json: Json): Boolean    = path.number.>=(value)
+  def >(value: Double)(implicit json: Json): Boolean     = path.number.>(value)
+  def <(value: Double)(implicit json: Json): Boolean     = path.number.<(value)
 
 }

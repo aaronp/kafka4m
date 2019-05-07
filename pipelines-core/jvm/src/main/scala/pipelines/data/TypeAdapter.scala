@@ -1,13 +1,15 @@
 package pipelines.data
 
-trait TypeAdapter[-A] {
+import pipelines.core.{ByteArray, DataType, JsonRecord}
+
+private[data] trait TypeAdapter[-A] {
   type T
   def sourceType: DataType
 
   def map(input: A): T
 }
 
-object TypeAdapter {
+private[data] object TypeAdapter {
   trait Aux {
     def orElse(other: Aux): Aux = {
       val parent = this

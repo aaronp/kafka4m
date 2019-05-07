@@ -3,6 +3,7 @@ package pipelines.data
 import monix.execution.Ack
 import monix.execution.Ack.{Continue, Stop}
 import monix.reactive.Observer
+import pipelines.core.{AnyType, DataType}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
@@ -16,6 +17,7 @@ object DataSink {
   class Collect[A](override val sinkType: DataType) extends DataSink[A] {
     private var ack: Ack = Continue
     private val buffer   = new ListBuffer[A]()
+    def clear()          = buffer.clear()
     def toList()         = buffer.toList
     def cancel() = {
       ack = Stop

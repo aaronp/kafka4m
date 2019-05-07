@@ -64,6 +64,7 @@ object EvalReactive extends StrictLogging {
     new EvalReactive[A](clientForQuery, queryIn, queryOut.filter(_ != null))
   }
 
+  @deprecated
   def throttle[A](input: Observable[A], messageLimit: Option[Rate], strategy: StreamStrategy): Observable[A] = {
 
     (messageLimit, strategy) match {

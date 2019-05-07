@@ -1,4 +1,4 @@
-package pipelines.data
+package pipelines.core
 
 import io.circe.Decoder.Result
 import io.circe._

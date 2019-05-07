@@ -37,10 +37,10 @@ class RichOptional[A](val value: Optional[Json, A]) {
   }
 
   def =====(expected: Double)(implicit json: Json): Boolean = compareDouble(_ == expected)
-  def >=(expected: Double)(implicit json: Json): Boolean      = compareDouble(_ >= expected)
-  def >(expected: Double)(implicit json: Json): Boolean       = compareDouble(_ > expected)
-  def <=(expected: Double)(implicit json: Json): Boolean      = compareDouble(_ <= expected)
-  def <(expected: Double)(implicit json: Json): Boolean       = compareDouble(_ < expected)
+  def >=(expected: Double)(implicit json: Json): Boolean    = compareDouble(_ >= expected)
+  def >(expected: Double)(implicit json: Json): Boolean     = compareDouble(_ > expected)
+  def <=(expected: Double)(implicit json: Json): Boolean    = compareDouble(_ <= expected)
+  def <(expected: Double)(implicit json: Json): Boolean     = compareDouble(_ < expected)
 
   private def compareDouble(compare: Double => Boolean)(implicit json: Json): Boolean = {
     value.getOption(json).exists {

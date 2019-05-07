@@ -2,7 +2,6 @@ package pipelines
 
 package object data {
 
-
   /** samples 'max' elements from the given sequence
     *
     * @param data the data to sample

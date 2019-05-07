@@ -1,5 +1,7 @@
 package pipelines.data
 
+import pipelines.core.{ByteArray, GenericAvroRecord, JsonRecord, SpecificAvroRecord}
+
 class DataRegistryResponseTest extends BaseEvalTest {
   "DataRegistryResponse" should {
 
@@ -9,9 +11,10 @@ class DataRegistryResponseTest extends BaseEvalTest {
       SourceSinkMismatchResponse("sourceKey", "sinkKey", ByteArray, JsonRecord),
       SourceAlreadyExistsResponse("sourceKey"),
       SourceCreatedResponse("sourceKey", JsonRecord),
+      SourceUpdatedResponse("sourceKey", "updated"),
       UnsupportedTypeMappingResponse("sourceKey", SpecificAvroRecord, GenericAvroRecord),
       ConnectResponse("sourceKey", "sinkKey"),
-      ErrorCreatingSource("sourceKey", "bang")
+      SourceErrorResponse("sourceKey", "bang")
     ).foreach { expected =>
       s"serialize $expected to/from json" in {
         import io.circe.parser._

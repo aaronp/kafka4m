@@ -1,10 +1,11 @@
 package pipelines.data
 import monix.execution.atomic.AtomicAny
 import monix.reactive.Observable
+import pipelines.core.DataType
 
 import scala.reflect.ClassTag
 
-class DataSourceFiltered[A: ClassTag] private (underlying: DataSource[A], filterVar: AtomicAny[A => Boolean]) extends DataSource[A] {
+class DataSourceFiltered[A: ClassTag] private (underlying: DataSource[A], val filterVar: AtomicAny[A => Boolean]) extends DataSource[A] {
   override val tag = implicitly[ClassTag[A]]
   override def data: Observable[A] = {
     underlying.data.flatMap { input =>

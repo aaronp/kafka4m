@@ -6,5 +6,5 @@ import monocle.Optional
 
 trait LowPriorityOptionalImplicits {
   implicit def asRichOptional[A](value: Optional[Json, A]) = new RichOptional[A](value)
-  implicit def asRichJPath(path : JsonPath) = new RichJsonPath(path)
+  implicit def asRichJPath(path: JsonPath)                 = new RichJsonPath(path)
 }

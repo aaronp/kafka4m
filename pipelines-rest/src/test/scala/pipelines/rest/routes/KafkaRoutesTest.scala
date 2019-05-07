@@ -44,11 +44,11 @@ class KafkaRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wit
     override def close(): Unit = {}
   }
 
-  "GET /stream/topics" should {
+  "GET /kafka/topics" should {
     "list the topics" in {
       val routes = new KafkaRoutes(testService, _ => ???, _ => ???).routes
 
-      Get("/stream/topics") ~> routes ~> check {
+      Get("/kafka/topics") ~> routes ~> check {
         response.status.isSuccess() shouldBe true
         entityAs[ListTopicsResponse] shouldBe testService.cannedResponse
       }

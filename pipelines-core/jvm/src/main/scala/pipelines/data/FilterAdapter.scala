@@ -1,14 +1,15 @@
 package pipelines.data
 
 import io.circe.Json
-import pipelines.expressions.{Cache, JsonExpressions}
+import pipelines.core.{DataType, JsonRecord}
+//import pipelines.expressions.{Cache, JsonExpressions}
 
 import scala.util.Try
 
 /**
   * Represents something which can create type filters (predicates) from an expression
   */
-trait FilterAdapter {
+private[data] trait FilterAdapter {
 
   /**
     * This weird signature is so that invalid expressions don't end up get retried for all 'orElse' cases.
@@ -31,24 +32,6 @@ trait FilterAdapter {
         parent.createFilter[A](sourceType, expression).orElse {
           other.createFilter[A](sourceType, expression)
         }
-      }
-    }
-  }
-}
-
-object FilterAdapter {
-
-  def apply(): JsonAdapter = {
-    new JsonAdapter()
-  }
-
-  class JsonAdapter(computeCache: Cache[Json => Boolean] = JsonExpressions.newCache) extends FilterAdapter {
-    override def createFilter[A](sourceType: DataType, expression: String): Option[Try[A => Boolean]] = {
-      if (sourceType == JsonRecord) {
-        val result = Option(computeCache(expression))
-        result.asInstanceOf[Option[Try[A => Boolean]]]
-      } else {
-        None
       }
     }
   }

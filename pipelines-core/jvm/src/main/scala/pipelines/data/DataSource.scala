@@ -1,8 +1,8 @@
 package pipelines.data
 
-import cats.Functor
 import monix.execution.{Cancelable, Scheduler}
-import monix.reactive.{Observable, Observer}
+import monix.reactive.{Observable, Observer, Pipe}
+import pipelines.core.DataType
 
 import scala.reflect.ClassTag
 
@@ -39,6 +39,16 @@ trait DataSource[A] {
 }
 
 object DataSource {
+
+  class PushSource[A: ClassTag](override val sourceType: DataType, val input: Observer[A], override val data: Observable[A]) extends DataSource[A] {
+    override def tag: ClassTag[A] = implicitly[ClassTag[A]]
+    def push(value: A)            = input.onNext(value)
+  }
+
+  def push[A: ClassTag](`type`: DataType)(implicit sched: Scheduler): PushSource[A] = {
+    val (input: Observer[A], output: Observable[A]) = Pipe.publish[A].multicast
+    new PushSource[A](`type`, input, output)
+  }
 
   def apply[A: ClassTag](obs: Observable[A], `type`: DataType): DataSource[A] = {
     new DataSource[A] {

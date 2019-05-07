@@ -1,6 +1,7 @@
 package pipelines.data
 
 import monix.reactive.Observable
+import pipelines.core.AnyType
 
 import scala.collection.mutable.ListBuffer
 

@@ -1,11 +1,10 @@
 package pipelines.data
 
-import io.circe.{Decoder, Encoder}
-
 import cats.syntax.functor._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder}
+import pipelines.core.DataType
 
 sealed trait DataRegistryResponse
 object DataRegistryResponse {
@@ -16,9 +15,10 @@ object DataRegistryResponse {
     case request @ SourceSinkMismatchResponse(_, _, _, _)  => request.asJson
     case request @ SourceAlreadyExistsResponse(_)          => request.asJson
     case request @ SourceCreatedResponse(_, _)             => request.asJson
+    case request @ SourceUpdatedResponse(_, _)             => request.asJson
     case request @ UnsupportedTypeMappingResponse(_, _, _) => request.asJson
     case request @ ConnectResponse(_, _)                   => request.asJson
-    case request @ ErrorCreatingSource(_, _)               => request.asJson
+    case request @ SourceErrorResponse(_, _)               => request.asJson
   }
 
   implicit val decodeEvent: Decoder[DataRegistryResponse] =
@@ -30,7 +30,8 @@ object DataRegistryResponse {
       Decoder[SourceCreatedResponse].widen,
       Decoder[UnsupportedTypeMappingResponse].widen,
       Decoder[ConnectResponse].widen,
-      Decoder[ErrorCreatingSource].widen
+      Decoder[SourceUpdatedResponse].widen,
+      Decoder[SourceErrorResponse].widen
     ).reduceLeft(_ or _)
 }
 
@@ -39,6 +40,7 @@ case class SinkNotFoundResponse(missingSinkKey: String)                         
 case class SourceSinkMismatchResponse(sourceKey: String, sinkKey: String, sourceType: DataType, sinkType: DataType) extends DataRegistryResponse
 case class SourceAlreadyExistsResponse(existingSourceKey: String)                                                   extends DataRegistryResponse
 case class SourceCreatedResponse(newSourceKey: String, dataType: DataType)                                          extends DataRegistryResponse
+case class SourceUpdatedResponse(updatedSourceKey: String, message: String)                                         extends DataRegistryResponse
 case class UnsupportedTypeMappingResponse(sourceKey: String, fromType: DataType, toType: DataType)                  extends DataRegistryResponse
 case class ConnectResponse(connectedSourceKey: String, connectedSinkKey: String)                                    extends DataRegistryResponse
-case class ErrorCreatingSource(newSourceKey: String, errorMessage: String)                                          extends DataRegistryResponse
+case class SourceErrorResponse(sourceKey: String, errorMessage: String)                                             extends DataRegistryResponse

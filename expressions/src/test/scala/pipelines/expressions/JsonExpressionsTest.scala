@@ -10,8 +10,8 @@ class JsonExpressionsTest extends WordSpec with Matchers {
   "JsonExpression" should {
     "be able to evaluate some json expression against itself" in {
       // see RichOptionalTest from which this expression was taken:
-      val expressions      = """((value.dbl < 1000) && (value.id == "abc"))"""
-      val cache = JsonExpressions.newCache
+      val expressions        = """((value.dbl < 1000) && (value.id == "abc"))"""
+      val cache              = JsonExpressions.newCache
       val Success(predicate) = cache(expressions)
 
       import io.circe.generic.auto._
