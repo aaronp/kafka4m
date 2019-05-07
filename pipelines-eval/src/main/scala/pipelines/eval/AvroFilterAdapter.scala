@@ -1,19 +1,18 @@
 package pipelines.eval
 
-import io.circe.Json
-import pipelines.core.{DataType, JsonRecord}
+import pipelines.core.{AvroRecord, DataType}
 import pipelines.data.FilterAdapter
-import pipelines.expressions.{Cache, JsonExpressions}
+import pipelines.expressions.{AvroExpressions, Cache}
 
 import scala.util.Try
 
-object JsonFilterAdapter {
+object AvroFilterAdapter {
   def apply(): JsonFilterAdapter = new JsonFilterAdapter()
 }
 
-class JsonFilterAdapter(computeCache: Cache[Json => Boolean] = JsonExpressions.newCache) extends FilterAdapter {
+class AvroFilterAdapter(computeCache: Cache[AvroExpressions.Predicate] = AvroExpressions.newCache) extends FilterAdapter {
   override def createFilter[A](sourceType: DataType, expression: String): Option[Try[A => Boolean]] = {
-    if (sourceType == JsonRecord) {
+    if (sourceType == AvroRecord) {
       val result = Option(computeCache(expression))
       result.asInstanceOf[Option[Try[A => Boolean]]]
     } else {

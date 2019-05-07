@@ -1,15 +1,13 @@
 package pipelines.data
 
-import io.circe.Json
-import pipelines.core.{DataType, JsonRecord}
-//import pipelines.expressions.{Cache, JsonExpressions}
+import pipelines.core.DataType
 
 import scala.util.Try
 
 /**
   * Represents something which can create type filters (predicates) from an expression
   */
-private[data] trait FilterAdapter {
+trait FilterAdapter {
 
   /**
     * This weird signature is so that invalid expressions don't end up get retried for all 'orElse' cases.

@@ -1,6 +1,6 @@
 package pipelines.data
 
-import pipelines.core.{ByteArray, GenericAvroRecord, JsonRecord, SpecificAvroRecord}
+import pipelines.core.{ByteArray, AvroRecord, JsonRecord, ProtobufRecord}
 
 class DataRegistryResponseTest extends BaseEvalTest {
   "DataRegistryResponse" should {
@@ -12,7 +12,7 @@ class DataRegistryResponseTest extends BaseEvalTest {
       SourceAlreadyExistsResponse("sourceKey"),
       SourceCreatedResponse("sourceKey", JsonRecord),
       SourceUpdatedResponse("sourceKey", "updated"),
-      UnsupportedTypeMappingResponse("sourceKey", SpecificAvroRecord, GenericAvroRecord),
+      UnsupportedTypeMappingResponse("sourceKey", ProtobufRecord, AvroRecord),
       ConnectResponse("sourceKey", "sinkKey"),
       SourceErrorResponse("sourceKey", "bang")
     ).foreach { expected =>

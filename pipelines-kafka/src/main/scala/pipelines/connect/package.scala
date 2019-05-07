@@ -9,7 +9,8 @@ import monix.reactive.Observable
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import pipelines.eval.AvroReader
 import pipelines.eval.EvalReactive.ReaderLookup
-import pipelines.expressions.{AvroExpressions, Predicate}
+import pipelines.expressions.AvroExpressions.Predicate
+import pipelines.expressions.{AvroExpressions, Cache}
 import pipelines.kafka.QueryRequest
 
 import scala.util.{Failure, Success, Try}
@@ -68,10 +69,12 @@ package object connect extends LazyLogging {
     avroToRecordJsonFormatter(readerForTopic)(query, record).map(_.asJson.noSpaces)
   }
 
+  private val AvroExpressionsCache: Cache[Predicate] = AvroExpressions.newCache
+
   def avroRecordResultAsRecordJson(record: ConsumerRecord[String, Bytes], result: Try[DynamicAvroRecord], query: QueryRequest): Observable[RecordJson] = {
     result match {
       case Success(avro: DynamicAvroRecord) =>
-        val predicate: AvroExpressions.Predicate = AvroExpressions.cache(query.filterExpression)
+        val predicate: AvroExpressions.Predicate = AvroExpressionsCache(query.filterExpression).get
         if (predicate(avro.underlyingRecord) == query.filterExpressionIncludeMatches) {
           Observable(RecordJson(record, record.key, avro.toString))
         } else {
@@ -87,7 +90,7 @@ package object connect extends LazyLogging {
   def avroRecordResultAsBinary(record: ConsumerRecord[String, Bytes], result: Try[DynamicAvroRecord], query: QueryRequest): Observable[Bytes] = {
     result match {
       case Success(avro: DynamicAvroRecord) =>
-        val predicate = AvroExpressions.cache(query.filterExpression)
+        val predicate = AvroExpressionsCache(query.filterExpression).get
         if (predicate(avro.underlyingRecord) == query.filterExpressionIncludeMatches) {
           Observable(record.value())
         } else {
@@ -106,7 +109,7 @@ package object connect extends LazyLogging {
       case Some(reader: AvroReader[DynamicAvroRecord]) =>
         reader.read(record.value) match {
           case Success(avro: DynamicAvroRecord) =>
-            val predicate = AvroExpressions.cache(query.filterExpression)
+            val predicate = AvroExpressionsCache(query.filterExpression).get
             if (predicate(avro.underlyingRecord) == query.filterExpressionIncludeMatches) {
               Observable(RecordJson(record, record.key, avro.toString))
             } else {

@@ -15,8 +15,7 @@ import io.circe._
 sealed class DataType(val name: String)
 
 case object ByteArray          extends DataType("byteArray")
-case object SpecificAvroRecord extends DataType("specificAvro")
-case object GenericAvroRecord  extends DataType("genericAvro")
+case object AvroRecord extends DataType("avro")
 case object JsonRecord         extends DataType("json")
 case object ProtobufRecord     extends DataType("protobuf")
 
@@ -29,8 +28,7 @@ object DataType {
 
   lazy val values = Set(
     ByteArray,
-    SpecificAvroRecord,
-    GenericAvroRecord,
+    AvroRecord,
     JsonRecord,
     ProtobufRecord,
     AnyType

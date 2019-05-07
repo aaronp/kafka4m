@@ -7,6 +7,8 @@ import pipelines.core.{ByteArray, JsonRecord}
 import pipelines.data.{BaseEvalTest, ConnectResponse, DataRegistry, DataSink, DataSource, SourceCreatedResponse, SourceErrorResponse, SourceUpdatedResponse}
 
 class JsonAdapterTest extends BaseEvalTest {
+  implicit val filterAdapter = EvalFilterAdapter()
+
   "be able to update a filtered source" in withScheduler { implicit sched =>
     Given("Some original json DataSource")
     val jsonSource = DataSource.push[Json](JsonRecord)
