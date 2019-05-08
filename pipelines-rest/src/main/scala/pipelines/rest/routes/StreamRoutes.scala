@@ -1,25 +1,31 @@
 package pipelines.rest.routes
 
+import java.util.UUID
+
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import io.circe.Json
 import monix.execution.Ack.Continue
+import monix.execution.Scheduler
 import pipelines.core.CreateSourceRequest
 import pipelines.data._
-import pipelines.rest.socket.{SourceFactory, WebSocketJsonDataSink}
+import pipelines.rest.socket.{SourceFactory, WebSocketJsonDataSink, WebSocketJsonDataSource}
 import pipelines.stream.{ListSourceResponse, PeekResponse, StreamEndpoints, StreamSchemas}
 
 import scala.concurrent.Future
+import scala.concurrent.duration.FiniteDuration
 
-class StreamRoutes(registry: DataRegistry, sourceFactory: SourceFactory)(implicit adapterEvidence: TypeAdapter.Aux, filter: FilterAdapter, persistDir: PersistLocation)
+class StreamRoutes(registry: DataRegistry, sourceFactory: SourceFactory, websocketUploadHeartbeatFrequency: FiniteDuration)(implicit adapterEvidence: TypeAdapter.Aux,
+                                                                                                                            filter: FilterAdapter,
+                                                                                                                            persistDir: PersistLocation)
     extends StreamEndpoints
     with StreamSchemas
     with BaseCirceRoutes
     with AutoCloseable {
 
   def listSourcesRoute: Route = {
-    val x: JsonResponse[ListSourceResponse] = implicitly[JsonResponse[ListSourceResponse]]
-    list.listSourcesEndpoint(x).implementedBy { _ =>
+    val wtf: JsonResponse[ListSourceResponse] = implicitly[JsonResponse[ListSourceResponse]]
+    list.listSourcesEndpoint(wtf).implementedBy { _ =>
       registry.sources.list()
     }
   }
@@ -45,14 +51,30 @@ class StreamRoutes(registry: DataRegistry, sourceFactory: SourceFactory)(implici
 
   // create a new source with data from a websocket. If a source already exists for the specified ID, then we'll try and push to it
   def websocketPublishRoute: Route = {
+    def createNewPublisher(sourceId: String)(implicit sched: Scheduler): Route = {
+      val newSource  = WebSocketJsonDataSource(websocketUploadHeartbeatFrequency, sourceId)
+      val registered = registry.sources.register(sourceId, newSource)
+      if (!registered) {
+        throw new Exception(s"Race condition: Two sources have both tried to create a source w/ it '${sourceId}' and you lost :-(")
+      } else {
+        // we've just created a brand-new source. We should also create a new sink to write the data to
+
+      }
+      handleWebSocketMessages(newSource.flow)
+    }
+
+    implicit val ec = registry.defaultIOScheduler
+    
     websocketPublish.publishEndpoint.implementedBy {
-      case (Some(sourceId), isBinaryOpt) =>
+      case Some(sourceId) =>
         registry.sources.get(sourceId) match {
-          case Some(push : DataSource.PushSource[Json]) =>
-          case Some(other) =>
-          case None =>
+          // TODO - auto-map Json source
+          case Some(push: DataSource.PushSource[String]) =>
+            handleWebSocketMessages(WebSocketJsonDataSource.asFlow(websocketUploadHeartbeatFrequency, push))
+          case Some(other) => throw new Exception(s"Source '${sourceId}' is not a push source, but rather: ${other}")
+          case None        => createNewPublisher(sourceId)
         }
-      case (None, isBinaryOpt) =>
+      case None => createNewPublisher(s"socket-publisher-${UUID.randomUUID}")
     }
   }
 

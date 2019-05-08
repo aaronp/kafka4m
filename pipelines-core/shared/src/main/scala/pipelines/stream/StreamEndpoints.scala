@@ -121,10 +121,10 @@ trait StreamEndpoints extends BaseEndpoint {
     * $ GET /source/create/publish?id=XXX&binary=true # creates a source from the data sent from an upgraded web socket
     */
   object websocketPublish {
-    def request: Request[(Option[String], Option[IsBinary])] = get(path / "source" / "create" / "publish" /? (qs[Option[String]]("id") & qs[Option[IsBinary]]("binary")))
+    def request = get(path / "source" / "create" / "publish" /? qs[Option[String]]("id"))
     def response: Response[Unit]                             = emptyResponse(Option("The response is upgrade response to open a websocket"))
 
-    val publishEndpoint: Endpoint[(Option[String], Option[IsBinary]), Unit] = endpoint(
+    val publishEndpoint: Endpoint[(Option[String]), Unit] = endpoint(
       request,
       response,
       description = Option("""Creates a source from the data sent from an upgraded web socket.

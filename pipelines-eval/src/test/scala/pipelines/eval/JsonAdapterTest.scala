@@ -2,16 +2,15 @@ package pipelines.eval
 
 import io.circe.Json
 import monix.reactive.Observable
-import org.scalatest.WordSpec
-import pipelines.core.{ByteArray, JsonRecord}
-import pipelines.data.{BaseEvalTest, ConnectResponse, DataRegistry, DataSink, DataSource, SourceCreatedResponse, SourceErrorResponse, SourceUpdatedResponse}
+import pipelines.core.JsonRecord
+import pipelines.data._
 
 class JsonAdapterTest extends BaseEvalTest {
   implicit val filterAdapter = EvalFilterAdapter()
 
   "be able to update a filtered source" in withScheduler { implicit sched =>
     Given("Some original json DataSource")
-    val jsonSource = DataSource.push[Json](JsonRecord)
+    val jsonSource = DataSource.push[Json]
 
     And("A data registry with a filtered source")
     val registry = DataRegistry(sched)
@@ -19,7 +18,7 @@ class JsonAdapterTest extends BaseEvalTest {
     registry.sinks.register("sink", sink)
 
     registry.sources.register("json", jsonSource) shouldBe true
-    registry.sources.register("bytes", DataSource.push[Array[Byte]](ByteArray)) shouldBe true
+    registry.sources.register("bytes", DataSource.push[Array[Byte]]) shouldBe true
     registry.filterSources("json", "json.filtered", """ value.id.asInt % 31 == 0 || value.name == "name-2" """) shouldBe SourceCreatedResponse("json.filtered", JsonRecord)
     registry.connect("json.filtered", "sink") shouldBe ConnectResponse("json.filtered", "sink")
 

@@ -10,9 +10,8 @@ import com.typesafe.scalalogging.StrictLogging
 import monix.execution.Ack.{Continue, Stop}
 import monix.execution.{Ack, Scheduler}
 import monix.reactive.{Observable, Observer, Pipe}
-import pipelines.core.{DataType, JsonRecord}
+import pipelines.core._
 import pipelines.data.DataSink
-import pipelines.kafka.{CancelFeedRequest, Heartbeat, StreamingRequest}
 
 import scala.concurrent.Future
 

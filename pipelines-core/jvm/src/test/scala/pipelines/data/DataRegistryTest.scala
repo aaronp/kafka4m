@@ -30,7 +30,7 @@ class DataRegistryTest extends BaseEvalTest {
   "DataRegistry" should {
     "be able to persist a source via the filesystem to produce a new source" in withScheduler { implicit sched =>
       Given("Some original json DataSource")
-      val pushSource = DataSource.push[Int](AnyType)
+      val pushSource = DataSource.push[Int]
       val registry   = DataRegistry(sched)
       val sink       = DataSink.collect[Json]()
       registry.sources.register("source", pushSource)
