@@ -7,6 +7,7 @@ import pipelines.core.{AnyType, DataType}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
+import scala.reflect.ClassTag
 
 trait DataSink[A] {
   def sinkType: DataType
@@ -31,7 +32,11 @@ object DataSink {
       override def onComplete(): Unit           = {}
     }
   }
-  def collect[A](sinkType: DataType = AnyType): Collect[A] = new Collect[A](sinkType)
+
+  def collect[A: ClassTag](): Collect[A] = {
+    val sinkType = AnyType(implicitly[ClassTag[A]].runtimeClass.getName)
+    new Collect[A](sinkType)
+  }
 
   def apply[A](obs: Observer[A], `type`: DataType): DataSink[A] = new DataSink[A] {
     override val sinkType              = `type`

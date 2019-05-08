@@ -2,6 +2,7 @@ package pipelines.data
 
 import eie.io.ToBytes
 import monix.execution.Scheduler
+import monix.execution.schedulers.SchedulerService
 import monix.reactive.Observable
 import pipelines.core.{DataType, Enrichment, Rate, StreamStrategy}
 
@@ -23,7 +24,7 @@ import scala.util.{Failure, Success}
   * @param sources
   * @param sinks
   */
-final case class DataRegistry(sources: SourceRegistry, sinks: SinkRegistry, defaultScheduler: Scheduler) {
+final case class DataRegistry(sources: SourceRegistry, sinks: SinkRegistry, defaultIOScheduler: Scheduler) extends AutoCloseable {
 
   def update(request: DataRegistryRequest)(implicit adapterEvidence: TypeAdapter.Aux, filter: FilterAdapter, persistDir: PersistLocation): DataRegistryResponse = {
     request match {
@@ -168,7 +169,7 @@ final case class DataRegistry(sources: SourceRegistry, sinks: SinkRegistry, defa
       case None       => SinkNotFoundResponse(sinkKey)
       case Some(sink) =>
         // we can expose an explicit 'runOn' source which we could match here
-        source.connect(sink, defaultScheduler) match {
+        source.connect(sink, defaultIOScheduler) match {
           case Right(cancelable) =>
             sinks.notifyConnected(sourceKey, sinkKey, cancelable)
             ConnectResponse(sourceKey, sinkKey)
@@ -184,10 +185,18 @@ final case class DataRegistry(sources: SourceRegistry, sinks: SinkRegistry, defa
       case Some(source) => thunk(source)
     }
   }
+
+  override def close(): Unit = {
+    defaultIOScheduler match {
+      case ss: SchedulerService     => ss.shutdown()
+      case closeable: AutoCloseable => closeable.close()
+      case _                        =>
+    }
+  }
 }
 
 object DataRegistry {
-  def apply(implicit scheduler: Scheduler): DataRegistry = {
-    new DataRegistry(SourceRegistry(scheduler), SinkRegistry(scheduler), scheduler)
+  def apply(ioScheduler: Scheduler): DataRegistry = {
+    new DataRegistry(SourceRegistry(ioScheduler), SinkRegistry(ioScheduler), ioScheduler)
   }
 }

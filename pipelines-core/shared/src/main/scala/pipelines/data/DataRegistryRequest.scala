@@ -9,13 +9,13 @@ import pipelines.core.Enrichment
 sealed trait DataRegistryRequest
 
 object DataRegistryRequest {
-  implicit val encodeEvent: Encoder[DataRegistryRequest] = Encoder.instance {
+  implicit val encoder: Encoder[DataRegistryRequest] = Encoder.instance {
     case request @ Connect(_, _)                     => request.asJson
     case request @ EnrichSourceRequest(_, _, _)      => request.asJson
     case request @ UpdateEnrichedSourceRequest(_, _) => request.asJson
   }
 
-  implicit val decodeEvent: Decoder[DataRegistryRequest] =
+  implicit val decoder: Decoder[DataRegistryRequest] =
     List[Decoder[DataRegistryRequest]](
       Decoder[Connect].widen,
       Decoder[EnrichSourceRequest].widen,

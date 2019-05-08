@@ -15,7 +15,7 @@ class DataSourceStats[A](source: Observable[A]) extends DataSource[StreamStatist
     ClassTag[StreamStatistics[A]](c1ass)
   }
 
-  override def sourceType: DataType = AnyType
+  override def sourceType: DataType = AnyType(tag.runtimeClass.getName)
 
   override def data: Observable[StreamStatistics[A]] = {
     source.bufferTimed(1.second).scan(StreamStatistics[A](None, 0, ZonedDateTime.now, 0, 0, ZonedDateTime.now)) {

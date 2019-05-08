@@ -20,7 +20,7 @@ object Documentation //
     with CirceAdapter          //
     with UserEndpoints         //
     with KafkaEndpoints        //
-    with StreamEndpoints        //
+    with StreamEndpoints       //
     with KafkaSupportEndpoints //
     with AdminEndpoints        //
     with openapi.JsonSchemaEntities {
@@ -69,8 +69,7 @@ object Documentation //
 
   def streamEndpoints: List[Documentation.DocumentedEndpoint] = {
     List(
-
-    )
+      )
   }
 
   def documentedEndpoints: List[Documentation.DocumentedEndpoint] = {

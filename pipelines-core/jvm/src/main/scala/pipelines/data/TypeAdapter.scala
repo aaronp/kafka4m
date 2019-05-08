@@ -2,24 +2,27 @@ package pipelines.data
 
 import pipelines.core.{ByteArray, DataType, JsonRecord}
 
-private[data] trait TypeAdapter[-A] {
+/** A Functor -- wtf have I written?
+  *
+  * We need to kill this 'DataType' BS...s
+  *
+  * @tparam A
+  */
+trait TypeAdapter[-A] {
   type T
   def sourceType: DataType
 
   def map(input: A): T
 }
 
-private[data] object TypeAdapter {
+object TypeAdapter {
   trait Aux {
     def orElse(other: Aux): Aux = {
       val parent = this
       new Aux {
         override def map[A](originalType: DataType, newType: DataType): Option[TypeAdapter[A]] = {
           val opt: Option[TypeAdapter[A]] = parent.map(originalType, newType)
-
-          val x: Option[TypeAdapter[A]] = opt.orElse(other.map(originalType, newType))
-
-          x
+          opt.orElse(other.map(originalType, newType))
         }
       }
     }

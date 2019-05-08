@@ -39,9 +39,11 @@ trait StreamEndpoints extends BaseEndpoint {
     */
   object websocketConsume {
     def request: Request[(String, Option[IsBinary])] = get(path / "source" / segment[String]("id", Option("a unique stream id")) / "consume" /? qs[Option[Boolean]]("binary"))
-    def response: Response[Unit]                     = emptyResponse(Option("The response is upgrade response to open a websocket"))
+    def response(implicit resp: JsonResponse[DataRegistryResponse]): Response[DataRegistryResponse] = {
+      jsonResponse(Option("The response is upgrade response to open a websocket"))(resp)
+    }
 
-    val consumeEndpoint: Endpoint[(String, Option[IsBinary]), Unit] = endpoint(request, response)
+    def consumeEndpoint(implicit resp: JsonResponse[DataRegistryResponse]): Endpoint[(String, Option[IsBinary]), Unit] = endpoint(request, response(resp))
   }
 
   /** connect a web socket to a source
@@ -58,7 +60,7 @@ trait StreamEndpoints extends BaseEndpoint {
     * POST /source/{id}/copy
     */
   object copy {
-    def request(implicit req: JsonRequest[Enrichment]) =
+    def request(implicit req: JsonRequest[Enrichment]): Request[(String, Enrichment)] =
       post(
         path / "source" / segment[String]("id", Option("a unique stream id")) / "copy",
         jsonRequest[Enrichment](Option("type of enrichment to add to the source"))(req)
@@ -89,6 +91,8 @@ trait StreamEndpoints extends BaseEndpoint {
   }
 
   /**
+    * create a route which will connect to an external system (e.g. kafka), accept [[push.pushEndpoint]] calls, etc
+    *
     * POST /source/create
     */
   object create {
@@ -97,7 +101,8 @@ trait StreamEndpoints extends BaseEndpoint {
     def response(implicit resp: JsonResponse[DataRegistryResponse]): Response[DataRegistryResponse] =
       jsonResponse[DataRegistryResponse](Option("the create response"))(resp)
 
-    def createEndpoint(implicit req: JsonRequest[CreateSourceRequest], resp: JsonResponse[DataRegistryResponse]) = endpoint(request(req), response)
+    def createEndpoint(implicit req: JsonRequest[CreateSourceRequest],
+                       resp: JsonResponse[DataRegistryResponse]): Endpoint[(Option[String], CreateSourceRequest), DataRegistryResponse] = endpoint(request(req), response)
   }
 
   /**
@@ -109,19 +114,30 @@ trait StreamEndpoints extends BaseEndpoint {
     def response(implicit resp: JsonResponse[Boolean]): Response[Boolean] =
       jsonResponse[Boolean](Option("the push response"))(resp)
 
-    def createEndpoint(implicit req: JsonRequest[Json], resp: JsonResponse[Boolean]) = endpoint(request(req), response)
+    def pushEndpoint(implicit req: JsonRequest[Json], resp: JsonResponse[Boolean]): Endpoint[(String, Json), Boolean] = endpoint(request(req), response)
   }
 
   /**
     * $ GET /source/create/publish?id=XXX&binary=true # creates a source from the data sent from an upgraded web socket
-    *
-    * If the 'id' is specified, it will push to an existing source, presumably created from the 'create' endpoint
     */
   object websocketPublish {
     def request: Request[(Option[String], Option[IsBinary])] = get(path / "source" / "create" / "publish" /? (qs[Option[String]]("id") & qs[Option[IsBinary]]("binary")))
-    def response: Response[Unit] = emptyResponse(Option("The response is upgrade response to open a websocket"))
+    def response: Response[Unit]                             = emptyResponse(Option("The response is upgrade response to open a websocket"))
 
-    val publishEndpoint: Endpoint[(Option[String], Option[IsBinary]), Unit] = endpoint(request, response)
+    val publishEndpoint: Endpoint[(Option[String], Option[IsBinary]), Unit] = endpoint(
+      request,
+      response,
+      description = Option("""Creates a source from the data sent from an upgraded web socket.
+        |If the 'id' is specified, it will push to an existing source, presumably created from the 'create' endpoint.
+        |If the 'id' exists but isn't a pushable source then this will error.
+        |If the 'id' is specified but does not exist then a source with the given ID will be created.
+        |If the 'id' is not specified then a source with a unique ID will be created.
+        |
+        |In the cases where a new source is created, a persistent sink will also be created and immediately connected as well - otherwise the 
+        |data could just go to '/dev/null'.
+        |
+      """.stripMargin)
+    )
   }
 
 }

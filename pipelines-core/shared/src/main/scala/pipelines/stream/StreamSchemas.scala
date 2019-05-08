@@ -1,11 +1,12 @@
 package pipelines.stream
 
 import io.circe.Json
-import pipelines.core.Enrichment
+import pipelines.core.{CreateSourceRequest, Enrichment}
 import pipelines.data.DataRegistryResponse
 
 trait StreamSchemas extends endpoints.circe.JsonSchemas {
 
+  implicit def CreateSourceRequestSchema: JsonSchema[CreateSourceRequest]   = JsonSchema(implicitly, implicitly)
   implicit def ListSourceResponseSchema: JsonSchema[ListSourceResponse]     = JsonSchema(implicitly, implicitly)
   implicit def PeekResponseSchema: JsonSchema[PeekResponse]                 = JsonSchema(implicitly, implicitly)
   implicit def EnrichmentSchema: JsonSchema[Enrichment]                     = JsonSchema(implicitly, implicitly)

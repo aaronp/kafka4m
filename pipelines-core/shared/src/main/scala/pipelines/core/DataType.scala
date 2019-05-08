@@ -12,26 +12,25 @@ import io.circe._
   *
   * @param name
   */
+@deprecated
 sealed class DataType(val name: String)
 
-case object ByteArray          extends DataType("byteArray")
-case object AvroRecord extends DataType("avro")
-case object JsonRecord         extends DataType("json")
-case object ProtobufRecord     extends DataType("protobuf")
+case object ByteArray      extends DataType("byteArray")
+case object AvroRecord     extends DataType("avro")
+case object JsonRecord     extends DataType("json")
+case object ProtobufRecord extends DataType("protobuf")
 
-/**
-  * a fallback type for any rich type
+/** a fallback type for any rich type
   */
-case object AnyType extends DataType("any")
+case class AnyType(override val name: String) extends DataType(name)
 
 object DataType {
 
-  lazy val values = Set(
+  private val values = Set(
     ByteArray,
     AvroRecord,
     JsonRecord,
-    ProtobufRecord,
-    AnyType
+    ProtobufRecord
   )
   implicit val encodeEvent: Encoder[DataType] = Encoder.instance {
     case dt: DataType => Json.fromString(dt.name)
@@ -42,7 +41,7 @@ object DataType {
       case Right(name) =>
         values.find(_.name == name) match {
           case Some(found) => Right(found)
-          case None        => Left(DecodingFailure("DataType", c.history))
+          case _           => Right(AnyType(name))
         }
       case Left(failure) => Left(failure)
     }

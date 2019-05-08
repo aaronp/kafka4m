@@ -14,11 +14,11 @@ import scala.reflect.ClassTag
   *
   * @param dir the parent directory to contain the records
   */
-private[data] class PersistLocation(val dir: Path) {
+class PersistLocation(val dir: Path) {
   def toBytes[A](typ: DataType)(implicit c1assTag: ClassTag[A]): Option[ToBytes[A]] = PersistLocation.toBytes[A](typ)
 }
 
-private[data] object PersistLocation {
+object PersistLocation {
   private val CirceJsonClass = classOf[Json]
   private val StringClass    = classOf[String]
   private val IntClass       = classOf[Int]

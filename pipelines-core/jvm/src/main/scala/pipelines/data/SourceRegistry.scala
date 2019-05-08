@@ -49,7 +49,7 @@ class SourceRegistry private (listeners: Observer[SourceRegistryEvent], val even
 }
 
 object SourceRegistry {
-  def apply(implicit sche: Scheduler): SourceRegistry = {
+  def apply(implicit scheduler: Scheduler): SourceRegistry = {
     val (listenerFeed, listeners) = Pipe.publish[SourceRegistryEvent].multicast
     new SourceRegistry(listenerFeed, listeners)
   }
