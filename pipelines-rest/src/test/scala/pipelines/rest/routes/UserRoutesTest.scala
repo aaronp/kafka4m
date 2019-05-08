@@ -14,7 +14,7 @@ import org.scalatest.{Matchers, WordSpec}
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class UserRoutesTest extends WordSpec with Matchers with ScalatestRouteTest {
+class UserRoutesTest extends BaseRoutesTest {
 
   "UserRoutes.route" should {
     // pass in a fixed 'now' time when the admin user logs in for this test

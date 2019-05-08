@@ -27,7 +27,7 @@ import scala.collection.mutable.ListBuffer
   * https://doc.akka.io/docs/akka-http/current/server-side/websocket-support.html
   *
   */
-class KafkaRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with FailFastCirceSupport with ScalaFutures {
+class KafkaRoutesTest extends BaseRoutesTest {
 
   object testService extends KafkaFacade {
     val cannedResponse = ListTopicsResponse(Map("topic1" -> List(PartitionData(1, "of the pack")), "topic2" -> List(PartitionData(2, "nope"))))

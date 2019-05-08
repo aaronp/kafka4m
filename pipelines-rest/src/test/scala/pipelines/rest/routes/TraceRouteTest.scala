@@ -9,7 +9,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpec}
 
-class TraceRouteTest extends WordSpec with Matchers with ScalatestRouteTest with ScalaFutures {
+class TraceRouteTest extends BaseRoutesTest {
 
   "TraceRoute" should {
     "Invoke the callbacks for the correct route" in {

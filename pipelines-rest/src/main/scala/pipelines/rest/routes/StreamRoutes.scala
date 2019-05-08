@@ -58,13 +58,13 @@ class StreamRoutes(registry: DataRegistry, sourceFactory: SourceFactory, websock
         throw new Exception(s"Race condition: Two sources have both tried to create a source w/ it '${sourceId}' and you lost :-(")
       } else {
         // we've just created a brand-new source. We should also create a new sink to write the data to
-
+???
       }
       handleWebSocketMessages(newSource.flow)
     }
 
     implicit val ec = registry.defaultIOScheduler
-    
+
     websocketPublish.publishEndpoint.implementedBy {
       case Some(sourceId) =>
         registry.sources.get(sourceId) match {

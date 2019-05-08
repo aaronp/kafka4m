@@ -1,9 +1,6 @@
 package pipelines.rest.routes
 
-import akka.http.scaladsl.testkit.ScalatestRouteTest
-import org.scalatest.{Matchers, WordSpec}
-
-class StaticFileRoutesTest extends WordSpec with Matchers with ScalatestRouteTest {
+class StaticFileRoutesTest extends BaseRoutesTest{
 
   "StaticFileRoutes.route" should {
     "redirect to /index from the root" in {

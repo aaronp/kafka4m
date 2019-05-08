@@ -13,13 +13,13 @@ class DataRegistryTest extends BaseEvalTest {
   "backlog" ignore {
     // this one is just a zipped index mapping
     // this one creates a string index from the type A
+    "be able to map a source type" in {
+      ???
+    }
     "be able to index a source to produce a new source" in {
       ???
     }
     "be able to transform json sources by adding/adjusting fields using donovan" in {
-      ???
-    }
-    "be able to map a source type" in {
       ???
     }
     "be able to add statistics on a source" in {

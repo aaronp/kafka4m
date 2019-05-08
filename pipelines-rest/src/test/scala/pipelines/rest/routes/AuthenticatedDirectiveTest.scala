@@ -17,7 +17,7 @@ import org.scalatest.{GivenWhenThen, Matchers, WordSpec}
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class AuthenticatedDirectiveTest extends WordSpec with Matchers with ScalatestRouteTest with GivenWhenThen with ScalaFutures {
+class AuthenticatedDirectiveTest extends BaseRoutesTest {
 
   case class UnderTest(override val realm: String) extends AuthenticatedDirective {
     override val secret: SecretKeySpec = Hmac256.asSecret("test")

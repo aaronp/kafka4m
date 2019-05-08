@@ -6,7 +6,7 @@ import akka.http.scaladsl.server._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.{Matchers, WordSpec}
 
-class CounterRoutesTest extends WordSpec with Matchers with ScalatestRouteTest {
+class CounterRoutesTest extends BaseRoutesTest {
 
   val smallRoute =
     get {

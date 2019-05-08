@@ -14,9 +14,9 @@ object DataRegistryResponse {
     case request @ SinkNotFoundResponse(_)                 => request.asJson
     case request @ SourceSinkMismatchResponse(_, _, _, _)  => request.asJson
     case request @ SourceAlreadyExistsResponse(_)          => request.asJson
-    case request @ SinkAlreadyExistsResponse(_)          => request.asJson
+    case request @ SinkAlreadyExistsResponse(_)            => request.asJson
     case request @ SourceCreatedResponse(_, _)             => request.asJson
-    case request @ SinkCreatedResponse(_, _)             => request.asJson
+    case request @ SinkCreatedResponse(_, _)               => request.asJson
     case request @ SourceUpdatedResponse(_, _)             => request.asJson
     case request @ UnsupportedTypeMappingResponse(_, _, _) => request.asJson
     case request @ ConnectResponse(_, _)                   => request.asJson
@@ -43,9 +43,9 @@ case class SourceNotFoundResponse(missingSourceKey: String)                     
 case class SinkNotFoundResponse(missingSinkKey: String)                                                             extends DataRegistryResponse
 case class SourceSinkMismatchResponse(sourceKey: String, sinkKey: String, sourceType: DataType, sinkType: DataType) extends DataRegistryResponse
 case class SourceAlreadyExistsResponse(existingSourceKey: String)                                                   extends DataRegistryResponse
-case class SinkAlreadyExistsResponse(existingSinkKey: String)                                                   extends DataRegistryResponse
+case class SinkAlreadyExistsResponse(existingSinkKey: String)                                                       extends DataRegistryResponse
 case class SourceCreatedResponse(newSourceKey: String, dataType: DataType)                                          extends DataRegistryResponse
-case class SinkCreatedResponse(newSourceKey: String, dataType: DataType)                                          extends DataRegistryResponse
+case class SinkCreatedResponse(newSourceKey: String, dataType: DataType)                                            extends DataRegistryResponse
 case class SourceUpdatedResponse(updatedSourceKey: String, message: String)                                         extends DataRegistryResponse
 case class UnsupportedTypeMappingResponse(sourceKey: String, fromType: DataType, toType: DataType)                  extends DataRegistryResponse
 case class ConnectResponse(connectedSourceKey: String, connectedSinkKey: String)                                    extends DataRegistryResponse
