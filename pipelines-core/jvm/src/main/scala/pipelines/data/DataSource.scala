@@ -2,48 +2,59 @@ package pipelines.data
 
 import monix.execution.{Ack, Cancelable, Scheduler}
 import monix.reactive.{Observable, Observer, Pipe}
-import pipelines.core.{AnyType, DataType}
 
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 
 /**
-  * Represents something which can be used as a data source
+  * Represents a data source, which includes some abilities to automatically convert to required types for enrichment/consumption
   *
-  * @tparam A
   */
-trait DataSource[A] {
-
+class DataSource[A: ClassTag](val data: Observable[A], val enrichments: Seq[ModifyObservable] = Nil) {
   type T = A
 
-  /** connect this source with a sink
-    *
-    * @param sink
-    * @param sched
-    * @return a cancelable
-    */
-  def connect(sink: DataSink[_], sched: Scheduler): Either[ClassCastException, Cancelable] = {
-    try {
-      val cancelable: Cancelable = data.subscribe(sink.observer.asInstanceOf[Observer[A]])(sched)
-      Right(cancelable)
-    } catch {
-      case exp: ClassCastException => Left(exp)
+  override def toString: String = {
+    val basic = s"DataSource[$tagName]"
+    enrichments match {
+      case Seq() => basic
+      case many  => many.mkString(s"${basic} {", " --> ", "}")
     }
   }
+  def tag: ClassTag[A] = implicitly[ClassTag[A]]
+  def tagName: String  = asId(tag)
 
-  def tag: ClassTag[A]
+  /** Enrichments don't modify the types (MapType does that), but not all enrichments can work on *any* type.
+    *
+    * For ones which only work for specific types (e.g. persisting bytes to disk or applying some fixed enrichment param) see (TypedEnrich).
+    *
+    * For others which work on all types (e.g. just rate limit a stream) see [[ModifyObservableAny]]
+    *
+    * @param enrichment
+    * @param sched
+    * @return
+    */
+  final def enrich(enrichment: ModifyObservable)(implicit sched: Scheduler): Option[DataSource[_]] = {
+//    enrichment match {
+//      case any: ModifyObservableAny        => enrich(any)
+//      case typed: ModifyObservableTyped[A] => enrichTyped(typed)
+//    }
+    ???
+  }
+  final def enrichTyped(typed: ModifyObservableTyped[A])(implicit sched: Scheduler): DataSource[A] = {
+    new DataSource[A](typed.modify(data), enrichments :+ typed)
+  }
+  final def enrich(enrichment: ModifyObservableAny)(implicit sched: Scheduler): DataSource[A] = {
+    new DataSource[A](enrichment.modify(data), enrichments :+ enrichment)
+  }
 
-  def sourceType: DataType
-
-  def data: Observable[A]
-
+  final def connect(consumer: DataSink[A])(implicit sched: Scheduler): Cancelable = {
+    data.subscribe(consumer.sink)
+  }
 }
-
 object DataSource {
 
-  class PushSource[A: ClassTag](val input: Observer[A], override val data: Observable[A]) extends DataSource[A] {
-    override def tag: ClassTag[A]     = implicitly[ClassTag[A]]
-    override def sourceType: DataType = AnyType(tag.runtimeClass.getName)
+  class PushSource[A: ClassTag](val input: Observer[A], obs: Observable[A]) extends DataSource[A](obs) {
+    override def tag: ClassTag[A]   = implicitly[ClassTag[A]]
     def push(value: A): Future[Ack] = input.onNext(value)
 
   }
@@ -53,11 +64,5 @@ object DataSource {
     new PushSource[A](input, output)
   }
 
-  def apply[A: ClassTag](obs: Observable[A], `type`: DataType): DataSource[A] = {
-    new DataSource[A] {
-      override val tag                 = implicitly[ClassTag[A]]
-      override val sourceType          = `type`
-      override val data: Observable[A] = obs
-    }
-  }
+  def apply[A: ClassTag](obs: Observable[A]): DataSource[A] = new DataSource[A](obs)
 }

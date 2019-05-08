@@ -4,8 +4,8 @@ import endpoints.openapi
 import endpoints.openapi.model.{Info, OpenApi}
 import io.circe.Json
 import pipelines.admin._
-import pipelines.core.{AnyType, CreateAvroSource, CreateSourceRequest, Enrichment, GenericMessageResult}
-import pipelines.data.{DataRegistryResponse, SourceCreatedResponse}
+import pipelines.core.{CreateAvroSource, CreateSourceRequest, GenericMessageResult, Rate, StreamStrategy}
+import pipelines.data.{DataRegistryResponse, MapType, ModifyObservableRequest, SourceCreatedResponse}
 import pipelines.kafka.{KafkaEndpoints, KafkaSupportEndpoints, ListTopicsResponse, PartitionData, PublishMessage}
 import pipelines.stream.{ListSourceResponse, PeekResponse, RegisteredSource, StreamEndpoints}
 import pipelines.users.{CreateUserRequest, CreateUserResponse, LoginRequest, LoginResponse, UserEndpoints}
@@ -70,16 +70,16 @@ object Documentation           //
   }
 
   def streamEndpoints: List[Documentation.DocumentedEndpoint] = {
-    val anyJson               = Json.obj("any" -> Json.fromString("value"))
-    val enrichmet: Enrichment = Enrichment.MapType(AnyType("string"))
-    val dataRegistryResponse  = document(SourceCreatedResponse("someSource", AnyType("string")): DataRegistryResponse)
+    val anyJson              = Json.obj("any" -> Json.fromString("value"))
+    val modifyRequest        = ModifyObservableRequest.RateLimit(Rate.perSecond(1), StreamStrategy.Latest)
+    val dataRegistryResponse = document(SourceCreatedResponse("someSource", "string"): DataRegistryResponse)
     List(
       list.listSourcesEndpoint(document(ListSourceResponse(Seq(RegisteredSource("someSource", "string"))))),
       websocketConsume.consumeEndpoint,
       websocketPublish.publishEndpoint,
       peek.peekEndpoint(document(PeekResponse(anyJson))),
-      copy.copyEndpoint(document(enrichmet), dataRegistryResponse),
-      update.updateEndpoint(document(enrichmet), dataRegistryResponse),
+      modify.modifyEndpoint(document(modifyRequest), dataRegistryResponse),
+      update.updateEndpoint(document(modifyRequest), dataRegistryResponse),
       create.createEndpoint(document(CreateAvroSource("schema"): CreateSourceRequest), dataRegistryResponse),
       push.pushEndpoint(document(anyJson), document(true))
     )

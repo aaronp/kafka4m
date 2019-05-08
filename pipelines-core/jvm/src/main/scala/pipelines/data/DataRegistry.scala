@@ -1,13 +1,8 @@
 package pipelines.data
 
-import eie.io.ToBytes
-import monix.execution.Scheduler
+import monix.execution.{Cancelable, Scheduler}
 import monix.execution.schedulers.SchedulerService
-import monix.reactive.Observable
-import pipelines.core.{DataType, Enrichment, Rate, StreamStrategy}
-
-import scala.reflect.ClassTag
-import scala.util.{Failure, Success}
+import pipelines.core.{Rate, StreamStrategy}
 
 /**
   * A generic means of connecting sources and sinks.
@@ -24,137 +19,57 @@ import scala.util.{Failure, Success}
   * @param sources
   * @param sinks
   */
-final case class DataRegistry(sources: SourceRegistry, sinks: SinkRegistry, defaultIOScheduler: Scheduler) extends AutoCloseable {
+final case class DataRegistry(sources: SourceRegistry, sinks: SinkRegistry, defaultIOScheduler: Scheduler, lookup: ModifyObservableResolver) extends AutoCloseable {
 
-  def update(request: DataRegistryRequest)(implicit adapterEvidence: TypeAdapter.Aux, filter: FilterAdapter, persistDir: PersistLocation): DataRegistryResponse = {
+  implicit def execContext = defaultIOScheduler
+  import ModifyObservableRequest._
+
+  def addStatistics(source: String, newSource: String, verbose: Boolean): _root_.pipelines.data.DataRegistryResponse = ???
+
+  def update(request: DataRegistryRequest): DataRegistryResponse = {
     request match {
-      case Connect(source, sink) => connect(source, sink)
-
-      case EnrichSourceRequest(source, newSource, Enrichment.Filter(expr))              => filterSources(source, newSource, expr)
-      case EnrichSourceRequest(source, newSource, Enrichment.RateLimit(rate, strategy)) => rateLimitSources(source, newSource, rate, strategy)
-      case EnrichSourceRequest(source, newSource, Enrichment.MapType(newType))          => changeType(source, newSource, newType)
-      case EnrichSourceRequest(source, newSource, Enrichment.PersistData(path))         => persist(source, newSource, path)
-      case EnrichSourceRequest(source, newSource, Enrichment.AddStatistics(verbose))    => addStatistics(source, newSource, verbose)
-
-      case UpdateEnrichedSourceRequest(source, Enrichment.Filter(expr))          => updateFilterSource(source, expr)
-      case UpdateEnrichedSourceRequest(source, Enrichment.RateLimit(newRate, _)) => updateRateSource(source, newRate)
-      case UpdateEnrichedSourceRequest(source, unsupported)                      => SourceErrorResponse(source, s"Update for $unsupported is not supported")
-
-    }
-  }
-
-  def addStatistics(sourceKey: String, newSourceKey: String, verbose: Boolean): DataRegistryResponse = {
-    withSource(sourceKey) { source =>
-      val newSource = new DataSourceStats(source.data)
-      if (sources.register(newSourceKey, newSource)) {
-        SourceCreatedResponse(newSourceKey, newSource.sourceType)
-      } else {
-        SourceAlreadyExistsResponse(newSourceKey)
-      }
-    }
-  }
-  def persist(sourceKey: String, newSourceKey: String, relativePath: String)(implicit persistDir: PersistLocation): DataRegistryResponse = {
-    withSource(sourceKey) { source =>
-      persistDir
-        .toBytes[source.T](source.sourceType)(source.tag.asInstanceOf[ClassTag[source.T]])
-        .fold[DataRegistryResponse](SourceErrorResponse(newSourceKey, s"We don't know how to convert ${source.sourceType} to bytes")) { implicit toBytes: ToBytes[source.T] =>
-          import eie.io._
-          val dir = persistDir.dir.resolve(relativePath).mkDirs()
-          def writeDown(input: Observable[source.T]): Observable[source.T] = {
-            input.zipWithIndex.map {
-              case (d8a, id) =>
-                dir.resolve(id.toString).bytes = toBytes.bytes(d8a)
-                d8a
+      case Connect(source, sink)                                          => connect(source, sink)
+      case ModifySourceRequest(source, newSource, AddStatistics(verbose)) => addStatistics(source, newSource, verbose)
+      case ModifySourceRequest(source, newSource, enrichment) =>
+        lookup.resolve(enrichment) match {
+          case None    => SourceErrorResponse(source, s"Enrichment couldn't be found for $enrichment")
+          case Some(e) => enrichSource(source, newSource, e)
+        }
+      case UpdateSourceRequest(sourceKey, enrichment) =>
+        lookup.resolve(enrichment) match {
+          case None => SourceErrorResponse(sourceKey, s"Enrichment couldn't be found for $enrichment")
+          case Some(e) =>
+            withSource(sourceKey) { source =>
+              lookup.update(e, source) match {
+                case None =>
+                  SourceErrorResponse(sourceKey, s"Updating $e had no effect")
+                case Some(_) =>
+                  SourceUpdatedResponse(sourceKey, s"Updated $e")
+              }
             }
-
-            // At the moment we DON'T expose the message index, though we could/should. That may not be such a big deal,
-            // as we also intend to expose an 'Indexing' function which will essentially do this:
-            //
-            // Observable[T] <+> (T => String) --> Observable[(String, T)]
-            //
-            // so as to write down values of type T by some property which can be represented as a string
-            //
-            input
-          }
-          val src: DataSource[source.T] = source.asInstanceOf[DataSource[source.T]]
-          val newSource                 = DataSourceMapped[source.T, source.T](src, source.sourceType, writeDown)
-          if (sources.register(newSourceKey, newSource)) {
-            SourceCreatedResponse(newSourceKey, newSource.sourceType)
-          } else {
-            SourceAlreadyExistsResponse(newSourceKey)
-          }
         }
     }
+  }
+
+  def filterSources(sourceKey: String, newSourceKey: String, expression: String): DataRegistryResponse = {
+    update(ModifySourceRequest(sourceKey, newSourceKey, ModifyObservableRequest.Filter(expression)))
   }
 
   def rateLimitSources(sourceKey: String, newSourceKey: String, rate: Rate, strategy: StreamStrategy): DataRegistryResponse = {
+    update(ModifySourceRequest(sourceKey, newSourceKey, ModifyObservableRequest.RateLimit(rate, strategy)))
+  }
+
+  def enrichSource(sourceKey: String, newSourceKey: String, enrich: ModifyObservable): DataRegistryResponse = {
     withSource(sourceKey) { source =>
-      val newSource = strategy match {
-        case StreamStrategy.All    => DataSourceRateLimitAll(source, rate)
-        case StreamStrategy.Latest => DataSourceRateLimitLatest(source, rate)
-      }
-
-      if (sources.register(newSourceKey, newSource)) {
-        SourceCreatedResponse(newSourceKey, newSource.sourceType)
-      } else {
-        SourceAlreadyExistsResponse(newSourceKey)
-      }
-    }
-  }
-
-  def filterSources(sourceKey: String, newSourceKey: String, expr: String)(implicit createFilter: FilterAdapter): DataRegistryResponse = withSource(sourceKey) { source =>
-    createFilter.createFilter(source.sourceType, expr) match {
-      case Some(Success(filter)) =>
-        val (updateFilter, newSource) = DataSourceFiltered.from(source)
-        updateFilter := filter
-
-        if (sources.register(newSourceKey, newSource)) {
-          SourceCreatedResponse(newSourceKey, newSource.sourceType)
-        } else {
-          SourceAlreadyExistsResponse(newSourceKey)
-        }
-      case Some(Failure(error)) => SourceErrorResponse(newSourceKey, s"Couldn't parse ${source.sourceType} expression >${expr}< : $error")
-      case None                 => SourceErrorResponse(newSourceKey, s"Couldn't find a filter adapter for ${source.sourceType} for expression >${expr}<")
-    }
-  }
-
-  def updateFilterSource(sourceKey: String, expr: String)(implicit createFilter: FilterAdapter): DataRegistryResponse = withSource(sourceKey) {
-    case source: DataSourceFiltered[_] =>
-      createFilter.createFilter(source.sourceType, expr) match {
-        case Some(Success(filter)) =>
-          source.filterVar := filter
-          SourceUpdatedResponse(sourceKey, s"Filter expression updated to: $expr")
-        case Some(Failure(error)) => SourceErrorResponse(sourceKey, s"Couldn't parse ${source.sourceType} expression >${expr}< : $error")
-        case None                 => SourceErrorResponse(sourceKey, s"Couldn't find a filter adapter for ${source.sourceType} for expression >${expr}<")
-      }
-    case source: DataSource[_] =>
-      SourceErrorResponse(sourceKey, s"Source '${sourceKey}' for types ${source.sourceType} is not a filtered source, it is: ${source.getClass.getSimpleName}")
-  }
-  def updateRateSource(sourceKey: String, newRate: Rate): DataRegistryResponse = withSource(sourceKey) {
-    case source: DataSourceRateLimitAll[_] =>
-      val oldRate = source.limitRef.get()
-      source.limitRef := newRate
-      SourceUpdatedResponse(sourceKey, s"Rate updated from ${oldRate} to: $newRate")
-    case source: DataSourceRateLimitLatest[_] =>
-      val oldRate = source.limitRef.get()
-      source.limitRef := newRate
-      SourceUpdatedResponse(sourceKey, s"Rate updated from ${oldRate} to: $newRate")
-    case source: DataSource[_] =>
-      SourceErrorResponse(sourceKey, s"Source '${sourceKey}' for types ${source.sourceType} is not a filtered source, it is: ${source.getClass.getSimpleName}")
-  }
-
-  def changeType(sourceKey: String, newSourceKey: String, newType: DataType)(implicit adapterEvidence: TypeAdapter.Aux): DataRegistryResponse = {
-    withSource(sourceKey) { source =>
-      adapterEvidence.map[source.T](source.sourceType, newType) match {
-        case Some(typeAdapter: TypeAdapter[source.T]) =>
-          val newSource: DataSourceMapped[source.T, typeAdapter.T] = ??? //DataSourceMapped[source.T, typeAdapter.T](source, typeAdapter.sourceType, typeAdapter.map)
+      source.enrich(enrich) match {
+        case None =>
+          SourceErrorResponse(sourceKey, s"Couldn't convert $sourceKey of type ${source.tagName}")
+        case Some(newSource) =>
           if (sources.register(newSourceKey, newSource)) {
-            SourceCreatedResponse(newSourceKey, newType)
+            SourceCreatedResponse(newSourceKey, newSource.tagName)
           } else {
             SourceAlreadyExistsResponse(newSourceKey)
           }
-        case None =>
-          UnsupportedTypeMappingResponse(sourceKey, source.sourceType, newType)
       }
     }
   }
@@ -164,18 +79,14 @@ final case class DataRegistry(sources: SourceRegistry, sinks: SinkRegistry, defa
     * @param sourceKey
     * @param sinkKey
     */
-  def connect(sourceKey: String, sinkKey: String): DataRegistryResponse = withSource(sourceKey) { source =>
+  def connect(sourceKey: String, sinkKey: String): DataRegistryResponse = withSource(sourceKey) { source: DataSource[_] =>
     sinks.get(sinkKey) match {
-      case None       => SinkNotFoundResponse(sinkKey)
-      case Some(sink) =>
+      case None                    => SinkNotFoundResponse(sinkKey)
+      case Some(sink: DataSink[_]) =>
         // we can expose an explicit 'runOn' source which we could match here
-        source.connect(sink, defaultIOScheduler) match {
-          case Right(cancelable) =>
-            sinks.notifyConnected(sourceKey, sinkKey, cancelable)
-            ConnectResponse(sourceKey, sinkKey)
-          case Left(_) =>
-            SourceSinkMismatchResponse(sourceKey, sinkKey, source.sourceType, sink.sinkType)
-        }
+        val cancelable: Cancelable = ??? // source.connect(sink)
+        sinks.notifyConnected(sourceKey, sinkKey, cancelable)
+        ConnectResponse(sourceKey, sinkKey)
     }
   }
 
@@ -196,7 +107,8 @@ final case class DataRegistry(sources: SourceRegistry, sinks: SinkRegistry, defa
 }
 
 object DataRegistry {
-  def apply(ioScheduler: Scheduler): DataRegistry = {
-    new DataRegistry(SourceRegistry(ioScheduler), SinkRegistry(ioScheduler), ioScheduler)
+
+  def apply(ioScheduler: Scheduler, resolver: ModifyObservableResolver = ModifyObservableResolver()): DataRegistry = {
+    new DataRegistry(SourceRegistry(ioScheduler), SinkRegistry(ioScheduler), ioScheduler, resolver)
   }
 }

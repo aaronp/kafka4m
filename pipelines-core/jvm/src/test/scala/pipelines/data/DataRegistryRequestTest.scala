@@ -1,20 +1,25 @@
 package pipelines.data
 
-import pipelines.core.{Enrichment, JsonRecord, Rate, StreamStrategy}
+import io.circe.Json
+import pipelines.core.{Rate, StreamStrategy}
 
-class DataRegistryRequestTest extends BaseEvalTest {
+class DataRegistryRequestTest extends BaseCoreTest {
 
   "DataRegistryRequest" should {
 
-    List[DataRegistryRequest](
+    import ModifyObservableRequest._
+    val all = List[DataRegistryRequest](
       Connect("sourceKey", "sinkKey"),
-      EnrichSourceRequest("sourceKey", "newKey", Enrichment.RateLimit(Rate.perSecond(12), StreamStrategy.All)),
-      EnrichSourceRequest("sourceKey", "newKey", Enrichment.Filter("expression")),
-      EnrichSourceRequest("sourceKey", "newKey", Enrichment.MapType(JsonRecord)),
-      EnrichSourceRequest("sourceKey", "newKey", Enrichment.AddStatistics(true)),
-      EnrichSourceRequest("sourceKey", "newKey", Enrichment.PersistData("/data")),
-      UpdateEnrichedSourceRequest("sourceKey", Enrichment.PersistData("/data"))
-    ).foreach { expected =>
+      ModifySourceRequest("sourceKey", "newKey", RateLimit(Rate.perSecond(12), StreamStrategy.All)),
+      ModifySourceRequest("sourceKey", "newKey", Filter("expression")),
+      ModifySourceRequest("sourceKey", "newKey", AddStatistics(true)),
+      ModifySourceRequest("sourceKey", "newKey", Persist("/data")),
+      UpdateSourceRequest("sourceKey", Take(2)),
+      UpdateSourceRequest("sourceKey", Generic("foo", Json.fromString("hi")))
+      //      ModifySourceRequest("sourceKey", "newKey", ModifyObservableRequest.MapType((_:Int).toString),
+    )
+
+    all.foreach { expected =>
       s"serialize $expected to/from json" in {
         import io.circe.parser._
         import io.circe.syntax._

@@ -1,8 +1,8 @@
 package pipelines.stream
 
 import io.circe.Json
-import pipelines.core.{BaseEndpoint, CreateSourceRequest, Enrichment}
-import pipelines.data.DataRegistryResponse
+import pipelines.core.{BaseEndpoint, CreateSourceRequest}
+import pipelines.data.{DataRegistryResponse, ModifyObservableRequest}
 
 /**
   * $ GET /source # list registered sources
@@ -79,29 +79,29 @@ trait StreamEndpoints extends BaseEndpoint {
   }
 
   /** produce a new filtered endpoint from a source
-    * POST /source/{id}/copy
+    * POST /source/{id}/modify
     */
-  object copy {
-    def request(implicit req: JsonRequest[Enrichment]): Request[(String, Enrichment)] =
+  object modify {
+    def request(implicit req: JsonRequest[ModifyObservableRequest]): Request[(String, ModifyObservableRequest)] =
       post(
-        path / "source" / segment[String]("id", Option("a unique stream id")) / "copy",
-        jsonRequest[Enrichment](Option("type of enrichment to add to the source"))(req)
+        path / "source" / segment[String]("id", Option("a unique stream id")) / "modify",
+        jsonRequest[ModifyObservableRequest](Option("type of enrichment to add to the source"))(req)
       )
     def response(implicit resp: JsonResponse[DataRegistryResponse]): Response[DataRegistryResponse] = {
       jsonResponse[DataRegistryResponse](Option("the result of enriching the source w/ the specified enrichment"))(resp)
     }
 
-    def copyEndpoint(implicit req: JsonRequest[Enrichment], resp: JsonResponse[DataRegistryResponse]) = endpoint(request(req), response)
+    def modifyEndpoint(implicit req: JsonRequest[ModifyObservableRequest], resp: JsonResponse[DataRegistryResponse]) = endpoint(request(req), response)
   }
 
   /** update a source
     * POST /source/{id}/update
     */
   object update {
-    def request(implicit req: JsonRequest[Enrichment]) =
+    def request(implicit req: JsonRequest[ModifyObservableRequest]) =
       post(
         path / "source" / segment[String]("id", Option("a unique stream id")) / "update",
-        jsonRequest[Enrichment](
+        jsonRequest[ModifyObservableRequest](
           Option(
             "type of enrichment with which to update the source. If the source registered at the given ID isn't already a source of the provided type then an error is returned"))(
           req)
@@ -109,7 +109,7 @@ trait StreamEndpoints extends BaseEndpoint {
     def response(implicit resp: JsonResponse[DataRegistryResponse]): Response[DataRegistryResponse] =
       jsonResponse[DataRegistryResponse](Option("the first data returned from a source"))(resp)
 
-    def updateEndpoint(implicit req: JsonRequest[Enrichment], resp: JsonResponse[DataRegistryResponse]) = endpoint(request(req), response)
+    def updateEndpoint(implicit req: JsonRequest[ModifyObservableRequest], resp: JsonResponse[DataRegistryResponse]) = endpoint(request(req), response)
   }
 
   /**

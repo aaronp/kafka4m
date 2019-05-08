@@ -2,11 +2,11 @@ package pipelines.data
 
 import io.circe.Json
 import monix.reactive.Observable
-import pipelines.core.{AnyType, Rate, StreamStrategy}
+import pipelines.core.{Rate, StreamStrategy}
 
 import scala.concurrent.duration._
 
-class DataRegistryTest extends BaseEvalTest {
+class DataRegistryTest extends BaseCoreTest {
 
   // we put this on the top-level as compiling filters is expensive, so ideally we actually do want to re-use them
 
@@ -32,32 +32,31 @@ class DataRegistryTest extends BaseEvalTest {
       Given("Some original json DataSource")
       val pushSource = DataSource.push[Int]
       val registry   = DataRegistry(sched)
-      val sink       = DataSink.collect[Json]()
+      val sink       = DataSink.collect[Int]()
       registry.sources.register("source", pushSource)
       registry.sinks.register("sink", sink)
 
-      import eie.io._
+      WithTempDir { persistLocation =>
 
-      implicit val persistLocation = PersistLocation(s"target/${getClass.getSimpleName}".asPath)
-      try {
+        registry.enrichSource("source", "source.persistent", ModifyObservable.Persist(persistLocation)) shouldBe SourceCreatedResponse("source.persistent", "byte[]")
 
-        registry.persist("source", "source.persistent", "test-dir") shouldBe SourceCreatedResponse("source.persistent", pushSource.sourceType)
-        registry.connect("source.persistent", "sink") shouldBe ConnectResponse("source.persistent", "sink")
+        // from an int to bytes, then back to an Int
+//        registry.as[Int]("source.persistent", "source.ints") shouldBe SourceCreatedResponse("source.ints", "int")
+
+        registry.connect("source.ints", "sink") shouldBe ConnectResponse("source.ints", "sink")
 
         val expected = (0 to 10).map(pushSource.push).size
 
         eventually {
-          persistLocation.dir.children
-          expected
+          import eie.io._
+          persistLocation.children.size shouldBe expected
         }
 
-      } finally {
-        persistLocation.dir.delete()
       }
     }
     "be able to rate limit a source" in withScheduler { implicit sched =>
       // 100 messages/second
-      val ints     = DataSource(Observable.interval(10.millis), AnyType("string"))
+      val ints     = DataSource(Observable.interval(10.millis))
       val registry = DataRegistry(sched)
       registry.sources.register("ints", ints) shouldBe true
 
@@ -86,7 +85,7 @@ class DataRegistryTest extends BaseEvalTest {
 
     "be able to connect a registered source w/ a sink" in withScheduler { implicit sched =>
       val registry = DataRegistry(sched)
-      registry.sources.register("foo", DataSource(Observable(1, 2, 3), AnyType("string"))) shouldBe true
+      registry.sources.register("foo", DataSource(Observable(1, 2, 3))) shouldBe true
       val sink = DataSink.collect[Int]()
       registry.sinks.register("bar", sink) shouldBe true
 
@@ -100,7 +99,7 @@ class DataRegistryTest extends BaseEvalTest {
     }
     "be able to connect a registered source w/ a sink multiple times" in withScheduler { implicit sched =>
       val registry = DataRegistry(sched)
-      registry.sources.register("foo", DataSource(Observable(1, 2, 3), AnyType("string"))) shouldBe true
+      registry.sources.register("foo", DataSource(Observable(1, 2, 3))) shouldBe true
       val sink = DataSink.collect[Int]()
       registry.sinks.register("bar", sink) shouldBe true
 

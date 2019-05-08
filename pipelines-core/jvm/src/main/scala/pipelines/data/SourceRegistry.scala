@@ -19,7 +19,7 @@ class SourceRegistry private (listeners: Observer[SourceRegistryEvent], val even
   def list(): ListSourceResponse = Lock.synchronized {
     val all = sourcesByName.map {
       case (key, source) =>
-        RegisteredSource(key, source.sourceType.name)
+        RegisteredSource(key, source.tagName)
     }
     ListSourceResponse(all.toList.sortBy(_.name))
   }

@@ -38,11 +38,8 @@ class WebSocketJsonDataSink private[socket] (val id: String, useBinary: Boolean,
   private def onClientCancel() = {
     clientAck = Stop
   }
-  override val sinkType: DataType = {
-    JsonRecord
-  }
 
-  override val observer = new Observer[String] {
+  override val sink = new Observer[String] {
     override def onNext(elem: String): Future[Ack] = {
       val future = input.onNext(elem)
       if (future == Continue) {

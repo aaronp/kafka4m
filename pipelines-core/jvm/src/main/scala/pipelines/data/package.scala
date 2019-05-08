@@ -1,6 +1,10 @@
 package pipelines
 
+import scala.reflect.ClassTag
+
 package object data {
+
+  import scala.reflect.runtime.universe._
 
   /** samples 'max' elements from the given sequence
     *
@@ -26,5 +30,25 @@ package object data {
       result
     }
   }
+
+  def asId[A: ClassTag]: String = {
+    asId(implicitly[ClassTag[A]].runtimeClass)
+  }
+
+  def typeFor[A](implicit tt: TypeTag[A]): String = {
+    tt.tpe match {
+      case TypeRef(_, sy, args) =>
+        if (args.isEmpty) {
+          sy.name.toString
+        } else {
+          val full = args.mkString(s"${sy.name}[", ",", "]")
+//          full +: args.map(_.toString)
+          full
+        }
+    }
+
+  }
+
+  def asId[A](c1ass: Class[A]): String = c1ass.getSimpleName
 
 }

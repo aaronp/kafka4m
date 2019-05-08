@@ -1,11 +1,10 @@
 package pipelines.data
 
 import monix.reactive.Observable
-import pipelines.core.AnyType
 
 import scala.collection.mutable.ListBuffer
 
-class SourceRegistryTest extends BaseEvalTest {
+class SourceRegistryTest extends BaseCoreTest {
 
   "Source Registry" should {
     "notify listeners when a registry is created and removed" in withScheduler { implicit sched =>
@@ -15,7 +14,7 @@ class SourceRegistryTest extends BaseEvalTest {
       registry.events.foreach(events += _)
 
       When("A data source is registered")
-      registry.register("foo", DataSource(Observable(1), AnyType("string")))
+      registry.register("foo", DataSource(Observable(1)))
 
       Then("A notification should be published")
       eventually {

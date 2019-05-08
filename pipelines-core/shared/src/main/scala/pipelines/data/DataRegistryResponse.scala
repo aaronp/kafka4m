@@ -4,7 +4,6 @@ import cats.syntax.functor._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder}
-import pipelines.core.DataType
 
 sealed trait DataRegistryResponse
 object DataRegistryResponse {
@@ -39,14 +38,14 @@ object DataRegistryResponse {
     ).reduceLeft(_ or _)
 }
 
-case class SourceNotFoundResponse(missingSourceKey: String)                                                         extends DataRegistryResponse
-case class SinkNotFoundResponse(missingSinkKey: String)                                                             extends DataRegistryResponse
-case class SourceSinkMismatchResponse(sourceKey: String, sinkKey: String, sourceType: DataType, sinkType: DataType) extends DataRegistryResponse
-case class SourceAlreadyExistsResponse(existingSourceKey: String)                                                   extends DataRegistryResponse
-case class SinkAlreadyExistsResponse(existingSinkKey: String)                                                       extends DataRegistryResponse
-case class SourceCreatedResponse(newSourceKey: String, dataType: DataType)                                          extends DataRegistryResponse
-case class SinkCreatedResponse(newSourceKey: String, dataType: DataType)                                            extends DataRegistryResponse
-case class SourceUpdatedResponse(updatedSourceKey: String, message: String)                                         extends DataRegistryResponse
-case class UnsupportedTypeMappingResponse(sourceKey: String, fromType: DataType, toType: DataType)                  extends DataRegistryResponse
-case class ConnectResponse(connectedSourceKey: String, connectedSinkKey: String)                                    extends DataRegistryResponse
-case class SourceErrorResponse(sourceKey: String, errorMessage: String)                                             extends DataRegistryResponse
+case class SourceNotFoundResponse(missingSourceKey: String)                                                     extends DataRegistryResponse
+case class SinkNotFoundResponse(missingSinkKey: String)                                                         extends DataRegistryResponse
+case class SourceSinkMismatchResponse(sourceKey: String, sinkKey: String, sourceType: String, sinkType: String) extends DataRegistryResponse
+case class SourceAlreadyExistsResponse(existingSourceKey: String)                                               extends DataRegistryResponse
+case class SinkAlreadyExistsResponse(existingSinkKey: String)                                                   extends DataRegistryResponse
+case class SourceCreatedResponse(newSourceKey: String, dataType: String)                                        extends DataRegistryResponse
+case class SinkCreatedResponse(newSinkKey: String, dataType: String)                                          extends DataRegistryResponse
+case class SourceUpdatedResponse(updatedSourceKey: String, message: String)                                     extends DataRegistryResponse
+case class UnsupportedTypeMappingResponse(sourceKey: String, fromType: String, toType: String)                  extends DataRegistryResponse
+case class ConnectResponse(connectedSourceKey: String, connectedSinkKey: String)                                extends DataRegistryResponse
+case class SourceErrorResponse(sourceKey: String, errorMessage: String)                                         extends DataRegistryResponse

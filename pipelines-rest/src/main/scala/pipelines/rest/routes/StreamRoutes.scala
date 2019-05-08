@@ -9,7 +9,7 @@ import monix.execution.Ack.Continue
 import monix.execution.Scheduler
 import pipelines.core.CreateSourceRequest
 import pipelines.data._
-import pipelines.eval.EvalFilterAdapter
+import pipelines.eval.ModifyObservableFilterResolvers
 import pipelines.rest.socket.{SourceFactory, WebSocketJsonDataSink, WebSocketJsonDataSource}
 import pipelines.stream.{ListSourceResponse, PeekResponse, StreamEndpoints, StreamSchemas}
 
@@ -24,7 +24,7 @@ object StreamRoutes {
     // TODO = this is going to die -- instead we just need a way to access a 'Observable[A] => Observable[B]' by name (where the name could be classname or any other alias)
     implicit val adapterEvidence: TypeAdapter.Aux = TypeAdapter.Aux
 
-    implicit val filter: FilterAdapter = EvalFilterAdapter()
+    implicit val filter: FilterAdapter = ModifyObservableFilterResolvers()
     import eie.io._
     implicit val persistDir: PersistLocation = PersistLocation("target/streamRoutes".asPath)
     new StreamRoutes(registry, sourceFactory, websocketUploadHeartbeatFrequency)
@@ -114,13 +114,13 @@ class StreamRoutes(registry: DataRegistry, sourceFactory: SourceFactory, websock
 
   def copyRoute: Route = {
     copy.copyEndpoint.implementedBy {
-      case (sourceId, enrichment) => registry.update(EnrichSourceRequest(sourceId, s"${sourceId}.${enrichment}", enrichment))
+      case (sourceId, enrichment) => registry.update(ModifySourceRequest(sourceId, s"${sourceId}.${enrichment}", enrichment))
     }
   }
 
   def updateRoute: Route = {
     update.updateEndpoint.implementedBy {
-      case (sourceId, enrichment) => registry.update(UpdateEnrichedSourceRequest(sourceId, enrichment))
+      case (sourceId, enrichment) => registry.update(UpdateSourceRequest(sourceId, enrichment))
     }
   }
 

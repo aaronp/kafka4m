@@ -2,11 +2,11 @@ package pipelines.eval
 
 import io.circe.Json
 import monix.reactive.Observable
-import pipelines.core.JsonRecord
 import pipelines.data._
 
-class JsonAdapterTest extends BaseEvalTest {
-  implicit val filterAdapter = EvalFilterAdapter()
+class JsonAdapterTest extends BaseCoreTest {
+  implicit val filterAdapter: ModifyObservableResolver = ModifyObservableFilterResolvers()
+  implicit val converter: MapType.Converter            = MapType.Converter()
 
   "be able to update a filtered source" in withScheduler { implicit sched =>
     Given("Some original json DataSource")
@@ -19,7 +19,10 @@ class JsonAdapterTest extends BaseEvalTest {
 
     registry.sources.register("json", jsonSource) shouldBe true
     registry.sources.register("bytes", DataSource.push[Array[Byte]]) shouldBe true
-    registry.filterSources("json", "json.filtered", """ value.id.asInt % 31 == 0 || value.name == "name-2" """) shouldBe SourceCreatedResponse("json.filtered", JsonRecord)
+
+    registry.update(ModifySourceRequest("json", "json.filtered", ModifyObservableRequest.Filter(""" value.id.asInt % 31 == 0 || value.name == "name-2" """))) shouldBe SourceCreatedResponse(
+      "json.filtered",
+      asId[Json])
     registry.connect("json.filtered", "sink") shouldBe ConnectResponse("json.filtered", "sink")
 
     When("We push some data through")
@@ -35,13 +38,15 @@ class JsonAdapterTest extends BaseEvalTest {
     sink.toList().map(idForJson) shouldBe List(2, 31)
 
     When("We try and update a non-filter source")
-    val SourceErrorResponse("bytes", errorMsg) = registry.updateFilterSource("bytes", "doesn't matter")
+    val SourceErrorResponse("bytes", errorMsg) = {
+      registry.update(UpdateSourceRequest("bytes", ModifyObservableRequest.Filter(""" value.id.asInt % 31 == 0 || value.name == "name-2" """)))
+    }
 
     Then("it should return an error")
     errorMsg shouldBe "Source 'bytes' for types ByteArray is not a filtered source, it is: PushSource"
 
     When("We update the filtered source w/ a new filter")
-    val SourceUpdatedResponse("json.filtered", okMsg) = registry.updateFilterSource("json.filtered", "value.id > 100")
+    val SourceUpdatedResponse("json.filtered", okMsg) = registry.update(UpdateSourceRequest("json.filtered", ModifyObservableRequest.Filter("""value.id > 100""")))
 
     Then("it should update the expression")
     okMsg shouldBe "Filter expression updated to: value.id > 100"
@@ -68,8 +73,8 @@ class JsonAdapterTest extends BaseEvalTest {
 
     And("A data registry")
     val registry = DataRegistry(sched)
-    registry.sources.register("json", DataSource(jsonSource, JsonRecord)) shouldBe true
-    registry.filterSources("json", "json.filtered", """ value.id.asInt % 31 == 0 || value.name == "name-2" """) shouldBe SourceCreatedResponse("json.filtered", JsonRecord)
+    registry.sources.register("json", DataSource(jsonSource)) shouldBe true
+    registry.filterSources("json", "json.filtered", """ value.id.asInt % 31 == 0 || value.name == "name-2" """) shouldBe SourceCreatedResponse("json.filtered", asId[Json])
 
     When("We collect on a filtered source")
     val sink = DataSink.collect[Json]()

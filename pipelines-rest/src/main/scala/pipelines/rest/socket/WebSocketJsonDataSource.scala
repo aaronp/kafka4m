@@ -8,11 +8,9 @@ import akka.stream.scaladsl.{Flow, Sink, Source}
 import com.typesafe.scalalogging.StrictLogging
 import monix.execution.Scheduler
 import monix.reactive.{Observable, Observer, Pipe}
-import pipelines.core.{DataType, JsonRecord}
 import pipelines.data.DataSource
 
 import scala.concurrent.duration.FiniteDuration
-import scala.reflect.ClassTag
 
 object WebSocketJsonDataSource {
   def apply(heartbeatFrequency: FiniteDuration, id: String = UUID.randomUUID.toString)(implicit scheduler: Scheduler): WebSocketJsonDataSource = {
@@ -47,15 +45,8 @@ object WebSocketJsonDataSource {
   * A data source which accepts input from a web socket
   */
 class WebSocketJsonDataSource(id: String, heartbeatFrequency: FiniteDuration, input: Observer[Message], output: Observable[Message])(implicit scheduler: Scheduler)
-    extends DataSource[String]
+    extends DataSource[String](output.map(WebSocketJsonDataSource.msgAsText))
     with StrictLogging {
-  override def tag: ClassTag[String] = {
-    ClassTag[String](classOf[String])
-  }
-
-  override def sourceType: DataType = JsonRecord
-
-  override def data: Observable[String] = output.map(WebSocketJsonDataSource.msgAsText)
 
   /** @return an akka flow representation of the data coming through this sink
     */

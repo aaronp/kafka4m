@@ -1,20 +1,18 @@
 package pipelines.data
 
-import pipelines.core.{ByteArray, AvroRecord, JsonRecord, ProtobufRecord}
-
-class DataRegistryResponseTest extends BaseEvalTest {
+class DataRegistryResponseTest extends BaseCoreTest {
   "DataRegistryResponse" should {
 
     List[DataRegistryResponse](
       SourceNotFoundResponse("sourceKey"),
       SinkNotFoundResponse("sinkKey"),
-      SourceSinkMismatchResponse("sourceKey", "sinkKey", ByteArray, JsonRecord),
+      SourceSinkMismatchResponse("sourceKey", "sinkKey", "ByteArray", "JsonRecord"),
       SourceAlreadyExistsResponse("sourceKey"),
       SinkAlreadyExistsResponse("sinkKey"),
-      SourceCreatedResponse("sourceKey", JsonRecord),
-      SinkCreatedResponse("sinkKey", JsonRecord),
+      SourceCreatedResponse("sourceKey", "JsonRecord"),
+      SinkCreatedResponse("sinkKey", "JsonRecord"),
       SourceUpdatedResponse("sourceKey", "updated"),
-      UnsupportedTypeMappingResponse("sourceKey", ProtobufRecord, AvroRecord),
+      UnsupportedTypeMappingResponse("sourceKey", "ProtobufRecord", "AvroRecord"),
       ConnectResponse("sourceKey", "sinkKey"),
       SourceErrorResponse("sourceKey", "bang")
     ).foreach { expected =>
