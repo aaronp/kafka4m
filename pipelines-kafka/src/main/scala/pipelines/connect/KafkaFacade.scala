@@ -16,16 +16,11 @@ trait KafkaFacade extends AutoCloseable {
   def listTopics(): ListTopicsResponse
   def pullLatest(topic: String, offset: Long, limit: Long): PullLatestResponse
 
-  /** @param topic
-    * @return
-    */
-  def descriptorForTopic(topic: String): Option[TopicDescriptor]
 }
 
 object KafkaFacade extends LazyLogging {
 
   def apply(consumer: RichKafkaConsumer[String, Bytes],
-            schemasByTopic: Map[String, TopicDescriptor],
             pollTimeout: FiniteDuration,
             timeout: FiniteDuration,
             closeConsumer: RichKafkaConsumer[String, Bytes] => Unit): KafkaFacade = {
@@ -34,21 +29,9 @@ object KafkaFacade extends LazyLogging {
       override def pullLatest(topic: String, offset: Long, limit: Long) = {
         consumer.pullLatest(topic, limit, pollTimeout, timeout, identity)
       }
-
-      override def descriptorForTopic(topic: String) = {
-        schemasByTopic.get(topic)
-      }
-
       override def close(): Unit = {
         closeConsumer(consumer)
       }
-    }
-  }
-
-  def schemasByTopicForRootConfig(rootConfig: Config): Map[String, TopicDescriptor] = {
-    val lookup = schemasByTopicForConfig(rootConfig.getConfig("pipelines.avro"))
-    lookup.mapValues { schema =>
-      AvroDescriptor(schema)
     }
   }
 

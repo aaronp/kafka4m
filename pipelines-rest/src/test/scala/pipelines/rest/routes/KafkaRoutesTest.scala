@@ -39,8 +39,6 @@ class KafkaRoutesTest extends BaseRoutesTest {
       PullLatestResponse(topic, List("fake-key"))
     }
 
-    override def descriptorForTopic(topic: String) = None
-
     override def close(): Unit = {}
   }
 

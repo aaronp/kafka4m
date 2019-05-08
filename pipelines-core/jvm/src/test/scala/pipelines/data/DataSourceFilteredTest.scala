@@ -12,7 +12,7 @@ class DataSourceFilteredTest extends BaseEvalTest {
       WithScheduler { implicit s =>
         Given("A filtered data source which we can send values through")
         val (pushNext, ints)          = Pipe.publishToOne[Int].unicast
-        val (applyFilter, dataSource) = DataSourceFiltered.from(DataSource(ints, AnyType))
+        val (applyFilter, dataSource) = DataSourceFiltered.from(DataSource(ints, AnyType("string")))
 
         val list = ListBuffer[Int]()
         dataSource.data.foreach { next =>

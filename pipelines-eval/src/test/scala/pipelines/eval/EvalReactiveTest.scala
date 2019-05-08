@@ -19,72 +19,72 @@ class EvalReactiveTest extends WordSpec with Matchers with Eventually with Given
 
   def testTimeout: FiniteDuration = 3.seconds
 
-  "KafkaReactive.source" should {
-    "close and reconnect a new source when a new query request is made" in {
-      Given("A queryable data source")
-      class TestData(override val data: Observable[Int]) extends Provider[Observable[Int]] {
-        val closeCalls = new AtomicInteger(0)
-        override def close(): Unit = {
-          closeCalls.incrementAndGet()
-        }
-      }
-
-      val createdSources = ListBuffer[TestData]()
-      def updateSource(query: QueryRequest): Provider[Observable[Int]] = {
-        val values   = query.clientId.toInt to query.groupId.toInt
-        val instance = new TestData(Observable.fromIterable(values))
-        createdSources += instance
-        instance
-      }
-
-      implicit val sched = Scheduler.global
-
-      def newRequest(from: Int, to: Int): QueryRequest = {
-        new QueryRequest(
-          clientId = from.toString,
-          groupId = to.toString,
-          topic = "topic",
-          filterExpression = "filterExpression",
-          filterExpressionIncludeMatches = true,
-          fromOffset = Option("latest"),
-          messageLimit = Option(Rate.perSecond(123)),
-          format = Option(ResponseFormat(List("key", "foo"))),
-          streamStrategy = StreamStrategy.Latest
-        )
-      }
-
-      val reactive                   = EvalReactive[Int](updateSource)
-      val underTest: Observable[Int] = reactive.source.map(_._2)
-      val initialRequest             = newRequest(0, 10)
-      reactive.update(UpdateFeedRequest(initialRequest))
-
-      Then("we should receive values from the initial query")
-      val firstBatch = (0 to 10).toList
-      underTest.take(firstBatch.size).toListL.runSyncUnsafe(testTimeout) shouldBe firstBatch
-
-      createdSources.size shouldBe 1
-
-      When("An updated query is sent")
-      reactive.update(UpdateFeedRequest(newRequest(20, 30)))
-
-      Then("The previous source should be closed")
-      eventually {
-        createdSources.head.closeCalls.get shouldBe 1
-      }
-
-      When("Another update is sent")
-      val secondBatch = (20 to 30).toList
-      reactive.update(UpdateFeedRequest(newRequest(20, 30)))
-
-      And("The source should observe the data from the new feed")
-      underTest.take(secondBatch.size).toListL.runSyncUnsafe(testTimeout) shouldBe secondBatch
-      createdSources.size shouldBe 2
-
-      And("The old source should be closed")
-      createdSources.head.closeCalls.get shouldBe 1
-      createdSources.tail.head.closeCalls.get shouldBe 1
-    }
-  }
+//  "KafkaReactive.source" should {
+//    "close and reconnect a new source when a new query request is made" in {
+//      Given("A queryable data source")
+//      class TestData(override val data: Observable[Int]) extends Provider[Observable[Int]] {
+//        val closeCalls = new AtomicInteger(0)
+//        override def close(): Unit = {
+//          closeCalls.incrementAndGet()
+//        }
+//      }
+//
+//      val createdSources = ListBuffer[TestData]()
+//      def updateSource(query: QueryRequest): Provider[Observable[Int]] = {
+//        val values   = query.clientId.toInt to query.groupId.toInt
+//        val instance = new TestData(Observable.fromIterable(values))
+//        createdSources += instance
+//        instance
+//      }
+//
+//      implicit val sched = Scheduler.global
+//
+//      def newRequest(from: Int, to: Int): QueryRequest = {
+//        new QueryRequest(
+//          clientId = from.toString,
+//          groupId = to.toString,
+//          topic = "topic",
+//          filterExpression = "filterExpression",
+//          filterExpressionIncludeMatches = true,
+//          fromOffset = Option("latest"),
+//          messageLimit = Option(Rate.perSecond(123)),
+//          format = Option(ResponseFormat(List("key", "foo"))),
+//          streamStrategy = StreamStrategy.Latest
+//        )
+//      }
+//
+//      val reactive                   = EvalReactive[Int](updateSource)
+//      val underTest: Observable[Int] = reactive.source.map(_._2)
+//      val initialRequest             = newRequest(0, 10)
+//      reactive.update(UpdateFeedRequest(initialRequest))
+//
+//      Then("we should receive values from the initial query")
+//      val firstBatch = (0 to 10).toList
+//      underTest.take(firstBatch.size).toListL.runSyncUnsafe(testTimeout) shouldBe firstBatch
+//
+//      createdSources.size shouldBe 1
+//
+//      When("An updated query is sent")
+//      reactive.update(UpdateFeedRequest(newRequest(20, 30)))
+//
+//      Then("The previous source should be closed")
+//      eventually {
+//        createdSources.head.closeCalls.get shouldBe 1
+//      }
+//
+//      When("Another update is sent")
+//      val secondBatch = (20 to 30).toList
+//      reactive.update(UpdateFeedRequest(newRequest(20, 30)))
+//
+//      And("The source should observe the data from the new feed")
+//      underTest.take(secondBatch.size).toListL.runSyncUnsafe(testTimeout) shouldBe secondBatch
+//      createdSources.size shouldBe 2
+//
+//      And("The old source should be closed")
+//      createdSources.head.closeCalls.get shouldBe 1
+//      createdSources.tail.head.closeCalls.get shouldBe 1
+//    }
+//  }
   "KafkaReactive.throttle" should {
     // a source of data which will push out elements as quickly as they can be consumed (!!!).
     val lotsOfConsecutiveDataQuickly = Observable.fromIterator(Task.eval(Iterator.from(0)))

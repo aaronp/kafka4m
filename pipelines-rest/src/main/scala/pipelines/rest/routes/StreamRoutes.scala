@@ -9,11 +9,27 @@ import monix.execution.Ack.Continue
 import monix.execution.Scheduler
 import pipelines.core.CreateSourceRequest
 import pipelines.data._
+import pipelines.eval.EvalFilterAdapter
 import pipelines.rest.socket.{SourceFactory, WebSocketJsonDataSink, WebSocketJsonDataSource}
 import pipelines.stream.{ListSourceResponse, PeekResponse, StreamEndpoints, StreamSchemas}
 
 import scala.concurrent.Future
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
+
+object StreamRoutes {
+  def dev(websocketUploadHeartbeatFrequency: FiniteDuration = 3.seconds)(implicit ioScheduler: Scheduler): StreamRoutes = {
+    val registry                          = DataRegistry(ioScheduler)
+    val sourceFactory                     = SourceFactory(registry)
+
+    // TODO = this is going to die -- instead we just need a way to access a 'Observable[A] => Observable[B]' by name (where the name could be classname or any other alias)
+    implicit val adapterEvidence: TypeAdapter.Aux = TypeAdapter.Aux
+
+    implicit val filter: FilterAdapter = EvalFilterAdapter()
+    import eie.io._
+    implicit val persistDir: PersistLocation = PersistLocation("target/streamRoutes".asPath)
+    new StreamRoutes(registry, sourceFactory, websocketUploadHeartbeatFrequency)
+  }
+}
 
 class StreamRoutes(registry: DataRegistry, sourceFactory: SourceFactory, websocketUploadHeartbeatFrequency: FiniteDuration)(implicit adapterEvidence: TypeAdapter.Aux,
                                                                                                                             filter: FilterAdapter,
@@ -58,7 +74,7 @@ class StreamRoutes(registry: DataRegistry, sourceFactory: SourceFactory, websock
         throw new Exception(s"Race condition: Two sources have both tried to create a source w/ it '${sourceId}' and you lost :-(")
       } else {
         // we've just created a brand-new source. We should also create a new sink to write the data to
-???
+        ???
       }
       handleWebSocketMessages(newSource.flow)
     }

@@ -57,7 +57,7 @@ class DataRegistryTest extends BaseEvalTest {
     }
     "be able to rate limit a source" in withScheduler { implicit sched =>
       // 100 messages/second
-      val ints     = DataSource(Observable.interval(10.millis), AnyType)
+      val ints     = DataSource(Observable.interval(10.millis), AnyType("string"))
       val registry = DataRegistry(sched)
       registry.sources.register("ints", ints) shouldBe true
 
@@ -86,7 +86,7 @@ class DataRegistryTest extends BaseEvalTest {
 
     "be able to connect a registered source w/ a sink" in withScheduler { implicit sched =>
       val registry = DataRegistry(sched)
-      registry.sources.register("foo", DataSource(Observable(1, 2, 3), AnyType)) shouldBe true
+      registry.sources.register("foo", DataSource(Observable(1, 2, 3), AnyType("string"))) shouldBe true
       val sink = DataSink.collect[Int]()
       registry.sinks.register("bar", sink) shouldBe true
 
@@ -100,7 +100,7 @@ class DataRegistryTest extends BaseEvalTest {
     }
     "be able to connect a registered source w/ a sink multiple times" in withScheduler { implicit sched =>
       val registry = DataRegistry(sched)
-      registry.sources.register("foo", DataSource(Observable(1, 2, 3), AnyType)) shouldBe true
+      registry.sources.register("foo", DataSource(Observable(1, 2, 3), AnyType("string"))) shouldBe true
       val sink = DataSink.collect[Int]()
       registry.sinks.register("bar", sink) shouldBe true
 

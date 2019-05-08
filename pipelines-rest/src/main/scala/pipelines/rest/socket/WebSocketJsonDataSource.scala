@@ -8,7 +8,7 @@ import akka.stream.scaladsl.{Flow, Sink, Source}
 import com.typesafe.scalalogging.StrictLogging
 import monix.execution.Scheduler
 import monix.reactive.{Observable, Observer, Pipe}
-import pipelines.core.{DataType, Heartbeat, JsonRecord, StreamingRequest}
+import pipelines.core.{DataType, JsonRecord}
 import pipelines.data.DataSource
 
 import scala.concurrent.duration.FiniteDuration
@@ -19,12 +19,6 @@ object WebSocketJsonDataSource {
 
     val (input, output) = Pipe.publish[Message].multicast
     new WebSocketJsonDataSource(id, heartbeatFrequency, input, output)
-  }
-
-  private def heartBeatTextMsg: TextMessage.Strict = {
-    import io.circe.syntax._
-    val heartbeatJson = (Heartbeat: StreamingRequest).asJson.noSpaces
-    TextMessage(heartbeatJson)
   }
 
   private def msgAsText(msg: Message): String = {
@@ -66,7 +60,7 @@ class WebSocketJsonDataSource(id: String, heartbeatFrequency: FiniteDuration, in
   /** @return an akka flow representation of the data coming through this sink
     */
   def flow(): Flow[Message, Message, NotUsed] = {
-    val toClient   = Observable.interval(heartbeatFrequency).map(_ => WebSocketJsonDataSource.heartBeatTextMsg)
+    val toClient   = Observable.interval(heartbeatFrequency).map(_ => heartBeatTextMsg)
     val clientSink = Sink.fromSubscriber(input.toReactive)
     Flow.fromSinkAndSource(clientSink, Source.fromPublisher(toClient.toReactivePublisher))
   }

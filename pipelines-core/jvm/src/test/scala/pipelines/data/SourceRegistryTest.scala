@@ -15,7 +15,7 @@ class SourceRegistryTest extends BaseEvalTest {
       registry.events.foreach(events += _)
 
       When("A data source is registered")
-      registry.register("foo", DataSource(Observable(1), AnyType))
+      registry.register("foo", DataSource(Observable(1), AnyType("string")))
 
       Then("A notification should be published")
       eventually {

@@ -5,7 +5,7 @@ import monix.eval.Task
 import monix.execution.Scheduler
 import monix.reactive.{Observable, Observer, Pipe}
 import pipelines.DynamicAvroRecord
-import pipelines.core.{Rate, StreamStrategy}
+import pipelines.core.{CancelFeedRequest, Heartbeat, Rate, StreamStrategy, StreamingRequest}
 import pipelines.eval.EvalReactive.throttle
 import pipelines.kafka._
 
@@ -24,12 +24,12 @@ class EvalReactive[A] private (sourceForQuery: QueryRequest => Provider[Observab
     *
     * @param request the message to push to this feed
     */
-  def update(request: StreamingFeedRequest): Unit = {
+  def update(request: StreamingRequest): Unit = {
     logger.info(s" **> CLIENT SENT  $request")
     request match {
-      case CancelFeedRequest           => queryFeed.onComplete()
-      case Heartbeat                   =>
-      case UpdateFeedRequest(newQuery) => queryFeed.onNext(newQuery)
+      case CancelFeedRequest => queryFeed.onComplete()
+      case Heartbeat         =>
+//      case UpdateFeedRequest(newQuery) => queryFeed.onNext(newQuery)
     }
   }
 

@@ -75,8 +75,8 @@ object Documentation           //
     val dataRegistryResponse  = document(SourceCreatedResponse("someSource", AnyType("string")): DataRegistryResponse)
     List(
       list.listSourcesEndpoint(document(ListSourceResponse(Seq(RegisteredSource("someSource", "string"))))),
-      websocketConsume.consumeEndpoint(dataRegistryResponse),
-      websocketPublish.publishEndpoint(document(Option("optionalSourceId"))),
+      websocketConsume.consumeEndpoint,
+      websocketPublish.publishEndpoint,
       peek.peekEndpoint(document(PeekResponse(anyJson))),
       copy.copyEndpoint(document(enrichmet), dataRegistryResponse),
       update.updateEndpoint(document(enrichmet), dataRegistryResponse),
