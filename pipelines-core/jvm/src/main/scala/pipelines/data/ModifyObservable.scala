@@ -1,10 +1,9 @@
 package pipelines.data
 
 import java.nio.file.Path
-import java.time
 import java.time.ZonedDateTime
 
-import io.circe.{Decoder, Encoder}
+import io.circe.java8.time
 import monix.execution.Scheduler
 import monix.execution.atomic.AtomicAny
 import monix.reactive.Observable
@@ -49,32 +48,6 @@ object ModifyObservable {
   case class Take[A: ClassTag](n: Int) extends ModifyObservableAny {
     override def modify[A: ClassTag](input: Observable[A])(implicit sched: Scheduler): Observable[A] = input.take(n)
   }
-
-//  case class ModifyObservableJson[A : Encoder :Decoder :ClassTag](data :A) extends ModifyObservable {
-//    override def modify(input: Observable[A])(implicit sched: Scheduler): Observable[A] = {
-//???
-//    }
-//  }
-
-  //
-  //
-//  case class Stats[A: ClassTag]() extends ModifyObservableTyped[A] {
-//
-//    override def applyTo(source: Observable[A]): Observable[StreamStatistics[A]] = {
-//      import concurrent.duration._
-//      source.bufferTimed(1.second).scan(StreamStatistics[A](None, 0, ZonedDateTime.now, 0, 0, ZonedDateTime.now)) {
-//        case (stats, seq) =>
-//          val now                 = ZonedDateTime.now
-//          val diff: time.Duration = java.time.Duration.between(stats.connectedAt, now)
-//          val total               = stats.totalReceived + seq.size
-//          val avePerSecond = diff.getSeconds match {
-//            case 0       => 0
-//            case seconds => total / seconds
-//          }
-//          StreamStatistics[A](seq.lastOption, total, stats.connectedAt, seq.size, avePerSecond.toInt, now)
-//      }
-//    }
-//  }
 
   case class Filter[A: ClassTag](filterVar: AtomicAny[A => Boolean]) extends ModifyObservableTyped[A] {
     override def modify(data: Observable[A])(implicit sched: Scheduler): Observable[A] = {

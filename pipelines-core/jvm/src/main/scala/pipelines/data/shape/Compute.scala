@@ -1,6 +1,7 @@
-package pipelines.data
+package pipelines.data.shape
 
-import pipelines.data.Compute.Composed
+import pipelines.data.shape.Compute.Composed
+import pipelines.data.{NamedCompute, asId}
 
 import scala.reflect.ClassTag
 
@@ -38,7 +39,7 @@ object Compute {
     *
     * @param in the input type (shape)
     * @param f the thunk
-    * @tparam A the input to the actual fuction
+    * @tparam A the input to the actual function
     * @return a compute which wil
     */
   def of[A <: Any](in: Shape, out: Shape)(f: A => Any): Compute = {

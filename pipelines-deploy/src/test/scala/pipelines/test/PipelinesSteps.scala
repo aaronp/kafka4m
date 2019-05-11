@@ -1,6 +1,6 @@
 package pipelines.test
 import org.scalatest.Matchers
-//import cucumber.api.scala.{EN, ScalaDsl}
+//import cucumber.apiRepo.scala.{EN, ScalaDsl}
 
 class PipelinesSteps { // extends ScalaDsl with EN with Matchers {
 

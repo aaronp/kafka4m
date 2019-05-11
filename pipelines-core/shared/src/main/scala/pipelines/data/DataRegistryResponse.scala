@@ -8,7 +8,7 @@ import io.circe.{Decoder, Encoder}
 sealed trait DataRegistryResponse
 object DataRegistryResponse {
 
-  implicit val encodeEvent: Encoder[DataRegistryResponse] = Encoder.instance {
+  implicit val encoder: Encoder[DataRegistryResponse] = Encoder.instance {
     case request @ SourceNotFoundResponse(_)               => request.asJson
     case request @ SinkNotFoundResponse(_)                 => request.asJson
     case request @ SourceSinkMismatchResponse(_, _, _, _)  => request.asJson
@@ -22,7 +22,7 @@ object DataRegistryResponse {
     case request @ SourceErrorResponse(_, _)               => request.asJson
   }
 
-  implicit val decodeEvent: Decoder[DataRegistryResponse] =
+  implicit val decoder: Decoder[DataRegistryResponse] =
     List[Decoder[DataRegistryResponse]](
       Decoder[SourceNotFoundResponse].widen,
       Decoder[SinkNotFoundResponse].widen,

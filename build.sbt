@@ -47,7 +47,9 @@ val logging = List("com.typesafe.scala-logging" %% "scala-logging" % "3.9.2", "c
 
 def testLogging = logging.map(_ % "test")
 
-val monixDependencies = List("monix", "monix-execution", "monix-eval", "monix-reactive", "monix-tail").map { art =>
+val monix = List("monix", "monix-execution", "monix-eval", "monix-reactive", "monix-tail")
+
+val monixDependencies = monix.map { art =>
   "io.monix" %% art % "3.0.0-RC2"
 }
 
@@ -240,6 +242,9 @@ lazy val pipelinesCoreCrossProject = crossProject(JSPlatform, JVMPlatform)
   .enablePlugins(TestNGPlugin)
   .settings(
     name := "pipelines-core",
+    libraryDependencies ++= monix.map { art =>
+      "io.monix" %%% art % "3.0.0-RC2"
+    },
     libraryDependencies ++= List(
       // http://julienrf.github.io/endpoints/quick-start.html
       "org.julienrf" %%% "endpoints-algebra"             % "0.9.0",

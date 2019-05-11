@@ -34,7 +34,8 @@ trait StreamEndpoints extends BaseEndpoint {
     def listSourcesEndpoint(resp: JsonResponse[ListSourceResponse]): Endpoint[Unit, ListSourceResponse] = endpoint(request, response(resp))
   }
 
-  /** connect a web socket to a source
+  /** connect a web socket to a source, thus creating a hot/connected source in one step.
+    *
     * GET /source/{id}/consume?binary=true
     */
   object websocketConsume {
@@ -51,7 +52,7 @@ trait StreamEndpoints extends BaseEndpoint {
     */
   object websocketPublish {
     def request: Request[Option[String]] = get(path / "source" / "create" / "publish" /? qs[Option[String]]("id"))
-    def response: Response[Unit]                             = emptyResponse(Option("The response is upgrade response to open a websocket"))
+    def response: Response[Unit]         = emptyResponse(Option("The response is upgrade response to open a websocket"))
 
     val publishEndpoint: Endpoint[(Option[String]), Unit] = endpoint(
       request,
@@ -68,7 +69,11 @@ trait StreamEndpoints extends BaseEndpoint {
       """.stripMargin)
     )
   }
+
   /** connect a web socket to a source
+    *
+    * TODO - we may not need this -- this is the equivalent of creating a new sink just like our websocket one
+    *
     * GET /source/{id}/peek
     */
   object peek {
@@ -95,6 +100,22 @@ trait StreamEndpoints extends BaseEndpoint {
   }
 
   /** update a source
+    *
+    * Instead of doing this, we could expose:
+    *
+    * {{{
+    *
+    *   POST /pipeline # create a new pipeline using the given sources and transforms. If any transforms are 'configurable', then the POST request should include the config details
+    *
+    *   GET /pipeline # list connected data flows
+    *   GET /pipeline/{id} # get a pipeline details (source/sink ids, started, etc)
+    *   POST /pipeline/{id}/source/{id} # update a source in the pipeline
+    *
+    *   GET /pipeline/{id}/source/{id} # get the next data posted at the given source
+    *   GET /pipeline/{id}/source/{id}/connect # connect a websocket to this source
+    *
+    * }}}
+    *
     * POST /source/{id}/update
     */
   object update {
@@ -138,6 +159,5 @@ trait StreamEndpoints extends BaseEndpoint {
 
     def pushEndpoint(implicit req: JsonRequest[Json], resp: JsonResponse[Boolean]): Endpoint[(String, Json), Boolean] = endpoint(request(req), response)
   }
-
 
 }

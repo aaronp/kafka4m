@@ -1,5 +1,6 @@
-package pipelines.data
+package pipelines.data.shape
 
+import pipelines.data.NamedCompute
 
 trait CanCompute[T] {
   def compute(value: T): Compute

@@ -1,4 +1,4 @@
-package pipelines.data
+package pipelines.data.shape
 
 import cats.Functor
 import monix.reactive.Observable

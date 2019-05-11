@@ -1,4 +1,4 @@
-package pipelines.data
+package pipelines.data.shape
 
 /**
   * A basic type representation we can match on

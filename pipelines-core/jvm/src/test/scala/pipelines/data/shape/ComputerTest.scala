@@ -1,28 +1,21 @@
-package pipelines.data
+package pipelines.data.shape
 
 import io.circe.{Decoder, Json, ObjectEncoder}
-import monix.reactive.Observable
+import io.circe.syntax._
 import org.scalatest.{Matchers, WordSpec}
-import pipelines.data.ComputerTest.{SomeType, computer}
+import pipelines.data.shape.ComputerTest.SomeType
 
-import scala.concurrent.duration.FiniteDuration
 import scala.util.{Success, Try}
 
 class ComputerTest extends WordSpec with Matchers {
 
-  class ObsMap[A, B](f: A => B) {
-    def doit(obs: Observable[A]): Observable[B] = {
-      obs.map(f)
-    }
-  }
-  class ObsFilter[A](f: A => Boolean) {
-    def doit(obs: Observable[A]): Observable[A] = {
-      obs.filter(f)
-    }
-  }
-  class ObsLimit(d: FiniteDuration) {
-    def doit[A](obs: Observable[A]): Observable[A] = {
-      obs.delayOnNext(d)
+  "Observables" should {
+    "be able to be composed" in {
+//      val calc = Compute
+//        .partial {
+//          case ParameterizedShape("Observable", Seq(a)) => ParameterizedShape("Observable", Seq(a))
+//        }
+//        .of(ModifyObservable.Filter[Any]())
     }
   }
 
@@ -36,8 +29,6 @@ class ComputerTest extends WordSpec with Matchers {
       println(explanation)
 
       val byteArrayToTryDouble: Compute = solution.map(_.compute).reduce(_ andThen _)
-
-      import io.circe.syntax._
       val jsonBytes: Array[Byte] = SomeType(123.456, "test").asJson.noSpaces.getBytes("UTF-8")
       val result                 = byteArrayToTryDouble.applyUnsafe(jsonBytes)
       result shouldBe Success(Success(123.456))
