@@ -1,13 +1,8 @@
 package pipelines.reactive
 
-import io.circe.Json
-import monix.reactive.Observable
 import pipelines.data.BaseCoreTest
 
-import scala.util.Try
-
-class RepositoryTest extends BaseCoreTest {
-  import RepositoryTest._
+class RepositoryTest extends BaseCoreTest with RepoTestData {
 
   "Repository.createChain" should {
     "be able to consume data from each phase in a pipeline" in {
@@ -42,22 +37,4 @@ class RepositoryTest extends BaseCoreTest {
       Repository().listSinks(ListSinkRequest()).results should contain only (ListedSink("sink"))
     }
   }
-}
-object RepositoryTest {
-  def ints    = Data(Observable.fromIterable(0 to 100))
-  def strings = Data(Observable.fromIterable(0 to 100).map(_.toString))
-  def even = Transform[Int, Int] { obs =>
-    obs.filter(_ % 2 == 0)
-  }
-  def modFilter: ConfigurableTransform[ConfigurableTransform.FilterExpression] = ConfigurableTransform.jsonFilter { expr =>
-    Try(expr.expression.toInt).toOption.map { x => (json: Json) =>
-      json.asNumber.flatMap(_.toInt).exists(_ % x == 0)
-    }
-  }
-  def repo =
-    Repository("ints" -> ints, "strings" -> strings) //
-      .withTransform("evens", even)                                 //
-      .withConfigurableTransform("modFilter", modFilter)            //
-      .withTransform("stringToJson", Transform.jsonEncoder[String]) //
-
 }

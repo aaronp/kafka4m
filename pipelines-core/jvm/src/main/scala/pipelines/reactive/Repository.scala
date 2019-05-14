@@ -44,6 +44,35 @@ case class Repository(sourcesByName: Map[String, Data],                         
     }
   }
 
+  /** A convenience method to create a new chain
+    *
+    * @param dataSource
+    * @param transforms
+    * @return either an error or a new chain
+    */
+  def createChain(dataSource: String, firstTransform: DataTransform, transforms: DataTransform*): Either[String, DataChain] = {
+    createChain(CreateChainRequest(dataSource, firstTransform +: transforms.toSeq))
+  }
+
+  /** A convenience method to create a new chain
+    *
+    * @param dataSource
+    * @param transforms
+    * @return either an error or a new chain
+    */
+  def createChain(dataSource: String, transforms: String*): Either[String, DataChain] = {
+    transforms.map(name => DataTransform(name)) match {
+      case Seq() => createChain(CreateChainRequest(dataSource, Nil))
+      case head +: theRest => createChain(dataSource, head, theRest: _*)
+    }
+  }
+
+  /**
+    * Create a new [[DataChain]] using the sources/transforms in this repo
+    *
+    * @param request the create request
+    * @return either an error message or a new DataChain
+    */
   def createChain(request: CreateChainRequest): Either[String, DataChain] = {
     val sourceTry: Try[Data] = sourcesByName.get(request.dataSource) match {
       case Some(data) => Success(data)

@@ -3,14 +3,15 @@ package pipelines.reactive
 import java.util.UUID
 
 import monix.execution.Scheduler
+import monix.reactive.{Observable, Observer, Pipe}
 
 trait PipelineService {
 
   /**
-    * We have to resolve all the sources/sinks
+    * Create a new pipeline from this request
     *
     * @param request
-    * @return
+    * @return either an error message or a response
     */
   def createPipeline(request: CreateChainRequest): Either[String, CreateChainResponse]
 
@@ -19,8 +20,17 @@ trait PipelineService {
 
 object PipelineService {
 
-  def apply(repo: Repository)(implicit sched: Scheduler) = new PipelineService {
-    var chainsById = Map[String, DataChain]()
+  sealed trait Event
+  case class DataChainCreated(newChain: DataChain) extends Event
+
+  def apply(repo: Repository)(implicit sched: Scheduler): PipelineService = {
+    val (input: Observer[Event], output: Observable[Event]) = Pipe.replayLimited[Event](10).multicast
+    new Instance(repo, input, output)
+  }
+
+  class Instance(repo: Repository, input: Observer[Event], output: Observable[Event])(implicit sched: Scheduler) extends PipelineService {
+
+    private var chainsById = Map[String, DataChain]()
     private object Lock
     override def createPipeline(request: CreateChainRequest): Either[String, CreateChainResponse] = {
       val either: Either[String, DataChain] = repo.createChain(request)
@@ -42,7 +52,7 @@ object PipelineService {
         case Some(chain) =>
           repo.sinksByName.get(request.dataSink) match {
             case Some(sink) =>
-              val success = chain.connect(request.dataSourceId, obs => sink.connect(obs))
+              val success = chain.connect(request.dataSourceId)(sink.connect)
               if (success) {
                 Right(ConnectToSinkResponse(request.dataSourceId.toString))
               } else {

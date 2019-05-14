@@ -1,10 +1,11 @@
 package pipelines.reactive
 
-import java.time.ZonedDateTime
 import java.util.concurrent.atomic.AtomicInteger
 
 import monix.reactive.Observable
+import pipelines.reactive.DataChain.DataSourceStep
 
+import scala.util.{Failure, Success, Try}
 import scala.util.control.NonFatal
 
 /**
@@ -13,9 +14,8 @@ import scala.util.control.NonFatal
   * Each 'step' is a data source -- either the root source, or a transformation/step based on previous steps.
   *
   * @param steps
-  * @param created
   */
-case class DataChain private (steps: Seq[DataChain.DataSourceStep], created: ZonedDateTime = ZonedDateTime.now) {
+case class DataChain private (steps: Seq[DataChain.DataSourceStep]) {
   require(steps.size > 0)
   require(steps.count(_.parent == None) == 1, s"A ${getClass} should have a single root")
 
@@ -23,25 +23,67 @@ case class DataChain private (steps: Seq[DataChain.DataSourceStep], created: Zon
     steps.lift(index)
   }
 
-  def keys: Seq[Int] = steps.map(_.key)
+  def keys: Seq[Int]                                  = steps.map(_.key)
+  def names: Seq[String]                              = steps.map(_.name).distinct.sorted
+  def stepsForName(name: String): Seq[DataSourceStep] = steps.filter(_.name == name)
 
-  def connect(index: Int, onConnect: Observable[_] => Unit): Boolean = {
-    get(index).fold(false) { step =>
+  /** @return the highest key
+    */
+  def maxKey: Int    = keys.max
+  def sourceKey: Int = keys.min
+
+  /** Update the chain by adding a new transformation
+    *
+    * @param to the id of the data source or transform to which this transform should be applied
+    * @param name a descriptive name to what this transform does
+    * @param transform the transform to add
+    * @return either an error message or an updated DataChain together with the ID of the newly added chain
+    */
+  def addTransform(to: Int, name: String, transform: Transform): Either[String, (DataChain, Int)] = {
+    get(to) match {
+      case None => Left(s"No step with id '$to' exists, and so unfortunatley we won't be able to add ransform '${name}'")
+      case Some(parentStep) =>
+        val dataInput = parentStep.dataSource
+
+        transform.applyTo(dataInput) match {
+          case Some(nextSource) =>
+            val nextKey    = maxKey + 1
+            val nextResult = transform.outputFor(nextSource.contentType)
+            val desc       = s"$name ($nextResult)"
+            val nextStep   = DataSourceStep(nextKey, desc, nextSource, Option(parentStep.key))
+            Right(copy(steps = steps :+ nextStep) -> nextKey)
+          case None => Left(s"Transform '${name}' couldn't be applied to ${dataInput.contentType}")
+        }
+    }
+  }
+
+  /** @param key the step key
+    * @param onConnect
+    * @return the result of 'onConnect' if the source exists for 'key'
+    */
+  def connect[A](key: Int)(onConnect: Observable[_] => A): Try[A] = {
+    get(key).fold(Failure(new IllegalArgumentException(s"No source found for $key")): Try[A]) { step =>
       step.connect(onConnect)
-      true
     }
   }
 }
 
 object DataChain {
-  case class DataSourceStep(key: Int, desc: String, dataSource: Data, parent: Option[Int]) {
-    def connect(onConnect: Observable[_] => Unit): Unit = {
+  case class DataSourceStep(key: Int, name: String, desc: String, dataSource: Data, parent: Option[Int]) {
+    def connect[A](onConnect: Observable[_] => A): Try[A] = {
       try {
-        onConnect(dataSource.asObservable)
+        val result = onConnect(dataSource.asObservable)
+        Success(result)
       } catch {
         case NonFatal(e) =>
-          throw new IllegalStateException(s"Error trying to connect to '$desc' ($dataSource)", e)
+          Failure(new Exception(s"Error connecting to '$name' (key $key):$e", e))
       }
+    }
+  }
+  object DataSourceStep {
+
+    def apply(key: Int, name: String, dataSource: Data, parent: Option[Int] = None) = {
+      new DataSourceStep(key, name, name, dataSource, parent)
     }
   }
 
@@ -53,11 +95,6 @@ object DataChain {
     * @return
     */
   def apply(source: Data, transforms: Seq[(String, Transform)]): Either[String, DataChain] = {
-    val uniqueNameCounterByName: Map[String, AtomicInteger] = transforms.map(_._1).groupBy(identity).mapValues {
-      case values if values.size == 1 => new AtomicInteger(-1)
-      case _                          => new AtomicInteger(1)
-    }
-
     val root = DataSourceStep(0, s"source of ${source.contentType}", source, None)
     val stepsEither = transforms.zipWithIndex.foldLeft(Right(Seq(root)): Either[String, Seq[DataSourceStep]]) {
       case (Left(err), _) => Left(err)
@@ -67,11 +104,8 @@ object DataChain {
         transform.applyTo(dataInput) match {
           case Some(nextSource) =>
             val nextResult = transform.outputFor(nextSource.contentType)
-            val desc = uniqueNameCounterByName(name).incrementAndGet match {
-              case 0 => s"$name ($nextResult)"
-              case n => s"$name-$n ($nextResult)"
-            }
-            val nextStep = DataSourceStep(key, desc, nextSource, Option(previous.key))
+            val desc       = s"tranforms ${dataInput.contentType} to $nextResult)"
+            val nextStep   = DataSourceStep(key, name, desc, nextSource, Option(previous.key))
             Right(nextStep +: steps)
           case None => Left(s"Transform '${name}' couldn't be applied to ${dataInput.contentType}")
         }
