@@ -2,10 +2,7 @@ package pipelines.reactive
 
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder, Json}
-import java.io
-
 import monix.reactive.Observable
-import pipelines.reactive.Data.AnonTypeData
 
 import scala.util.{Failure, Success, Try}
 
@@ -98,7 +95,7 @@ object Transform {
   }
   case class PartialBuilder(outputFor: PartialFunction[ContentType, ContentType]) {
     def using(apply: Data => Option[(ContentType, Observable[_])]): FunctionTransform = {
-      def asObs(input: Data): Option[AnonTypeData] = {
+      def asObs(input: Data): Option[Data] = {
         apply(input).map {
           case (newType, obs) => Data.of(newType, obs)
         }

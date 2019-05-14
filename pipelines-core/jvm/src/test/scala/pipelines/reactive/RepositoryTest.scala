@@ -33,7 +33,7 @@ class RepositoryTest extends BaseCoreTest with RepoTestData {
     }
   }
   "Repository.listSinks" should {
-    "return a single result by default" in {
+    "return a single result by default" in withScheduler { implicit sched =>
       Repository().listSinks(ListSinkRequest()).results should contain only (ListedSink("sink"))
     }
   }

@@ -8,10 +8,10 @@ import scala.util.{Failure, Success, Try}
   * Represents a repository of sources, sinks, and data transformations which can be used to construct
   * data pipelines by reference
   */
-case class Repository(sourcesByName: Map[String, Data],                                    //
+case class Repository(sourcesByName: Map[String, NewSource],                    //
                       sinksByName: Map[String, Kitchen],                                   //
                       configurableTransformsByName: Map[String, ConfigurableTransform[_]], //
-                      transformsByName: Map[String, Transform]) {
+                      transformsByName: Map[String, Transform])(implicit scheduler: Scheduler) {
 
   def withTransform(name: String, transform: Transform): Repository = {
     copy(transformsByName = transformsByName.updated(name, transform))
@@ -64,7 +64,7 @@ case class Repository(sourcesByName: Map[String, Data],                         
     */
   def createChain(dataSource: String, transforms: String*): Either[String, DataChain] = {
     transforms.map(name => DataTransform(name)) match {
-      case Seq() => createChain(CreateChainRequest(dataSource, Nil))
+      case Seq()           => createChain(CreateChainRequest(dataSource, Nil))
       case head +: theRest => createChain(dataSource, head, theRest: _*)
     }
   }
@@ -77,7 +77,7 @@ case class Repository(sourcesByName: Map[String, Data],                         
     */
   def createChain(request: CreateChainRequest): Either[String, DataChain] = {
     val sourceTry: Try[Data] = sourcesByName.get(request.dataSource) match {
-      case Some(data) => Success(data)
+      case Some(data) => Success(data(scheduler))
       case None       => Failure(new IllegalArgumentException(s"Couldn't find source for '${request.dataSource}'"))
     }
 
@@ -132,13 +132,13 @@ case class Repository(sourcesByName: Map[String, Data],                         
   }
 
   private lazy val allSources = sourcesByName.map {
-    case (key, d8a) => ListedDataSource(key, Option(d8a.contentType))
+    case (key, d8a) => ListedDataSource(key, Option(d8a(scheduler).contentType))
   }
 
   def listSources(request: ListRepoSourcesRequest) = {
     val sources = request.ofType.fold(allSources) { accepts =>
       sourcesByName.collect {
-        case (key, d8a) if d8a.data(accepts).isDefined => ListedDataSource(key, Option(d8a.contentType))
+        case (key, d8a) if d8a(scheduler).data(accepts).isDefined => ListedDataSource(key, Option(d8a(scheduler).contentType))
       }
     }
     ListRepoSourcesResponse(sources.toList.sortBy(_.name))
@@ -147,12 +147,17 @@ case class Repository(sourcesByName: Map[String, Data],                         
 
 object Repository {
 
-  type NewSource = Scheduler => Data
-
-  def apply(sourcesByName: (String, Data)*): Repository = {
+  def apply(sourcesByName: (String, NewSource)*)(implicit scheduler: Scheduler): Repository = {
     val sourceMap = sourcesByName.toMap.ensuring(_.size == sourcesByName.size)
     val sinkMap   = Map("sink" -> Kitchen())
     apply(sourceMap, sinkMap, Map.empty[String, ConfigurableTransform[_]], Map.empty[String, Transform])
+  }
+
+  def apply(firstSource: (String, Data), sourcesByName: (String, Data)*)(implicit scheduler: Scheduler): Repository = {
+    val newSources = (firstSource +: sourcesByName).map {
+      case (name, d8a) => (name, NewSource(d8a))
+    }
+    apply(newSources: _*)
   }
 
 }

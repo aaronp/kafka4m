@@ -2,10 +2,8 @@ package pipelines.reactive
 
 import monix.execution.{Ack, Scheduler}
 import monix.reactive.{Observable, Observer, Pipe}
-import pipelines.data.DataSource
 
 import scala.concurrent.Future
-import scala.reflect.ClassTag
 
 /**
   * Represents a data source -- some type coupled with a means of consuming that data
@@ -32,7 +30,7 @@ object Data {
     apply(ContentType.of[T], observable)
   }
 
-  def apply[T](contentType: ContentType, observable: Observable[T]) = {
+  def apply[T](contentType: ContentType, observable: Observable[T]): Data = {
     new SingleTypeData(contentType, observable)
   }
 
@@ -41,12 +39,20 @@ object Data {
     new PushSource[A](ContentType.of[A], input, output)
   }
 
+  def createPush[A: TypeTag]: NewSource = createPush[A](ContentType.of[A])
+
+  def createPush[A](contentType: ContentType): NewSource = {
+    NewSource { implicit sched =>
+      push[A](contentType)
+    }
+  }
+
   def push[A](contentType: ContentType)(implicit sched: Scheduler): PushSource[A] = {
     val (input: Observer[A], output: Observable[A]) = Pipe.publish[A].multicast
     new PushSource[A](contentType, input, output)
   }
 
-  class PushSource[A: ClassTag](override val contentType: ContentType, val input: Observer[A], obs: Observable[A]) extends Data {
+  class PushSource[A](override val contentType: ContentType, val input: Observer[A], obs: Observable[A]) extends Data {
     def push(value: A): Future[Ack] = input.onNext(value)
     override def data(ct: ContentType): Option[Observable[_]] = {
       if (ct == contentType) {

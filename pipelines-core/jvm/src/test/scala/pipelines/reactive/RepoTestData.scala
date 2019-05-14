@@ -1,11 +1,13 @@
 package pipelines.reactive
 
 import io.circe.{Decoder, Json, ObjectEncoder}
+import monix.execution.Scheduler
 import monix.reactive.Observable
+import pipelines.data.TestWideScheduler
 
 import scala.util.Try
 
-trait RepoTestData {
+trait RepoTestData extends TestWideScheduler {
   def ints           = Data(Observable.fromIterable(0 to 100))
   def strings        = Data(Observable.fromIterable(0 to 100).map(_.toString))
   def isEven(x: Int) = x % 2 == 0
@@ -23,7 +25,7 @@ trait RepoTestData {
   val jsonToStr: Transform  = Transform.jsonToString
   val strToBytes: Transform = Transform.stringToUtf8
 
-  def repo: Repository =
+  def repo : Repository =
     Repository("ints" -> ints, "strings" -> strings) //
       .withTransform("strToBytes", strToBytes)                      //
       .withTransform("jsonToStr", jsonToStr)                        //

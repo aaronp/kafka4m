@@ -45,11 +45,15 @@ case class DataChain private (steps: Seq[DataChain.DataSourceStep]) {
 
         transform.applyTo(dataInput) match {
           case Some(nextSource) =>
-            val nextKey    = maxKey + 1
-            val nextResult = transform.outputFor(nextSource.contentType)
-            val desc       = s"$name ($nextResult)"
-            val nextStep   = DataSourceStep(nextKey, desc, nextSource, Option(parentStep.key))
-            Right(copy(steps = steps :+ nextStep) -> nextKey)
+            val nextKey = maxKey + 1
+            transform.outputFor(nextSource.contentType) match {
+              case Some(nextResult) =>
+                val desc     = s"$name ($nextResult)"
+                val nextStep = DataSourceStep(nextKey, dataInput.contentType, nextResult, desc, nextSource, Option(parentStep.key))
+                Right(copy(steps = steps :+ nextStep) -> nextKey)
+              case None => Left(s"Couldn't apply $name as ${transform}.outputFor(${nextSource.contentType}) was undefined, despite it apparently applying to $dataInput")
+            }
+
           case None => Left(s"Transform '${name}' couldn't be applied to ${dataInput.contentType}")
         }
     }
@@ -67,7 +71,7 @@ case class DataChain private (steps: Seq[DataChain.DataSourceStep]) {
 }
 
 object DataChain {
-  case class DataSourceStep(key: Int, name: String, desc: String, dataSource: Data, parent: Option[Int]) {
+  case class DataSourceStep(key: Int, input: ContentType, output: ContentType, name: String, desc: String, dataSource: Data, parent: Option[Int]) {
     def connect[A](onConnect: Observable[_] => A): Try[A] = {
       try {
         val result = onConnect(dataSource.asObservable)
@@ -80,8 +84,8 @@ object DataChain {
   }
   object DataSourceStep {
 
-    def apply(key: Int, name: String, dataSource: Data, parent: Option[Int] = None) = {
-      new DataSourceStep(key, name, name, dataSource, parent)
+    def apply(key: Int, input: ContentType, output: ContentType, name: String, dataSource: Data, parent: Option[Int] = None) = {
+      new DataSourceStep(key, input, output, name, name, dataSource, parent)
     }
   }
 
@@ -93,7 +97,7 @@ object DataChain {
     * @return
     */
   def apply(source: Data, transforms: Seq[(String, Transform)]): Either[String, DataChain] = {
-    val root = DataSourceStep(0, s"source of ${source.contentType}", source, None)
+    val root = DataSourceStep(0, source.contentType, source.contentType, s"source of ${source.contentType}", source, None)
     val stepsEither = transforms.zipWithIndex.foldLeft(Right(Seq(root)): Either[String, Seq[DataSourceStep]]) {
       case (Left(err), _) => Left(err)
       case (Right(steps @ (previous +: _)), ((name, transform), index)) =>
@@ -101,10 +105,14 @@ object DataChain {
         val dataInput = previous.dataSource
         transform.applyTo(dataInput) match {
           case Some(nextSource) =>
-            val nextResult = transform.outputFor(nextSource.contentType)
-            val desc       = s"tranforms ${dataInput.contentType} to $nextResult)"
-            val nextStep   = DataSourceStep(key, name, desc, nextSource, Option(previous.key))
-            Right(nextStep +: steps)
+            transform.outputFor(nextSource.contentType) match {
+              case None =>
+                Left(s"Couldn't apply $name as ${transform}.outputFor(${nextSource.contentType}) was undefined, despite it apparently applying to $dataInput")
+              case Some(nextResult) =>
+                val desc     = s"transforms ${dataInput.contentType} to $nextResult)"
+                val nextStep = DataSourceStep(key, dataInput.contentType, nextResult, name, desc, nextSource, Option(previous.key))
+                Right(nextStep +: steps)
+            }
           case None => Left(s"Transform '${name}' couldn't be applied to ${dataInput.contentType}")
         }
     }
