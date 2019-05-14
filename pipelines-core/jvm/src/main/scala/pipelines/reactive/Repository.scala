@@ -145,6 +145,7 @@ case class Repository(sourcesByName: Map[String, Data],                         
 
 object Repository {
 
+
   def apply(sourcesByName: (String, Data)*): Repository = {
     val sourceMap = sourcesByName.toMap.ensuring(_.size == sourcesByName.size)
     val sinkMap   = Map("sink" -> Kitchen())

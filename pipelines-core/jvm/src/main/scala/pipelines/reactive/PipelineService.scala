@@ -5,6 +5,8 @@ import java.util.UUID
 import monix.execution.Scheduler
 import monix.reactive.{Observable, Observer, Pipe}
 
+import scala.util.{Failure, Try}
+
 trait PipelineService {
 
   /**
@@ -15,7 +17,7 @@ trait PipelineService {
     */
   def createPipeline(request: CreateChainRequest): Either[String, CreateChainResponse]
 
-  def connectToSink(request: ConnectToSinkRequest): Either[String, ConnectToSinkResponse]
+  def connectToSink(request: ConnectToSinkRequest): Try[ConnectToSinkResponse]
 }
 
 object PipelineService {
@@ -43,7 +45,7 @@ object PipelineService {
       }
     }
 
-    override def connectToSink(request: ConnectToSinkRequest): Either[String, ConnectToSinkResponse] = {
+    override def connectToSink(request: ConnectToSinkRequest) = {
       val found = Lock.synchronized {
         chainsById.get(request.pipelineId)
       }
@@ -53,16 +55,14 @@ object PipelineService {
           repo.sinksByName.get(request.dataSink) match {
             case Some(sink) =>
               val success = chain.connect(request.dataSourceId)(sink.connect)
-              if (success) {
-                Right(ConnectToSinkResponse(request.dataSourceId.toString))
-              } else {
-                Left(s"Error trying to connect sink '${request.dataSink}' to ${request.dataSourceId}")
+              success.map { result =>
+                ConnectToSinkResponse(request.dataSourceId.toString)
               }
             case None =>
-              Left(s"Couldn't find sink '${request.dataSink}'")
+              Failure(new Exception(s"Couldn't find sink '${request.dataSink}'"))
           }
 
-        case None => Left(s"Couldn't find '${request.pipelineId}'")
+        case None => Failure(new Exception(s"Couldn't find '${request.pipelineId}'"))
       }
     }
   }

@@ -1,15 +1,11 @@
 package pipelines.reactive
 
-import java.util.concurrent.atomic.AtomicInteger
-
-import io.circe.{Decoder, ObjectEncoder}
 import monix.reactive.Observable
-import org.scalatest.{Matchers, WordSpec}
-import pipelines.data.{BaseCoreTest, WithScheduler}
+import pipelines.data.BaseCoreTest
 
-import concurrent.duration._
+import scala.concurrent.duration._
 
-class TransformTest extends BaseCoreTest {
+class TransformTest extends BaseCoreTest with RepoTestData {
 
   "Transform._1.outputFor" should {
     "produce the type of the first tuple element" in {
@@ -70,12 +66,4 @@ class TransformTest extends BaseCoreTest {
   }
 
   override def testTimeout = 2.seconds
-}
-
-object TransformTest {
-  case class TestData(value: Int)
-  object TestData {
-    implicit val encoder: ObjectEncoder[TestData] = io.circe.generic.semiauto.deriveEncoder[TestData]
-    implicit val decoder: Decoder[TestData]       = io.circe.generic.semiauto.deriveDecoder[TestData]
-  }
 }

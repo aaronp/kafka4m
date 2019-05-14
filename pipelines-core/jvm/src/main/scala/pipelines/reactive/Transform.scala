@@ -2,6 +2,8 @@ package pipelines.reactive
 
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder, Json}
+import java.io
+
 import monix.reactive.Observable
 import pipelines.reactive.Data.AnonTypeData
 
@@ -31,6 +33,13 @@ sealed trait Transform {
 }
 
 object Transform {
+
+  def defaultTransforms(): Map[String, Transform] = {
+    Map[String, Transform]("Json to String"             -> jsonToString, //
+        "String to UTF-8 byte array" -> stringToUtf8, //
+        "parse String as Try[Json]"  -> stringToJson  //
+    )
+  }
 
   class Delegate(underlying: Transform) extends Transform {
     override def applyTo(d8a: Data): Option[Data] = {
@@ -102,10 +111,10 @@ object Transform {
 
   def flatMap[A: TypeTag, B: TypeTag](f: A => Observable[B]): TypedTransform[A, B] = apply[A, B](_.flatMap(f))
 
-  def stringToJson(f: String => Try[Json]): TypedTransform[String, Try[Json]] = map(s => io.circe.parser.parse(s).toTry)
-  def jsonToString: TypedTransform[Json, String]                              = map[Json, String](_.noSpaces)
-  def dump(prefix: String): Transform                                         = any(_.dump(prefix))
-  def stringToUtf8: TypedTransform[String, Array[Byte]]                       = map(_.getBytes("UTF-8"))
+  def stringToJson: TypedTransform[String, Try[Json]]   = map(s => io.circe.parser.parse(s).toTry)
+  def jsonToString: TypedTransform[Json, String]        = map[Json, String](_.noSpaces)
+  def dump(prefix: String): Transform                   = any(_.dump(prefix))
+  def stringToUtf8: TypedTransform[String, Array[Byte]] = map(_.getBytes("UTF-8"))
 
   def jsonDecoder[A: TypeTag: Decoder]: TypedTransform[Json, Try[A]] = {
     map[Json, Try[A]](_.as[A].toTry)

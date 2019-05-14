@@ -6,7 +6,7 @@ import scala.util.{Success, Try}
 
 class DataChainTest extends BaseCoreTest with RepoTestData {
   "DataChain.addTransform" should {
-    "an updated fee" in withScheduler { implicit sched =>
+    "be able to update and connect to an updated tree" in withScheduler { implicit sched =>
       val double = Transform.map[Int, Int](_ * 2)
       val myRepo = repo.withTransform("double", double)
 
@@ -24,10 +24,6 @@ class DataChainTest extends BaseCoreTest with RepoTestData {
 //      import TransformTest._
 //      val input                 = 0 to 100
 //      val raw                   = Observable.fromIterable(input)
-//      val asData: Transform     = Transform.map(TransformTest.TestData.apply)
-//      val asJson: Transform     = Transform.jsonEncoder[TestData]
-//      val jsonStr: Transform    = Transform.jsonToString
-//      val strToBytes: Transform = Transform.stringToUtf8
 //
 //      val counter                  = new AtomicInteger(0)
 //      val Some(chained: Transform) = ??? // Repository.chain(Seq(asData, asJson, jsonStr, Transform.any { obs =>
