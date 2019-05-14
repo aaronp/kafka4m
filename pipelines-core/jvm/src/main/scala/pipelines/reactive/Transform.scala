@@ -36,8 +36,8 @@ object Transform {
 
   def defaultTransforms(): Map[String, Transform] = {
     Map[String, Transform]("Json to String"             -> jsonToString, //
-        "String to UTF-8 byte array" -> stringToUtf8, //
-        "parse String as Try[Json]"  -> stringToJson  //
+                           "String to UTF-8 byte array" -> stringToUtf8, //
+                           "parse String as Try[Json]"  -> stringToJson  //
     )
   }
 
@@ -153,6 +153,14 @@ object Transform {
         }
       }
     }
+    object Tuple4Type {
+      def unapply(contentType: ContentType) = {
+        contentType match {
+          case ClassType(TupleR(_), _ +: _ +: _ +: t4 +: _) => Some(t4)
+          case _                                            => None
+        }
+      }
+    }
     object TupleTypes {
       def unapply(contentType: ContentType): Option[Seq[ClassType]] = {
         contentType match {
@@ -190,6 +198,17 @@ object Transform {
       case d8a =>
         d8a.contentType match {
           case tuples.Tuple3Type(t3) => d8a.data(t3).map(t3 -> _)
+          case _                     => None
+        }
+    }
+  }
+  def _4: Transform = {
+    partial {
+      case tuples.Tuple4Type(t4) => t4
+    }.using {
+      case d8a =>
+        d8a.contentType match {
+          case tuples.Tuple4Type(t4) => d8a.data(t4).map(t4 -> _)
           case _                     => None
         }
     }

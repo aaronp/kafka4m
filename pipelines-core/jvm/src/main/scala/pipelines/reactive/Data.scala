@@ -1,6 +1,11 @@
 package pipelines.reactive
 
-import monix.reactive.Observable
+import monix.execution.{Ack, Scheduler}
+import monix.reactive.{Observable, Observer, Pipe}
+import pipelines.data.DataSource
+
+import scala.concurrent.Future
+import scala.reflect.ClassTag
 
 /**
   * Represents a data source -- some type coupled with a means of consuming that data
@@ -21,13 +26,38 @@ trait Data {
 object Data {
   import scala.reflect.runtime.universe._
 
-  def of(contentType: ContentType, obs: Observable[_]) = new AnonTypeData(contentType, obs)
+  def of(contentType: ContentType, obs: Observable[_]): Data = new AnonTypeData(contentType, obs)
 
   def apply[T: TypeTag](observable: Observable[T]): Data = {
     apply(ContentType.of[T], observable)
   }
 
-  case class AnonTypeData(override val contentType: ContentType, observable: Observable[_]) extends Data {
+  def apply[T](contentType: ContentType, observable: Observable[T]) = {
+    new SingleTypeData(contentType, observable)
+  }
+
+  def push[A: TypeTag](implicit sched: Scheduler): PushSource[A] = {
+    val (input: Observer[A], output: Observable[A]) = Pipe.publish[A].multicast
+    new PushSource[A](ContentType.of[A], input, output)
+  }
+
+  def push[A](contentType: ContentType)(implicit sched: Scheduler): PushSource[A] = {
+    val (input: Observer[A], output: Observable[A]) = Pipe.publish[A].multicast
+    new PushSource[A](contentType, input, output)
+  }
+
+  class PushSource[A: ClassTag](override val contentType: ContentType, val input: Observer[A], obs: Observable[A]) extends Data {
+    def push(value: A): Future[Ack] = input.onNext(value)
+    override def data(ct: ContentType): Option[Observable[_]] = {
+      if (ct == contentType) {
+        Option(obs)
+      } else {
+        None
+      }
+    }
+  }
+
+  private case class AnonTypeData(override val contentType: ContentType, observable: Observable[_]) extends Data {
     override def data(ct: ContentType): Option[Observable[_]] = {
       if (ct == contentType) {
         Option(observable)
@@ -37,7 +67,7 @@ object Data {
     }
   }
 
-  case class SingleTypeData(override val contentType: ContentType, observable: Observable[_]) extends Data {
+  private case class SingleTypeData(override val contentType: ContentType, observable: Observable[_]) extends Data {
     override def data(ct: ContentType): Option[Observable[Any]] = {
       if (contentType == ct) {
         Option(observable)
@@ -53,9 +83,5 @@ object Data {
         }
       }
     }
-  }
-
-  def apply[T](contentType: ContentType, observable: Observable[T]) = {
-    new SingleTypeData(contentType, observable)
   }
 }

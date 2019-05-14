@@ -1,12 +1,10 @@
 package pipelines.reactive
 
-import java.util.concurrent.atomic.AtomicInteger
-
 import monix.reactive.Observable
 import pipelines.reactive.DataChain.DataSourceStep
 
-import scala.util.{Failure, Success, Try}
 import scala.util.control.NonFatal
+import scala.util.{Failure, Success, Try}
 
 /**
   * Represents an addressable space of computation steps (data sources).
