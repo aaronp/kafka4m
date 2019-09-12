@@ -18,8 +18,8 @@ import scala.concurrent.duration.Duration
 import scala.util.control.NonFatal
 
 /**
- * A means of driving a kafka-stream using the consumer (not kafka streaming) API
- */
+  * A means of driving a kafka-stream using the consumer (not kafka streaming) API
+  */
 class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topic: String, val defaultPollTimeout: Duration) extends AutoCloseable with StrictLogging {
 
   private val javaPollDuration: time.Duration = RichKafkaConsumer.asJavaDuration(defaultPollTimeout)
@@ -134,7 +134,7 @@ object RichKafkaConsumer extends StrictLogging {
   }
 
   def byteArrayValues(rootConfig: Config)(implicit ioSched: Scheduler): RichKafkaConsumer[String, Array[Byte]] = {
-    val keyDeserializer = new org.apache.kafka.common.serialization.StringDeserializer
+    val keyDeserializer   = new org.apache.kafka.common.serialization.StringDeserializer
     val valueDeserializer = new org.apache.kafka.common.serialization.ByteArrayDeserializer
     apply(rootConfig, keyDeserializer, valueDeserializer)
   }
@@ -143,7 +143,7 @@ object RichKafkaConsumer extends StrictLogging {
 
     import args4c.implicits._
     val consumerConfig = rootConfig.getConfig("kafka4m.consumer")
-    val topic = consumerConfig.getString("topic")
+    val topic          = consumerConfig.getString("topic")
 
     val props: Properties = {
       val properties = kafka4m.util.Props.propertiesForConfig(consumerConfig)
@@ -153,9 +153,11 @@ object RichKafkaConsumer extends StrictLogging {
       // .. properties.asScala.mkString()  is broken as it tries to cast things as strings, and some values are integers
       def propString = {
         val keys = properties.propertyNames.asScala
-        keys.map { key =>
-          s"$key : ${properties.getProperty(key.toString)}"
-        }.mkString("\n\t", "\n\t", "\n\n")
+        keys
+          .map { key =>
+            s"$key : ${properties.getProperty(key.toString)}"
+          }
+          .mkString("\n\t", "\n\t", "\n\n")
       }
 
       logger.info(s"Creating consumer for '$topic', properties are:\n${propString}")
@@ -163,7 +165,7 @@ object RichKafkaConsumer extends StrictLogging {
     }
 
     val consumer: KafkaConsumer[K, V] = new KafkaConsumer[K, V](props, keyDeserializer, valueDeserializer)
-    val pollTimeout = rootConfig.asDuration("kafka4m.consumer.pollTimeout")
+    val pollTimeout                   = rootConfig.asDuration("kafka4m.consumer.pollTimeout")
 
     new RichKafkaConsumer(consumer, topic, pollTimeout)
   }

@@ -33,7 +33,7 @@ class Kafka4mTest extends BaseKafkaSpec with ScalaFutures with GivenWhenThen {
         val numberOfRecordsToWrite = 100
         When("We push some test data through the publisher")
         val testData: Observable[String] = Observable.fromIterator(Task.eval(Iterator.from(0))).map(_.toString).take(numberOfRecordsToWrite)
-        val numWritten = testData.consumeWith(writer).runToFuture(s).futureValue
+        val numWritten                   = testData.consumeWith(writer).runToFuture(s).futureValue
         numWritten shouldBe numberOfRecordsToWrite
       }
     }
@@ -45,9 +45,9 @@ class Kafka4mTest extends BaseKafkaSpec with ScalaFutures with GivenWhenThen {
         val config = configForTopic()
 
         And("a kafka consumer")
-        val numberOfRecordsToWrite = 100
+        val numberOfRecordsToWrite                            = 100
         val kafkaData: Observable[ConsumerRecord[Key, Bytes]] = kafka4m.consumerObservable(config)
-        val readBackFuture = kafkaData.take(numberOfRecordsToWrite).toListL
+        val readBackFuture                                    = kafkaData.take(numberOfRecordsToWrite).toListL
 
         And("A kafka publisher")
         val writer: Consumer[String, Long] = {
@@ -58,7 +58,7 @@ class Kafka4mTest extends BaseKafkaSpec with ScalaFutures with GivenWhenThen {
 
         When("We push some test data through the publisher")
         val testData: Observable[String] = Observable.fromIterator(Task.eval(Iterator.from(0))).map(_.toString).take(numberOfRecordsToWrite)
-        val done = testData.consumeWith(writer).runToFuture(s).futureValue
+        val done                         = testData.consumeWith(writer).runToFuture(s).futureValue
         done shouldBe numberOfRecordsToWrite
 
         Then("We should be able to read that data via the consumer observable")
@@ -70,8 +70,7 @@ class Kafka4mTest extends BaseKafkaSpec with ScalaFutures with GivenWhenThen {
   }
 
   def configForTopic(topic: String = UUID.randomUUID.toString.filter(_.isLetterOrDigit)): Config = {
-    ConfigFactory.parseString(
-      s"""kafka4m {
+    ConfigFactory.parseString(s"""kafka4m {
          |  consumer.topic : ${topic}
          |  consumer.group.id : ${topic}
          |  producer.topic : ${topic}

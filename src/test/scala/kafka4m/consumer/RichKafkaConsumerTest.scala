@@ -1,6 +1,5 @@
 package kafka4m.consumer
 
-
 import java.util.concurrent.atomic.AtomicLong
 
 import com.typesafe.scalalogging.StrictLogging
@@ -23,9 +22,8 @@ class RichKafkaConsumerTest extends BaseKafkaSpec with ScalaFutures with StrictL
   "RichKafkaConsumer.status" should {
     "report current assignments and partitions" in {
       Schedulers.using { implicit sched =>
-
-        val topic = nextTopic()
-        val config = KafkaConsumerFeedTest.testConfig(topic)
+        val topic                                            = nextTopic()
+        val config                                           = KafkaConsumerFeedTest.testConfig(topic)
         val consumer: RichKafkaConsumer[String, Array[Byte]] = RichKafkaConsumer.byteArrayValues(config)
 
         RichKafkaAdmin(config).createTopicSync(topic, testTimeout)
@@ -39,8 +37,8 @@ class RichKafkaConsumerTest extends BaseKafkaSpec with ScalaFutures with StrictL
   "RichKafkaConsumer.assignmentPartitions" should {
     "return the assignmentPartitions" in {
       Schedulers.using { implicit sched =>
-        val topic = nextTopic()
-        val config = KafkaConsumerFeedTest.testConfig(topic)
+        val topic                                            = nextTopic()
+        val config                                           = KafkaConsumerFeedTest.testConfig(topic)
         val consumer: RichKafkaConsumer[String, Array[Byte]] = RichKafkaConsumer.byteArrayValues(config)
 
         RichKafkaAdmin(config).createTopicSync(topic, testTimeout)
@@ -53,14 +51,14 @@ class RichKafkaConsumerTest extends BaseKafkaSpec with ScalaFutures with StrictL
     "seek to the beginning" in {
       Schedulers.using { implicit sched =>
         Given("Some messages in a topic")
-        val topic = nextTopic()
-        val config = KafkaConsumerFeedTest.testConfig(topic)
+        val topic                                            = nextTopic()
+        val config                                           = KafkaConsumerFeedTest.testConfig(topic)
         val consumer: RichKafkaConsumer[String, Array[Byte]] = RichKafkaConsumer.byteArrayValues(config)
 
         val producer = RichKafkaProducer.byteArrayValues(config)
-        val first = producer.sendAsync(topic, "first", "value".getBytes(), partition = 0).futureValue
-        val second = producer.sendAsync(topic, "second", "value".getBytes(), partition = 0).futureValue
-        val third = producer.sendAsync(topic, "third", "value".getBytes(), partition = 0).futureValue
+        val first    = producer.sendAsync(topic, "first", "value".getBytes(), partition = 0).futureValue
+        val second   = producer.sendAsync(topic, "second", "value".getBytes(), partition = 0).futureValue
+        val third    = producer.sendAsync(topic, "third", "value".getBytes(), partition = 0).futureValue
 
         When("We subscribe and consume to the end")
         consumer.subscribe(topic, RebalanceListener)
@@ -87,14 +85,14 @@ class RichKafkaConsumerTest extends BaseKafkaSpec with ScalaFutures with StrictL
     "seek to the end" in {
       Schedulers.using { implicit sched =>
         Given("Some messages in a topic")
-        val topic = nextTopic()
-        val config = KafkaConsumerFeedTest.testConfig(topic)
+        val topic                                            = nextTopic()
+        val config                                           = KafkaConsumerFeedTest.testConfig(topic)
         val consumer: RichKafkaConsumer[String, Array[Byte]] = RichKafkaConsumer.byteArrayValues(config)
 
         val producer = RichKafkaProducer.byteArrayValues(config)
-        val first = producer.sendAsync(topic, "first", "value".getBytes(), partition = 0).futureValue
-        val second = producer.sendAsync(topic, "second", "value".getBytes(), partition = 0).futureValue
-        val third = producer.sendAsync(topic, "third", "value".getBytes(), partition = 0).futureValue
+        val first    = producer.sendAsync(topic, "first", "value".getBytes(), partition = 0).futureValue
+        val second   = producer.sendAsync(topic, "second", "value".getBytes(), partition = 0).futureValue
+        val third    = producer.sendAsync(topic, "third", "value".getBytes(), partition = 0).futureValue
 
         When("We subscribe")
         consumer.subscribe(topic, RebalanceListener)

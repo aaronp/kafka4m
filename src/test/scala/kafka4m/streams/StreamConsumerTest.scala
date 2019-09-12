@@ -25,8 +25,7 @@ class StreamConsumerTest extends BaseKafkaSpec with ScalaFutures {
         val topic1 = s"topic1-${UUID.randomUUID}".filter(_.isLetterOrDigit)
         val topic2 = s"topic2-${UUID.randomUUID}".filter(_.isLetterOrDigit)
         val config: Config = {
-          val c = ConfigFactory.parseString(
-            s"""kafka4m.streams.topic=${topic1}
+          val c = ConfigFactory.parseString(s"""kafka4m.streams.topic=${topic1}
                |kafka4m.streams.application.id=${topic1}
                |kafka4m.producer.topic=${topic1}
             """.stripMargin)
@@ -37,7 +36,7 @@ class StreamConsumerTest extends BaseKafkaSpec with ScalaFutures {
         val kafkaAdmin = RichKafkaAdmin(config)
         kafkaAdmin.createTopicSync(topic1, testTimeout)
         kafkaAdmin.createTopicSync(topic2, testTimeout)
-        kafkaAdmin.topics().futureValue.keySet should contain allOf(topic1, topic2)
+        kafkaAdmin.topics().futureValue.keySet should contain allOf (topic1, topic2)
 
         When("We publishing to the new stream")
         val producer = RichKafkaProducer.byteArrayValues(config)

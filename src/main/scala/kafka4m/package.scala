@@ -8,18 +8,18 @@ import monix.reactive.{Consumer, Observable}
 import org.apache.kafka.clients.consumer.ConsumerRecord
 
 /**
- * The high-level API space for kafka consumers
- */
+  * The high-level API space for kafka consumers
+  */
 package object kafka4m {
 
-  type Key = String
-  type Bytes = Array[Byte]
+  type Key      = String
+  type Bytes    = Array[Byte]
   type KeyValue = (Key, Bytes)
 
   /**
-   * @param config the kafka4m configuration which contains the 'kafka4m.consumer' values
-   * @return an Observable of data coming from kafka. The offsets, etc will be controlled by the kafka4m.consumer configuration, which includes default offset strategy, etc.
-   */
+    * @param config the kafka4m configuration which contains the 'kafka4m.consumer' values
+    * @return an Observable of data coming from kafka. The offsets, etc will be controlled by the kafka4m.consumer configuration, which includes default offset strategy, etc.
+    */
   def consumerObservable(config: Config): Observable[ConsumerRecord[Key, Bytes]] = {
     val env = Env(config)
 
@@ -36,11 +36,11 @@ package object kafka4m {
   }
 
   /**
-   * @param config the configuration which contains the kafka4m.streams config
-   * @return A kafka data-stream based on the kafka streams API
-   */
+    * @param config the configuration which contains the kafka4m.streams config
+    * @return A kafka data-stream based on the kafka streams API
+    */
   def streamObservable(config: Config): Observable[KeyValue] = {
-    val env = Env(config)
+    val env                         = Env(config)
     val setup: StreamConsumer.Setup = StreamConsumer(config)(env.bounded)
     val closeMe = Task.delay {
       setup.close()
@@ -49,9 +49,9 @@ package object kafka4m {
   }
 
   def publishConsumer[A: AsProducerRecord](config: Config): Consumer[A, Long] = {
-    val apr = AsProducerRecord[A]
+    val apr                                  = AsProducerRecord[A]
     val rkp: RichKafkaProducer[apr.K, apr.V] = RichKafkaProducer[apr.K, apr.V](config, null, null)
-    val fireAndForget = config.getBoolean("kafka4m.producer.fireAndForget")
+    val fireAndForget                        = config.getBoolean("kafka4m.producer.fireAndForget")
     rkp.asConsumer(fireAndForget)(apr)
   }
 

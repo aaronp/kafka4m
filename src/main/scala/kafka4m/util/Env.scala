@@ -18,8 +18,8 @@ object Env {
 
   def close(s: Scheduler) = s match {
     case ss: SchedulerService => ss.shutdown()
-    case ac: AutoCloseable => ac.close()
-    case _ =>
+    case ac: AutoCloseable    => ac.close()
+    case _                    =>
   }
 
 }

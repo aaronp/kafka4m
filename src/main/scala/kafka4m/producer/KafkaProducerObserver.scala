@@ -15,9 +15,11 @@ private[producer] class KafkaProducerObserver[A, K, V](asRecord: AsProducerRecor
                                                        scheduler: Scheduler,
                                                        cancelable: Cancelable,
                                                        unsafeCallback: Callback[Throwable, Long],
-                                                       fireAndForget: Boolean) extends Observer[A] with LazyLogging {
-  private val callback = Callback.safe(unsafeCallback)(scheduler)
-  private val sentCount = new AtomicLong(0)
+                                                       fireAndForget: Boolean)
+    extends Observer[A]
+    with LazyLogging {
+  private val callback                                          = Callback.safe(unsafeCallback)(scheduler)
+  private val sentCount                                         = new AtomicLong(0)
   @volatile private var result: Option[Either[Throwable, Long]] = None
 
   private lazy val tidyUp = {

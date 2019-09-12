@@ -19,8 +19,7 @@ class RichKafkaProducerTest extends BaseKafkaSpec with ScalaFutures with StrictL
       Schedulers.using { implicit sched =>
         val topic = s"topic-${UUID.randomUUID}".filter(_.isLetter)
         val config: Config = {
-          val c = ConfigFactory.parseString(
-            s"""kafka4m.streams.topic=$topic
+          val c = ConfigFactory.parseString(s"""kafka4m.streams.topic=$topic
                |kafka4m.streams.application.id=$topic
                |kafka4m.producer.topic=$topic
             """.stripMargin)
@@ -29,7 +28,7 @@ class RichKafkaProducerTest extends BaseKafkaSpec with ScalaFutures with StrictL
 
         val ingress = "someid payload".getBytes
 
-        val producer = RichKafkaProducer.byteArrayValues(config)
+        val producer             = RichKafkaProducer.byteArrayValues(config)
         val cb1: PromiseCallback = PromiseCallback()
         producer.send(topic, "foo", ingress, cb1)
         val cb2: PromiseCallback = PromiseCallback()
