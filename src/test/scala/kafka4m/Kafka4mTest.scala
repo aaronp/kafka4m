@@ -49,7 +49,7 @@ class Kafka4mTest extends BaseKafka4mDockerSpec {
 
         Then("We should see the data in a new topic")
         val config2 = Kafka4mTest.configForTopic()
-        val writer2 = kafka4m.writeText(config)
+        val writer2 = kafka4m.writeText(config2)
         val readFromTwo = kafka4m.read(config2)
         mappedData.consumeWith(writer2).runToFuture(s).futureValue shouldBe numberOfRecordsToWrite
         val mappedAsList = readFromTwo.take(numberOfRecordsToWrite).toListL.runToFuture(s).futureValue

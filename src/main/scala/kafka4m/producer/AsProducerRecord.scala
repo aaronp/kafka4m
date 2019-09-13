@@ -4,9 +4,10 @@ import kafka4m.{Bytes, Key}
 import org.apache.kafka.clients.producer.ProducerRecord
 
 /**
-  * A typeclass to allow the publication of any record 'A' which can be converted into a producer record
-  * @tparam A
-  */
+ * A typeclass to allow the publication of any record 'A' which can be converted into a producer record
+ *
+ * @tparam A
+ */
 trait AsProducerRecord[-A] {
 
   /** The key type */
@@ -16,8 +17,8 @@ trait AsProducerRecord[-A] {
   type V
 
   /** @param value the value to convert
-    * @return a producer record for the given value
-    */
+   * @return a producer record for the given value
+   */
   def asRecord(value: A): ProducerRecord[K, V]
 }
 
@@ -32,15 +33,18 @@ object AsProducerRecord {
   case class FromString(topic: String) extends AsProducerRecord[String] {
     override type K = Key
     override type V = Bytes
+
     override def asRecord(value: String) = {
       new ProducerRecord[K, V](topic, value, value.getBytes("UTF-8"))
     }
   }
+
   case class FromBytes(topic: String) extends AsProducerRecord[Array[Byte]] {
     override type K = Key
     override type V = Bytes
+
     override def asRecord(value: Array[Byte]) = {
-      new ProducerRecord[K, V](topic, value, value.getBytes("UTF-8"))
+      new ProducerRecord[Key, Array[Byte]](topic, value)
     }
   }
 
