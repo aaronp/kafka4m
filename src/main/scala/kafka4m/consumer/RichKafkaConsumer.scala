@@ -6,7 +6,7 @@ import java.util.Properties
 import cats.effect.{IO, Resource}
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
-import monix.eval.Coeval
+import kafka4m.util.Props
 import monix.execution.Scheduler
 import monix.reactive.Observable
 import org.apache.kafka.clients.consumer._
@@ -21,6 +21,7 @@ import scala.util.control.NonFatal
   * A means of driving a kafka-stream using the consumer (not kafka streaming) API
   */
 class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topic: String, val defaultPollTimeout: Duration) extends AutoCloseable with StrictLogging {
+  require(topic.nonEmpty, "empty topic set for consumer")
 
   private val javaPollDuration: time.Duration = RichKafkaConsumer.asJavaDuration(defaultPollTimeout)
 
@@ -36,7 +37,7 @@ class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topic: String, 
   def partitions: List[PartitionInfo] = partitionsByTopic().getOrElse(topic, Nil)
 
   def asObservable: Observable[ConsumerRecord[K, V]] = {
-    val iterators: Observable[Iterable[ConsumerRecord[K, V]]] = Observable.repeatEvalF(Coeval.eval(poll()))
+    val iterators: Observable[Iterable[ConsumerRecord[K, V]]] = Observable.repeatEval(poll())
     iterators.flatMap { iter: Iterable[ConsumerRecord[K, V]] =>
       Observable.fromIterable(iter)
     }
@@ -79,7 +80,9 @@ class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topic: String, 
     try {
       val records: ConsumerRecords[K, V] = consumer.poll(timeout)
       logger.trace(s"Got ${records.count()} records from ${records.partitions().asScala.mkString(s"[", ",", "]")}")
-      records.records(topic).asScala
+      val forTopic: Iterable[ConsumerRecord[K, V]] = records.records(topic).asScala
+      logger.trace(s"Got ${forTopic.size} of ${records.count()} for topic '$topic' records from ${records.partitions().asScala.mkString(s"[", ",", "]")}")
+      forTopic
     } catch {
       case NonFatal(e) =>
         logger.warn(s"Poll threw $e")
@@ -143,7 +146,7 @@ object RichKafkaConsumer extends StrictLogging {
 
     import args4c.implicits._
     val consumerConfig = rootConfig.getConfig("kafka4m.consumer")
-    val topic          = consumerConfig.getString("topic")
+    val topic          = Props.topic(rootConfig, "consumer")
 
     val props: Properties = {
       val properties = kafka4m.util.Props.propertiesForConfig(consumerConfig)

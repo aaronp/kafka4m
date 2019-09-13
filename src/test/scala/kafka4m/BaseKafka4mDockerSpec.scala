@@ -9,6 +9,6 @@ import scala.concurrent.duration._
 
 abstract class BaseKafka4mDockerSpec extends BaseKafkaSpec with ScalaFutures with BeforeAndAfterAll with GivenWhenThen with StrictLogging {
 
-  override def testTimeout: FiniteDuration = 5.seconds
+  override def testTimeout: FiniteDuration = 15.seconds
 
 }

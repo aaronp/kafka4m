@@ -1,12 +1,13 @@
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 import kafka4m.admin.RichKafkaAdmin
 import kafka4m.consumer.RichKafkaConsumer
+import kafka4m.producer.AsProducerRecord._
 import kafka4m.producer.{AsProducerRecord, RichKafkaProducer}
 import kafka4m.util.{Env, Props}
 import monix.eval.Task
 import monix.reactive.{Consumer, Observable}
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import kafka4m.producer.AsProducerRecord._
+
 import scala.concurrent.ExecutionContext
 
 /**
@@ -17,6 +18,29 @@ package object kafka4m {
   type Key      = String
   type Bytes    = Array[Byte]
   type KeyValue = (Key, Bytes)
+
+  /** @param config the kafka4m configuration
+    * @return a consumer which will consume raw text data and write it with null keys
+    */
+  def writeText(config: Config = ConfigFactory.load()): Consumer[String, Long] = write[String](config)(FromString(Props.topic(config, "producer")))
+
+  /** @param config the kafka4m configuration
+    * @return a consumer which will consume a stream of key/byte-array values into kafka and return the number written
+    */
+  def writeKeyAndBytes(config: Config = ConfigFactory.load()): Consumer[(String, Array[Byte]), Long] = {
+    write[(String, Array[Byte])](config)(FromKeyAndBytes(Props.topic(config, "producer")))
+  }
+
+  /** @param config the kafka4m configuration
+    * @tparam A any type A which can be converted into a kafka ProducerRecord
+    * @return a consumer of the 'A' values and produce the number written
+    */
+  def write[A: AsProducerRecord](config: Config): Consumer[A, Long] = {
+    val apr                                  = AsProducerRecord[A]
+    val rkp: RichKafkaProducer[apr.K, apr.V] = RichKafkaProducer[apr.K, apr.V](config, null, null)
+    val fireAndForget                        = config.getBoolean("kafka4m.producer.fireAndForget")
+    rkp.asConsumer(fireAndForget)(apr)
+  }
 
   /**
     * @param config the kafka4m configuration which contains the 'kafka4m.consumer' values
@@ -48,16 +72,4 @@ package object kafka4m {
   def ensureTopicBlocking(config: Config)(implicit ec: ExecutionContext): Option[String] = {
     RichKafkaAdmin.ensureTopicBlocking(config)
   }
-
-  def writeText(config: Config): Consumer[String, Long] = write[String](config)(FromString(Props.topic(config, "producer")))
-
-  def writeBytes(config: Config): Consumer[Array[Byte], Long] = write[Array[Byte]](config)(FromBytes(Props.topic(config, "producer")))
-
-  def write[A: AsProducerRecord](config: Config): Consumer[A, Long] = {
-    val apr                                  = AsProducerRecord[A]
-    val rkp: RichKafkaProducer[apr.K, apr.V] = RichKafkaProducer[apr.K, apr.V](config, null, null)
-    val fireAndForget                        = config.getBoolean("kafka4m.producer.fireAndForget")
-    rkp.asConsumer(fireAndForget)(apr)
-  }
-
 }

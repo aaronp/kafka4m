@@ -5,10 +5,10 @@
         </encoder>
     </appender>
 
-    <logger name="kafka4m" level="debug" />
+    <logger name="kafka4m" level="info" />
     <logger name="org.apache.kafka" level="warn" />
 
-    <root level="warn">
+    <root level="info">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

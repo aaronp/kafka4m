@@ -28,6 +28,10 @@ object Props extends LazyLogging {
     foundOpt.getOrElse(rootConfig.getString(s"kafka4m.topic"))
   }
 
+  def replaceUniqueId(str: String, uid: String = UUID.randomUUID.toString): String = {
+    str.replaceAllLiterally("{uniqueID}", uid)
+  }
+
   def format(all: Properties): String = {
     import scala.collection.JavaConverters._
     all
@@ -55,26 +59,9 @@ object Props extends LazyLogging {
       }
   }
 
-  def replaceUniqueId(str: String, uid: String = UUID.randomUUID.toString): String = {
-    str.replaceAllLiterally("{uniqueID}", uid)
-  }
-
   private object AsInteger {
-
     def unapply(str: String): Option[Integer] = {
       Try(Integer.valueOf(str.trim)).toOption
     }
   }
-
-  def newSchedulerService(): ScheduledExecutorService = {
-    Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-      override def newThread(r: Runnable): Thread = {
-        val t = new Thread(r)
-        t.setName("flush-scheduler")
-        t.setDaemon(true)
-        t
-      }
-    })
-  }
-
 }

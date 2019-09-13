@@ -8,6 +8,8 @@ script:
 jdk:
   - oraclejdk11
 
+services:
+  - docker
 after_success: "sbt coverageReport coveralls"
 
 sudo: false

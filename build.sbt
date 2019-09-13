@@ -21,13 +21,34 @@ paradoxProperties += ("project.url" -> "https://aaronp.github.io/kafka4m/docs/cu
 Compile / paradoxMaterialTheme ~= {
   _.withLanguage(java.util.Locale.ENGLISH)
     .withColor("red", "orange")
-    .withLogoIcon("cloud")
+    .withLogoIcon("kafka4m")
+    .withLogoUri(new URI("https://images.app.goo.gl/fSucxpUKKzkWEqKv6"))
     .withRepository(uri("https://github.com/aaronp/kafka4m"))
     .withSocial(uri("https://github.com/aaronp"))
     .withoutSearch()
 }
 
-//scalacOptions += Seq("-encoding", "UTF-8")
+lazy val docker = taskKey[Unit]("Packages the app in a docker file").withRank(KeyRanks.APlusTask)
+
+// see https://docs.docker.com/engine/reference/builder
+docker := {
+  val kafka4mAssembly = (assembly in Compile).value
+
+  // contains the docker resources
+  val deployResourceDir = (resourceDirectory in Compile).value.toPath.resolve("docker")
+  val dockerTargetDir = {
+    import eie.io._
+    val dir = baseDirectory.value / "target" / "docker"
+    dir.toPath.mkDirs()
+  }
+
+  Build.docker( //
+               deployResourceDir = deployResourceDir, //
+               appAssembly = kafka4mAssembly.asPath, //
+               targetDir = dockerTargetDir, //
+               logger = sLog.value //
+  )
+}
 
 siteSourceDirectory := target.value / "paradox" / "site" / "main"
 
@@ -47,6 +68,7 @@ libraryDependencies ++= List(
 )
 
 libraryDependencies ++= List(
+  "com.github.aaronp" %% "eie"       % "0.0.5" % "test",
   "org.scalactic"     %% "scalactic" % "3.0.4" % "test",
   "org.scalatest"     %% "scalatest" % "3.0.4" % "test",
   "org.pegdown"       % "pegdown"    % "1.6.0" % "test",
@@ -57,7 +79,7 @@ libraryDependencies ++= List(
 
 publishMavenStyle := true
 releaseCrossBuild := true
-coverageMinimum := 90
+coverageMinimum := 70
 coverageFailOnMinimum := true
 git.remoteRepo := s"git@github.com:$username/kafka4m.git"
 ghpagesNoJekyll := true

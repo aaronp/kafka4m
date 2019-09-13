@@ -17,6 +17,7 @@ Check out the latest scaladocs [here](https://aaronp.github.io/kafka4m/api/lates
 
 * [Usage](usage.md)
 * [Building/Releasing](building.md)
+* [Testing](testing.md)
 * [License](license.md)
 
 @@@

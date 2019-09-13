@@ -2,6 +2,7 @@ package kafka4m.consumer
 
 import java.util.concurrent.atomic.AtomicLong
 
+import com.typesafe.config.{Config, ConfigFactory}
 import kafka4m.BaseKafka4mDockerSpec
 import kafka4m.admin.RichKafkaAdmin
 import kafka4m.producer.RichKafkaProducer
@@ -10,6 +11,7 @@ import kafka4m.util.Schedulers
 import scala.concurrent.Future
 
 class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
+  import RichKafkaConsumerTest.testConfig
 
   private val id = new AtomicLong(System.currentTimeMillis)
 
@@ -21,7 +23,7 @@ class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
     "report current assignments and partitions" in {
       Schedulers.using { implicit sched =>
         val topic                                            = nextTopic()
-        val config                                           = KafkaConsumerFeedTest.testConfig(topic)
+        val config                                           = testConfig(topic)
         val consumer: RichKafkaConsumer[String, Array[Byte]] = RichKafkaConsumer.byteArrayValues(config)
 
         RichKafkaAdmin(config).createTopicSync(topic, testTimeout)
@@ -36,7 +38,7 @@ class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
     "return the assignmentPartitions" in {
       Schedulers.using { implicit sched =>
         val topic                                            = nextTopic()
-        val config                                           = KafkaConsumerFeedTest.testConfig(topic)
+        val config                                           = testConfig(topic)
         val consumer: RichKafkaConsumer[String, Array[Byte]] = RichKafkaConsumer.byteArrayValues(config)
 
         RichKafkaAdmin(config).createTopicSync(topic, testTimeout)
@@ -50,7 +52,7 @@ class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
       Schedulers.using { implicit sched =>
         Given("Some messages in a topic")
         val topic                                            = nextTopic()
-        val config                                           = KafkaConsumerFeedTest.testConfig(topic)
+        val config                                           = testConfig(topic)
         val consumer: RichKafkaConsumer[String, Array[Byte]] = RichKafkaConsumer.byteArrayValues(config)
 
         val producer = RichKafkaProducer.byteArrayValues(config)
@@ -84,7 +86,7 @@ class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
       Schedulers.using { implicit sched =>
         Given("Some messages in a topic")
         val topic                                            = nextTopic()
-        val config                                           = KafkaConsumerFeedTest.testConfig(topic)
+        val config                                           = testConfig(topic)
         val consumer: RichKafkaConsumer[String, Array[Byte]] = RichKafkaConsumer.byteArrayValues(config)
 
         val producer = RichKafkaProducer.byteArrayValues(config)
@@ -120,4 +122,16 @@ class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
       }
     }
   }
+}
+
+object RichKafkaConsumerTest {
+  def testConfig(topic: String): Config = ConfigFactory.parseString(s"""kafka4m.admin.topic : $topic
+                                                                       |
+                                                                       |kafka4m.consumer.topic : $topic
+                                                                       |kafka4m.consumer.group.id : "test"$topic
+                                                                       |kafka4m.consumer.application.id : "test"$topic
+                                                                       |kafka4m.consumer.auto.offset.reset : earliest
+                                                                       |
+                                                                       |kafka4m.producer.topic : $topic
+                                                                       |""".stripMargin).withFallback(ConfigFactory.load())
 }
