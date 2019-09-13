@@ -16,4 +16,3 @@ val kafkaData: Observable[ConsumerRecord[String, Array[Byte]]] = kafka4m.read(co
 val task: Task[Long] = kafkaData.map(_.value).consumeWith(kafkaWriter)
 ``` 
 
-## ETL from some data in a directory
