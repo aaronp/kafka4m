@@ -20,9 +20,9 @@ object Kafka4mApp extends ConfigApp {
         val kafkaData: Observable[ConsumerRecord[Key, Bytes]] = kafka4m.read(config)
 
       case "write" =>
-        val kafkaWriter: Consumer[Array[Byte], Long] = kafka4m.writeBytes(config)
+        val kafkaWriter: Consumer[Array[Byte], Long]                   = kafka4m.writeBytes(config)
         val kafkaData: Observable[ConsumerRecord[String, Array[Byte]]] = kafka4m.read(config)
-        val task: Task[Long] = kafkaData.map(_.value).consumeWith(kafkaWriter)
+        val task: Task[Long]                                           = kafkaData.map(_.value).consumeWith(kafkaWriter)
 
         val numberWritten: CancelableFuture[Long] = kafka4m.util.Schedulers.using { s =>
           task.runToFuture(s)

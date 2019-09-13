@@ -26,7 +26,7 @@ class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
 
         RichKafkaAdmin(config).createTopicSync(topic, testTimeout)
 
-        val statusLines = consumer.status(true).lines.toList
+        val statusLines = consumer.status(true).linesIterator.toList
         statusLines should contain("currently assigned to 0: []")
         statusLines.map(_.trim) should contain(s"Partition(topic = $topic, partition = 0, leader = 0, replicas = [0], isr = [0], offlineReplicas = [])")
       }

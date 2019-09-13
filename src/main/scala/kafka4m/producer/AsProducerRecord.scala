@@ -4,10 +4,10 @@ import kafka4m.{Bytes, Key}
 import org.apache.kafka.clients.producer.ProducerRecord
 
 /**
- * A typeclass to allow the publication of any record 'A' which can be converted into a producer record
- *
- * @tparam A
- */
+  * A typeclass to allow the publication of any record 'A' which can be converted into a producer record
+  *
+  * @tparam A
+  */
 trait AsProducerRecord[-A] {
 
   /** The key type */
@@ -17,8 +17,8 @@ trait AsProducerRecord[-A] {
   type V
 
   /** @param value the value to convert
-   * @return a producer record for the given value
-   */
+    * @return a producer record for the given value
+    */
   def asRecord(value: A): ProducerRecord[K, V]
 }
 
