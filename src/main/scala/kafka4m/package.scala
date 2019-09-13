@@ -2,8 +2,7 @@ import com.typesafe.config.Config
 import kafka4m.admin.RichKafkaAdmin
 import kafka4m.consumer.RichKafkaConsumer
 import kafka4m.producer.{AsProducerRecord, RichKafkaProducer}
-import kafka4m.streams.StreamConsumer
-import kafka4m.util.{Env, Props, Schedulers}
+import kafka4m.util.{Env, Props}
 import monix.eval.Task
 import monix.reactive.{Consumer, Observable}
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -48,21 +47,6 @@ package object kafka4m {
     */
   def ensureTopicBlocking(config: Config)(implicit ec: ExecutionContext): Option[String] = {
     RichKafkaAdmin.ensureTopicBlocking(config)
-  }
-
-  /**
-    * @param config the configuration which contains the kafka4m.streams config
-    * @return A kafka data-stream based on the kafka streams API
-    */
-  def streamObservable(config: Config): Observable[KeyValue] = {
-    // streams fails if the topic doesn't already exist
-    Schedulers.using(s => ensureTopicBlocking(config)(s))
-
-    val env                         = Env(config)
-    val setup: StreamConsumer.Setup = StreamConsumer(config)(env.io)
-
-    val closeMe = Task.delay(setup.close())
-    setup.output.guarantee(closeMe)
   }
 
   def publishConsumer[A: AsProducerRecord](config: Config): Consumer[A, Long] = {
