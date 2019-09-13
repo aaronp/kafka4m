@@ -5,7 +5,7 @@
         </encoder>
     </appender>
 
-    <logger name="kafka4m" level="info" />
+    <logger name="kafka4m" level="debug" />
     <logger name="org.apache.kafka" level="warn" />
 
     <root level="warn">

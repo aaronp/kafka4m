@@ -79,7 +79,7 @@ class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
       }
     }
   }
-  "RichKafkaConsumer.seekToEnd" should {
+  "RichKafkaConsumer.seekToEnd" ignore {
     "seek to the end" in {
       Schedulers.using { implicit sched =>
         Given("Some messages in a topic")

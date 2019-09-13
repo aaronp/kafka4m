@@ -18,10 +18,10 @@ import org.apache.kafka.streams.{KafkaStreams, StreamsBuilder, Topology}
   */
 final class StreamConsumer(streamsConfig: Config, input: Observer[KeyValue]) extends AutoCloseable with StrictLogging {
   private val builder = new StreamsBuilder
-  private val appId   = streamsConfig.getString("application.id")
-  private val topic   = streamsConfig.getString("topic")
-  logger.info(s"Streaming from $topic")
+  val topic           = streamsConfig.getString("topic")
   private val props = Props.propertiesForConfig(streamsConfig)
+  import scala.collection.JavaConverters._
+  logger.info(s"Streaming from $topic using: ${props.asScala.mkString("\n\t","\n\t","\n")}")
 
   @volatile private var closed = false
 

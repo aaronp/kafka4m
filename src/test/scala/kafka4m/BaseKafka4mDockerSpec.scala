@@ -15,15 +15,15 @@ abstract class BaseKafka4mDockerSpec extends BaseKafkaSpec with ScalaFutures wit
   override def testTimeout: FiniteDuration = 5.seconds
 
   override def afterAll(): Unit = {
-    import scala.concurrent.ExecutionContext.Implicits._
-    Future {
-      Thread.sleep(10000)
-      val threads = KafkaThreads()
-
-      if (threads.nonEmpty) {
-        logger.warn(s"FORCE CLOSING ${threads.size} THREADS: ${threads}")
-        threads.par.foreach(t => Try(t.stop()))
-      }
-    }
+//    import scala.concurrent.ExecutionContext.Implicits._
+//    Future {
+//      Thread.sleep(10000)
+//      val threads = KafkaThreads()
+//
+//      if (threads.nonEmpty) {
+//        logger.warn(s"FORCE CLOSING ${threads.size} THREADS: ${threads}")
+////        threads.par.foreach(t => Try(t.stop()))
+//      }
+//    }
   }
 }
