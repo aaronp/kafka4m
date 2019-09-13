@@ -3,15 +3,10 @@ package kafka4m.producer
 import java.util.UUID
 
 import com.typesafe.config.{Config, ConfigFactory}
-import com.typesafe.scalalogging.StrictLogging
-import dockerenv.BaseKafkaSpec
+import kafka4m.BaseKafka4mDockerSpec
 import kafka4m.util.Schedulers
-import org.scalatest.concurrent.ScalaFutures
 
-import scala.concurrent.duration._
-
-class RichKafkaProducerTest extends BaseKafkaSpec with ScalaFutures with StrictLogging {
-  override def testTimeout: FiniteDuration = 15.seconds
+class RichKafkaProducerTest extends BaseKafka4mDockerSpec {
 
   "RichKafkaProducer.send" should {
     "send data through kafka" in {

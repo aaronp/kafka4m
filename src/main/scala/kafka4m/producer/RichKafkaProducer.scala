@@ -13,8 +13,11 @@ import org.apache.kafka.clients.producer.{Callback, KafkaProducer, ProducerRecor
 import org.apache.kafka.common.serialization.Serializer
 
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 final class RichKafkaProducer[K, V] private (val publisher: KafkaProducer[K, V]) extends AutoCloseable with StrictLogging {
+
+  logger.info("Creating Producer")
 
   def sendAsync(kafkaTopic: String, key: K, value: V, callback: Callback = null, partition: Int = -1): Future[RecordMetadata] = {
     val promise = PromiseCallback()
@@ -47,7 +50,13 @@ final class RichKafkaProducer[K, V] private (val publisher: KafkaProducer[K, V])
   def sendRecord(record: ProducerRecord[K, V], callback: Callback = null): JFuture[RecordMetadata] = publisher.send(record, callback)
 
   override def close(): Unit = {
-    publisher.close()
+    logger.warn("Closing producer")
+    try {
+      publisher.close(java.time.Duration.ZERO)
+    } catch {
+      case NonFatal(e) =>
+        logger.warn(s"Closing producer threw ${e.getMessage}", e)
+    }
   }
 }
 

@@ -2,16 +2,14 @@ package kafka4m.consumer
 
 import java.util.concurrent.atomic.AtomicLong
 
-import com.typesafe.scalalogging.StrictLogging
-import dockerenv.BaseKafkaSpec
+import kafka4m.BaseKafka4mDockerSpec
 import kafka4m.admin.RichKafkaAdmin
 import kafka4m.producer.RichKafkaProducer
 import kafka4m.util.Schedulers
-import org.scalatest.concurrent.ScalaFutures
 
 import scala.concurrent.Future
 
-class RichKafkaConsumerTest extends BaseKafkaSpec with ScalaFutures with StrictLogging {
+class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
 
   private val id = new AtomicLong(System.currentTimeMillis)
 
@@ -81,7 +79,7 @@ class RichKafkaConsumerTest extends BaseKafkaSpec with ScalaFutures with StrictL
       }
     }
   }
-  "RichKafkaConsumer.seekToEnd" ignore {
+  "RichKafkaConsumer.seekToEnd" should {
     "seek to the end" in {
       Schedulers.using { implicit sched =>
         Given("Some messages in a topic")

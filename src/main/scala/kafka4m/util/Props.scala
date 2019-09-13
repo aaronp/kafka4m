@@ -1,7 +1,7 @@
 package kafka4m.util
 
-import java.util.{Properties, UUID}
 import java.util.concurrent.{Executors, ScheduledExecutorService, ThreadFactory}
+import java.util.{Properties, UUID}
 
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
@@ -11,6 +11,22 @@ import scala.util.Try
 object Props extends LazyLogging {
 
   type Bytes = Array[Byte]
+
+  /**
+    * Due to config resolution rules, other applications can't simply set "kafka4m.topic" and have that apply to
+    * the "kafka4m.XXX.topic" setting (e.g. "kafka4m.consumer.topic", "kafka4m.producer.topic", etc)
+    *
+    * @param rootConfig
+    * @param subconfName
+    * @return the non-empty topic from kafka4m.<subconfName>.topic
+    */
+  def topic(rootConfig: Config, subconfName: String, orElse: String*): String = {
+    val foundOpt = (subconfName +: orElse).collectFirst {
+      case subconf if rootConfig.getString(s"kafka4m.${subconf}.topic").nonEmpty => rootConfig.getString(s"kafka4m.${subconf}.topic")
+    }
+
+    foundOpt.getOrElse(rootConfig.getString(s"kafka4m.topic"))
+  }
 
   def format(all: Properties): String = {
     import scala.collection.JavaConverters._
@@ -38,6 +54,7 @@ object Props extends LazyLogging {
           props
       }
   }
+
   def replaceUniqueId(str: String, uid: String = UUID.randomUUID.toString): String = {
     str.replaceAllLiterally("{uniqueID}", uid)
   }

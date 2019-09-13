@@ -2,25 +2,53 @@ package kafka4m
 package streams
 
 import java.util.UUID
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 import args4c.implicits._
 import com.typesafe.config.{Config, ConfigFactory}
-import dockerenv.BaseKafkaSpec
 import kafka4m.admin.RichKafkaAdmin
 import kafka4m.producer.RichKafkaProducer
-import kafka4m.util.{Schedulers, Using}
+import kafka4m.util.{Env, Schedulers, Using}
+import monix.eval.Task
 import org.apache.kafka.clients.producer.RecordMetadata
-import org.scalatest.concurrent.ScalaFutures
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class StreamConsumerTest extends BaseKafkaSpec with ScalaFutures {
+class StreamConsumerTest extends BaseKafka4mDockerSpec {
 
   override def testTimeout: FiniteDuration = 5.seconds
 
   "StreamConsumer" should {
-    "consume streams" in {
+    "close the stream when a single subset of it is consumed" in {
+      val config = Kafka4mTest.configForTopic()
+      Schedulers.using { s =>
+        val Some(topic) = ensureTopicBlocking(config)(s)
+
+        // create a record in our topic
+        Using(RichKafkaProducer.byteArrayValues(config)) { producer =>
+          producer.send(topic, "hello", "world".getBytes).get(testTimeout.toMillis, TimeUnit.MILLISECONDS)
+
+          Using(Env(config)) { env =>
+            val setup: StreamConsumer.Setup = StreamConsumer(config)(env.io)
+
+            val closed = new AtomicBoolean(false)
+            val closeMe = Task.delay {
+              closed.compareAndSet(false, true)
+              setup.close()
+            }
+            val ("hello", bytes) = setup.output.guarantee(closeMe).headL.runToFuture(s).futureValue
+            new String(bytes, "UTF-8") shouldBe "world"
+
+            eventually {
+              closed.get() shouldBe true
+            }
+          }
+        }
+      }
+    }
+    "consume streams" should {
       Schedulers.using { implicit sched =>
         val topic1 = s"topic1-${UUID.randomUUID}".filter(_.isLetterOrDigit)
         val topic2 = s"topic2-${UUID.randomUUID}".filter(_.isLetterOrDigit)

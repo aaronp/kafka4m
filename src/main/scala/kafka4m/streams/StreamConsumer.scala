@@ -56,7 +56,9 @@ object StreamConsumer {
     * @param scheduler an io scheduler to drive the Kafka IO
     */
   case class Setup(consumer: StreamConsumer, output: Observable[KeyValue], scheduler: Scheduler) extends AutoCloseable {
-    override def close(): Unit = consumer.close()
+    override def close(): Unit = {
+      consumer.close()
+    }
   }
 
   def apply(rootConfig: Config)(implicit scheduler: Scheduler): Setup = {

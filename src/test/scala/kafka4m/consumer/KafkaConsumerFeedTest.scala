@@ -1,14 +1,12 @@
 package kafka4m.consumer
 
 import com.typesafe.config.{Config, ConfigFactory}
-import com.typesafe.scalalogging.StrictLogging
-import dockerenv.BaseKafkaSpec
+import kafka4m.BaseKafka4mDockerSpec
 import kafka4m.producer.RichKafkaProducer
 import kafka4m.util.{Schedulers, Using}
 import org.apache.kafka.clients.producer.RecordMetadata
-import org.scalatest.concurrent.ScalaFutures
 
-class KafkaConsumerFeedTest extends BaseKafkaSpec with ScalaFutures with StrictLogging {
+class KafkaConsumerFeedTest extends BaseKafka4mDockerSpec {
 
   "KafkaConsumerFeed.unicast" should {
     "produce a stream of events" in {
