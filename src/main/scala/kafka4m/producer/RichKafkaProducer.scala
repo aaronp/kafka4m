@@ -14,7 +14,7 @@ import org.apache.kafka.common.serialization.Serializer
 
 import scala.concurrent.Future
 
-final class RichKafkaProducer[K, V] private(val publisher: KafkaProducer[K, V]) extends AutoCloseable with StrictLogging {
+final class RichKafkaProducer[K, V] private (val publisher: KafkaProducer[K, V]) extends AutoCloseable with StrictLogging {
 
   logger.info("Creating Producer")
 
@@ -25,11 +25,11 @@ final class RichKafkaProducer[K, V] private(val publisher: KafkaProducer[K, V]) 
   }
 
   /**
-   * @param fireAndForget set to true if 'onNext' should send the value to the producer without waiting for the ack
-   * @param ev
-   * @tparam A the input type which will be converted to a ProducerRecord
-   * @return a consumer which will consume 'A' values into Kafka and produce a number of inserted elements
-   */
+    * @param fireAndForget set to true if 'onNext' should send the value to the producer without waiting for the ack
+    * @param ev
+    * @tparam A the input type which will be converted to a ProducerRecord
+    * @return a consumer which will consume 'A' values into Kafka and produce a number of inserted elements
+    */
   def asConsumer[A](fireAndForget: Boolean)(implicit ev: AsProducerRecord.Aux[A, K, V]): Consumer[A, Long] = {
     val producer = this
     Consumer.create[A, Long] {
@@ -41,7 +41,7 @@ final class RichKafkaProducer[K, V] private(val publisher: KafkaProducer[K, V]) 
   def send(kafkaTopic: String, key: K, value: V, callback: Callback = null, partition: Int = -1): JFuture[RecordMetadata] = {
     val record = partition match {
       case n if n <= 0 => new ProducerRecord[K, V](kafkaTopic, key, value)
-      case _ => new ProducerRecord[K, V](kafkaTopic, partition, key, value)
+      case _           => new ProducerRecord[K, V](kafkaTopic, partition, key, value)
     }
     sendRecord(record, callback)
   }
@@ -66,14 +66,14 @@ object RichKafkaProducer extends StrictLogging {
   }
 
   def byteArrayValues(rootConfig: Config): RichKafkaProducer[String, Array[Byte]] = {
-    implicit val keySerializer = new org.apache.kafka.common.serialization.StringSerializer
+    implicit val keySerializer   = new org.apache.kafka.common.serialization.StringSerializer
     implicit val valueSerializer = new org.apache.kafka.common.serialization.ByteArraySerializer
     apply(rootConfig, keySerializer, valueSerializer)
   }
 
   def apply[K, V](rootConfig: Config, keySerializer: Serializer[K], valueSerializer: Serializer[V]): RichKafkaProducer[K, V] = {
     val props: Properties = Props.propertiesForConfig(rootConfig.getConfig("kafka4m.producer"))
-    val publisher = new KafkaProducer[K, V](props, keySerializer, valueSerializer)
+    val publisher         = new KafkaProducer[K, V](props, keySerializer, valueSerializer)
     new RichKafkaProducer(publisher)
   }
 }

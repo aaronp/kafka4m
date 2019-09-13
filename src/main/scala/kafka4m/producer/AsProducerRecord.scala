@@ -32,8 +32,14 @@ object AsProducerRecord {
   case class FromString(topic: String) extends AsProducerRecord[String] {
     override type K = Key
     override type V = Bytes
-
     override def asRecord(value: String) = {
+      new ProducerRecord[K, V](topic, value, value.getBytes("UTF-8"))
+    }
+  }
+  case class FromBytes(topic: String) extends AsProducerRecord[Array[Byte]] {
+    override type K = Key
+    override type V = Bytes
+    override def asRecord(value: Array[Byte]) = {
       new ProducerRecord[K, V](topic, value, value.getBytes("UTF-8"))
     }
   }
