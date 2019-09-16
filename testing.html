@@ -129,6 +129,7 @@ aaronp/kafka4m
   <li><a href="testing.html#testing" class="header">Testing</a>
   <ul>
     <li><a href="testing.html#testing-upload-download-locally" class="header">testing upload/download locally</a></li>
+    <li><a href="testing.html#testing-using-docker-compose" class="header">Testing using docker-compose</a></li>
     <li><a href="testing.html#testing-on-a-kafka-cluster" class="header">Testing On a Kafka Cluster</a></li>
   </ul></li>
 </ul>
@@ -154,6 +155,7 @@ aaronp/kafka4m
   <li><a href="testing.html#testing" class="header">Testing</a>
   <ul>
     <li><a href="testing.html#testing-upload-download-locally" class="header">testing upload/download locally</a></li>
+    <li><a href="testing.html#testing-using-docker-compose" class="header">Testing using docker-compose</a></li>
     <li><a href="testing.html#testing-on-a-kafka-cluster" class="header">Testing On a Kafka Cluster</a></li>
   </ul></li>
 </ul>
@@ -170,16 +172,48 @@ aaronp/kafka4m
 <p>This project uses <a href="https://github.com/aaronp/dockerenv/#dockerenv">dockerenv</a> to run the tests against a &lsquo;real&rsquo; running kafka instance.</p>
 <p>When testing, either manually or via automated tests, it can be helpful to inspect the data for a particular topic.</p>
 <p>For example, in the Kafka4mAppTest, once data is written to some unique topic, you might want to ssh onto your locally running kafka instance and inspect the data:</p>
-<p>Assuming the Kafka4mApp created topic ABC123:</p>
+<p>Assuming the Kafka4mApp created topic &lsquo;kafka4m-example&rsquo;:</p>
 <pre class="prettyprint"><code class="language-$xslt">docker exec -it  test-kafka /bin/bash
 cd /opt/kafka_2.12-2.2.0/bin/
-./kafka-topics.sh --list  --zookeeper localhost:2181 | grep ABC123
-./kafka-console-consumer.sh  --topic ABC123  --bootstrap-server localhost:9092 --from-beginning
+./kafka-topics.sh --list  --zookeeper localhost:2181 | grep kafka4m-example
+./kafka-console-consumer.sh  --topic kafka4m-example  --bootstrap-server localhost:9092 --from-beginning
 </code></pre>
 <p>Or simply:</p>
 <pre class="prettyprint"><code class="language-$xslt">docker exec test-kafka /opt/kafka_2.12-2.2.0/bin/kafka-topics.sh --list  --zookeeper localhost:2181
 </code></pre>
+<h1><a href="#testing-using-docker-compose" name="testing-using-docker-compose" class="anchor"><span class="anchor-link"></span></a>Testing using docker-compose</h1>
+<p>The src/test/resources/docker-compose-kafka holds a clone of the wonderful kafka docker-compose work by <a href="https://github.com/wurstmeister/kafka-docker">wurstmeister/kafka-docker</a></p>
+<p>The docker-compose.yml there has been modified to include the Kafka4m ETL job. Assuming we&rsquo;ve run:</p>
+<pre class="prettyprint"><code class="language-$xslt">sbt docker
+</code></pre>
+<p>to build the kafka4m image, we can then run:</p>
+<pre class="prettyprint"><code class="language-$xslt">cd docker-compose-kafka/
+docker-compose  up -d 
+</code></pre>
+<p>Which will start zookeeper/kafka, then run an ETL job which writes the contents of that example directory into kafka under the topic &lsquo;kafka4m-example&rsquo;.</p>
+<p>We can then verify that by executing:</p>
+<pre class="prettyprint"><code class="language-$xslt">docker exec  docker-compose-kafka_kafka_1 /opt/kafka_2.12-2.3.0/bin/kafka-topics.sh --list  --zookeeper zookeeper:2181
+</code></pre>
+<p>to see the topic, or to see the imported records:</p>
+<pre class="prettyprint"><code class="language-$xslt">docker exec docker-compose-kafka_kafka_1 \
+  /opt/kafka_2.12-2.3.0/bin/kafka-console-consumer.sh \
+  --topic kafka4m-example \
+  --bootstrap-server \
+  localhost:9092 \
+  --from-beginning
+</code></pre>
+<p>Where you should see the contents of the imported data </p>
 <h1><a href="#testing-on-a-kafka-cluster" name="testing-on-a-kafka-cluster" class="anchor"><span class="anchor-link"></span></a>Testing On a Kafka Cluster</h1>
+<p>In a similar way to our docker-compose example, you could fork kubernetes-kafka as <a href="https://github.com/aaronp/kubernetes-kafka">I&rsquo;ve done here</a> and from a gcloud shell run:</p>
+<pre class="prettyprint"><code class="language-$xslt">git clone https://github.com/aaronp/kubernetes-kafka .
+cd kubernetes-kafka
+
+kubectl apply -f namespace
+kubectl apply -f rbac-namespace-default
+kubectl apply -f zookeeper
+kubectl apply -f kafka
+</code></pre>
+<p>And then add/run a kafka4m ETL pod, either as a side-car to the kafka container or in a separate pod.</p>
 </div>
 <div>
 <a href="https://github.com/aaronp/kafka4m/tree/master/src/main/paradox/testing.md" title="Edit this page" class="md-source-file md-edit">
