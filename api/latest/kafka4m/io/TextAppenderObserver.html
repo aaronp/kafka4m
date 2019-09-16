@@ -87,10 +87,10 @@
       <p class="shortcomment cmt">The high-level API space for kafka consumers
 </p><div class="fullcomment"><div class="comment cmt"><p>The high-level API space for kafka consumers
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
-    </li><li name="kafka4m.partitions" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="partitions"></a><a id="partitions:partitions"></a>
+    </li><li name="kafka4m.io" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="io"></a><a id="io:io"></a>
       <span class="permalink">
-      <a href="../kafka4m/index.html#partitions" title="Permalink">
+      <a href="../kafka4m/index.html#io" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -99,38 +99,30 @@
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="index.html"><span class="name">partitions</span></a>
+        <a title="" href="index.html"><span class="name">io</span></a>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="kafka4m">kafka4m</a></dd></dl></div>
     </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="class" href="AppendData.html" title=""></a>
-                        <a href="AppendData.html" title="">AppendData</a>
+                        <a class="object" href="Base64Writer$.html" title=""></a>
+                        <a class="class" href="Base64Writer.html" title="An ETL configuration which will take Kafka records and write them to some directory"></a>
+                        <a href="Base64Writer.html" title="An ETL configuration which will take Kafka records and write them to some directory">Base64Writer</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="trait" href="AppendEvent.html" title="The data passing through will be partitioned into different buckets."></a>
-                        <a href="AppendEvent.html" title="The data passing through will be partitioned into different buckets.">AppendEvent</a>
+                        <a class="object" href="FileSink$.html" title="Means to write data to zips"></a>
+                        <a href="FileSink$.html" title="Means to write data to zips">FileSink</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="FlushBucket.html" title=""></a>
-                        <a href="FlushBucket.html" title="">FlushBucket</a>
+                        <a class="object" href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box."></a>
+                        <a href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box.">FileSource</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="TextAppenderObserver$.html" title=""></a>
+                        <a class="class" href="" title=""></a>
+                        <a href="" title="">TextAppenderObserver</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="ForceFlushBuckets.html" title=""></a>
-                        <a href="ForceFlushBuckets.html" title="">ForceFlushBuckets</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="HasTimestamp$.html" title=""></a>
-                        <a class="trait" href="HasTimestamp.html" title=""></a>
-                        <a href="HasTimestamp.html" title="">HasTimestamp</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="TimeBucket$.html" title=""></a>
-                        <a class="class" href="TimeBucket.html" title=""></a>
-                        <a href="TimeBucket.html" title="">TimeBucket</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="TimePartitionState$.html" title=""></a>
-                        <a class="class" href="" title="we want to consume 'ConsumerRecords' from kafka and partition them into time buckets."></a>
-                        <a href="" title="we want to consume 'ConsumerRecords' from kafka and partition them into time buckets.">TimePartitionState</a>
+                        <a class="class" href="ZipAppenderObserver.html" title=""></a>
+                        <a href="ZipAppenderObserver.html" title="">ZipAppenderObserver</a>
                       </li>
               </ul>
             </div>
@@ -138,37 +130,34 @@
           <div id="content">
             <body class="class type">
       <div id="definition">
-        <a href="TimePartitionState$.html" title="See companion object"><div class="big-circle class-companion-object">c</div></a>
-        <p id="owner"><a href="../index.html" class="extype" name="kafka4m">kafka4m</a>.<a href="index.html" class="extype" name="kafka4m.partitions">partitions</a></p>
-        <h1><a href="TimePartitionState$.html" title="See companion object">TimePartitionState</a><span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html" title="Permalink">
+        <a href="TextAppenderObserver$.html" title="See companion object"><div class="big-circle class-companion-object">c</div></a>
+        <p id="owner"><a href="../index.html" class="extype" name="kafka4m">kafka4m</a>.<a href="index.html" class="extype" name="kafka4m.io">io</a></p>
+        <h1><a href="TextAppenderObserver$.html" title="See companion object">TextAppenderObserver</a><span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
         <h3><span class="morelinks"><div>
-            Companion <a href="TimePartitionState$.html" title="See companion object">object TimePartitionState</a>
+            Companion <a href="TextAppenderObserver$.html" title="See companion object">object TextAppenderObserver</a>
           </div></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">case class</span>
+        <span class="modifier"></span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">TimePartitionState</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">TextAppenderObserver</span><span class="result"> extends <span class="extype" name="monix.reactive.Observer">Observer</span>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span> with <span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>we want to consume 'ConsumerRecords' from kafka and partition them into time buckets.</p><p>Each bucket should be represented as an observable of some kind of data structure which contains the ConsumerRecords that completes
-once we've consumed all* the records from the time bucket (e.g. if we want to partition the data into 10 minute segments, one partition
-would contain the records from 8:10 to 8:20)</p><p>We capture some logic in the state to ensure certainty of events.
-The idea is that we'll be processing a number of consumer records which have a timestamp, and putting those records into some 'buckets' based on those times (e.g. &quot;every 20 minutes&quot;).</p><p>We could, however, receive one record at one timestamp, followed by another record at an earlier timestamp.</p><p>To cope with that, this class introduces the concept of 'recordsReceivedBeforeFlush', which is meant to represent (after 'recordsReceivedBeforeFlush' events, it's safe to assume we won't see any more events for a particular bucket, and so can produce a 'flush' event for that bucket).</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span>, <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span>, <span class="extype" name="monix.reactive.Observer">Observer</span>[<span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -194,7 +183,7 @@ The idea is that we'll be processing a number of consumer records which have a t
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="kafka4m.partitions.TimePartitionState"><span>TimePartitionState</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="kafka4m.io.TextAppenderObserver"><span>TextAppenderObserver</span></li><li class="in" name="com.typesafe.scalalogging.StrictLogging"><span>StrictLogging</span></li><li class="in" name="java.lang.AutoCloseable"><span>AutoCloseable</span></li><li class="in" name="monix.reactive.Observer"><span>Observer</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -212,7 +201,26 @@ The idea is that we'll be processing a number of consumer records which have a t
 
       <div id="template">
         <div id="allMembers">
-        
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="kafka4m.io.TextAppenderObserver#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(file:java.nio.file.Path,flushEvery:Int):kafka4m.io.TextAppenderObserver"></a><a id="&lt;init&gt;:TextAppenderObserver"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#&lt;init&gt;(file:java.nio.file.Path,flushEvery:Int):kafka4m.io.TextAppenderObserver" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TextAppenderObserver</span><span class="params">(<span name="file">file: <span class="extype" name="java.nio.file.Path">Path</span></span>, <span name="flushEvery">flushEvery: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">10</span></span>)</span>
+      </span>
+      
+      
+    </li></ol>
+            </div>
 
         
 
@@ -224,7 +232,7 @@ The idea is that we'll be processing a number of consumer records which have a t
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -240,7 +248,7 @@ The idea is that we'll be processing a number of consumer records which have a t
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html###():Int" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -256,7 +264,7 @@ The idea is that we'll be processing a number of consumer records which have a t
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -269,10 +277,26 @@ The idea is that we'll be processing a number of consumer records which have a t
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="kafka4m.io.TextAppenderObserver#appendLine" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="appendLine(line:String):Unit"></a><a id="appendLine(String):Unit"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#appendLine(line:String):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">appendLine</span><span class="params">(<span name="line">line: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -288,7 +312,7 @@ The idea is that we'll be processing a number of consumer records which have a t
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#clone():Object" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -309,10 +333,26 @@ The idea is that we'll be processing a number of consumer records which have a t
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="kafka4m.io.TextAppenderObserver#close" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="close():Unit"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#close():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">close</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="kafka4m.io.TextAppenderObserver">TextAppenderObserver</a> → AutoCloseable</dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -325,10 +365,42 @@ The idea is that we'll be processing a number of consumer records which have a t
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#equals(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="kafka4m.io.TextAppenderObserver#file" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="file:java.nio.file.Path"></a><a id="file:Path"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#file:java.nio.file.Path" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">file</span><span class="result">: <span class="extype" name="java.nio.file.Path">Path</span></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#finalize():Unit" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -347,10 +419,26 @@ The idea is that we'll be processing a number of consumer records which have a t
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="kafka4m.io.TextAppenderObserver#flush" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="flush():Unit"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#flush():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">flush</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#getClass():Class[_]" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -366,26 +454,45 @@ The idea is that we'll be processing a number of consumer records which have a t
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="kafka4m.partitions.TimePartitionState#indicesRemaining" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="indicesRemaining:Long"></a>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#indicesRemaining:Long" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#hashCode():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">indicesRemaining</span><span class="result">: <span class="extype" name="scala.Long">Long</span></span>
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="kafka4m.io.TextAppenderObserver#isClosed" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isClosed():Boolean"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#isClosed():Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isClosed</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       
       
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -398,10 +505,10 @@ The idea is that we'll be processing a number of consumer records which have a t
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="kafka4m.partitions.TimePartitionState#lastReceivedPerBucket" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="lastReceivedPerBucket:Map[kafka4m.partitions.TimeBucket,Long]"></a><a id="lastReceivedPerBucket:Map[TimeBucket,Long]"></a>
+    </li><li name="com.typesafe.scalalogging.StrictLogging#logger" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="logger:com.typesafe.scalalogging.Logger"></a><a id="logger:Logger"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#lastReceivedPerBucket:Map[kafka4m.partitions.TimeBucket,Long]" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#logger:com.typesafe.scalalogging.Logger" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -410,14 +517,14 @@ The idea is that we'll be processing a number of consumer records which have a t
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">lastReceivedPerBucket</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<a href="TimeBucket.html" class="extype" name="kafka4m.partitions.TimeBucket">TimeBucket</a>, <span class="extype" name="scala.Long">Long</span>]</span>
+        <span class="name">logger</span><span class="result">: <span class="extype" name="com.typesafe.scalalogging.Logger">Logger</span></span>
       </span>
       
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>StrictLogging</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -433,7 +540,7 @@ The idea is that we'll be processing a number of consumer records which have a t
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#notify():Unit" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -452,7 +559,7 @@ The idea is that we'll be processing a number of consumer records which have a t
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#notifyAll():Unit" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -468,26 +575,74 @@ The idea is that we'll be processing a number of consumer records which have a t
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="kafka4m.partitions.TimePartitionState#recordsReceivedBeforeClosingBucket" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="recordsReceivedBeforeClosingBucket:Int"></a>
+    </li><li name="kafka4m.io.TextAppenderObserver#onComplete" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onComplete():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#recordsReceivedBeforeClosingBucket:Int" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#onComplete():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">recordsReceivedBeforeClosingBucket</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+        <span class="name">onComplete</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="kafka4m.io.TextAppenderObserver">TextAppenderObserver</a> → Observer</dd></dl></div>
+    </li><li name="kafka4m.io.TextAppenderObserver#onError" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onError(ex:Throwable):Unit"></a><a id="onError(Throwable):Unit"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#onError(ex:Throwable):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onError</span><span class="params">(<span name="ex">ex: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="kafka4m.io.TextAppenderObserver">TextAppenderObserver</a> → Observer</dd></dl></div>
+    </li><li name="kafka4m.io.TextAppenderObserver#onNext" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onNext(elem:String):scala.concurrent.Future[monix.execution.Ack]"></a><a id="onNext(String):Future[Ack]"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#onNext(elem:String):scala.concurrent.Future[monix.execution.Ack]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onNext</span><span class="params">(<span name="elem">elem: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="monix.execution.Ack">Ack</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="kafka4m.io.TextAppenderObserver">TextAppenderObserver</a> → Observer</dd></dl></div>
+    </li><li name="kafka4m.io.TextAppenderObserver#size" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="size():Int"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#size():Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">size</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       
       
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -500,26 +655,10 @@ The idea is that we'll be processing a number of consumer records which have a t
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="kafka4m.partitions.TimePartitionState#timeBucketSizeInMinutes" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="timeBucketSizeInMinutes:Int"></a>
+    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#timeBucketSizeInMinutes:Int" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">timeBucketSizeInMinutes</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      
-      
-    </li><li name="kafka4m.partitions.TimePartitionState#update" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="update(record:A,messageNumber:Long):(kafka4m.partitions.TimePartitionState[A],Seq[kafka4m.partitions.AppendEvent[A]])"></a><a id="update(A,Long):(TimePartitionState[A],Seq[AppendEvent[A]])"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#update(record:A,messageNumber:Long):(kafka4m.partitions.TimePartitionState[A],Seq[kafka4m.partitions.AppendEvent[A]])" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#toString():String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -528,14 +667,14 @@ The idea is that we'll be processing a number of consumer records which have a t
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">update</span><span class="params">(<span name="record">record: <span class="extype" name="kafka4m.partitions.TimePartitionState.A">A</span></span>, <span name="messageNumber">messageNumber: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: (<a href="" class="extype" name="kafka4m.partitions.TimePartitionState">TimePartitionState</a>[<span class="extype" name="kafka4m.partitions.TimePartitionState.A">A</span>], <span class="extype" name="scala.Seq">Seq</span>[<a href="AppendEvent.html" class="extype" name="kafka4m.partitions.AppendEvent">AppendEvent</a>[<span class="extype" name="kafka4m.partitions.TimePartitionState.A">A</span>]])</span>
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#wait():Unit" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -557,7 +696,7 @@ The idea is that we'll be processing a number of consumer records which have a t
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -579,7 +718,7 @@ The idea is that we'll be processing a number of consumer records which have a t
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/partitions/TimePartitionState.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -610,14 +749,16 @@ The idea is that we'll be processing a number of consumer records which have a t
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.Serializable">
+        <div class="parent" name="com.typesafe.scalalogging.StrictLogging">
+              <h3>Inherited from <span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span></h3>
+            </div><div class="parent" name="java.lang.AutoCloseable">
+              <h3>Inherited from <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span></h3>
+            </div><div class="parent" name="monix.reactive.Observer">
+              <h3>Inherited from <span class="extype" name="monix.reactive.Observer">Observer</span>[<span class="extype" name="scala.Predef.String">String</span>]</h3>
+            </div><div class="parent" name="scala.Serializable">
               <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
             </div><div class="parent" name="java.io.Serializable">
               <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="scala.Product">
-              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
-            </div><div class="parent" name="scala.Equals">
-              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

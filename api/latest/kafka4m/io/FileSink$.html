@@ -104,10 +104,6 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="kafka4m">kafka4m</a></dd></dl></div>
     </li><li class="current-entities indented2">
-                        <a class="object" href="Base64AppenderObserver$.html" title=""></a>
-                        <a class="class" href="Base64AppenderObserver.html" title=""></a>
-                        <a href="Base64AppenderObserver.html" title="">Base64AppenderObserver</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="Base64Writer$.html" title=""></a>
                         <a class="class" href="Base64Writer.html" title="An ETL configuration which will take Kafka records and write them to some directory"></a>
                         <a href="Base64Writer.html" title="An ETL configuration which will take Kafka records and write them to some directory">Base64Writer</a>
@@ -119,6 +115,10 @@
                         <span class="separator"></span>
                         <a class="object" href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box."></a>
                         <a href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box.">FileSource</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="TextAppenderObserver$.html" title=""></a>
+                        <a class="class" href="TextAppenderObserver.html" title=""></a>
+                        <a href="TextAppenderObserver.html" title="">TextAppenderObserver</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="ZipAppenderObserver.html" title=""></a>
@@ -274,9 +274,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="kafka4m.io.FileSink#base64" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="base64(file:java.nio.file.Path,flushEvery:Int):kafka4m.io.Base64AppenderObserver"></a><a id="base64(Path,Int):Base64AppenderObserver"></a>
+      <a id="base64(file:java.nio.file.Path,flushEvery:Int):kafka4m.io.TextAppenderObserver"></a><a id="base64(Path,Int):TextAppenderObserver"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/FileSink$.html#base64(file:java.nio.file.Path,flushEvery:Int):kafka4m.io.Base64AppenderObserver" title="Permalink">
+      <a href="../../kafka4m/io/FileSink$.html#base64(file:java.nio.file.Path,flushEvery:Int):kafka4m.io.TextAppenderObserver" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -285,7 +285,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">base64</span><span class="params">(<span name="file">file: <span class="extype" name="java.nio.file.Path">Path</span></span>, <span name="flushEvery">flushEvery: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">10</span></span>)</span><span class="result">: <a href="Base64AppenderObserver.html" class="extype" name="kafka4m.io.Base64AppenderObserver">Base64AppenderObserver</a></span>
+        <span class="name">base64</span><span class="params">(<span name="file">file: <span class="extype" name="java.nio.file.Path">Path</span></span>, <span name="flushEvery">flushEvery: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">10</span></span>)</span><span class="result">: <a href="TextAppenderObserver.html" class="extype" name="kafka4m.io.TextAppenderObserver">TextAppenderObserver</a></span>
       </span>
       
       <p class="shortcomment cmt">A class which can append entries to a file.</p><div class="fullcomment"><div class="comment cmt"><p>A class which can append entries to a file.</p><p>Each entry will be a base64 line

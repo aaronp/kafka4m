@@ -20,7 +20,7 @@
 
 <meta name="description" content="kafka4m">
 <link rel="shortcut icon" href="assets/images/favicon.png">
-<title>Usage · Kafka4m</title>
+<title> · Kafka4m</title>
 <link rel="stylesheet" href="assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#ef5350" />
@@ -60,7 +60,6 @@ data-md-color-accent="orange"
 Kafka4m
 </span>
 <span class="md-header-nav__topic">
-Usage
 </span>
 </div>
 </div>
@@ -118,19 +117,12 @@ aaronp/kafka4m
 
 </div>
 <ul>
-  <li><a href="usage.html" class="active page">Usage</a></li>
+  <li><a href="usage.html" class="page">Usage</a></li>
   <li><a href="building.html" class="page">Kafka4m</a></li>
-  <li><a href="testing.html" class="page">testing.html</a></li>
+  <li><a href="testing.html" class="active page">testing.html</a></li>
   <li><a href="license.html" class="page">License</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">Table of contents</label>
-<ul>
-  <li><a href="usage.html#usage" class="header">Usage</a>
-  <ul>
-    <li><a href="usage.html#copy-a-kafka-topic-" class="header">Copy A Kafka Topic:</a></li>
-  </ul></li>
-</ul>
 </nav>
 
 </nav>
@@ -144,40 +136,25 @@ aaronp/kafka4m
 </div>
 </div>
 </div>
-<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
-<div class="md-sidebar__scrollwrap">
-<div class="md-sidebar__inner">
-<nav class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">Table of contents</label>
-<ul>
-  <li><a href="usage.html#usage" class="header">Usage</a>
-  <ul>
-    <li><a href="usage.html#copy-a-kafka-topic-" class="header">Copy A Kafka Topic:</a></li>
-  </ul></li>
-</ul>
-</nav>
-
-</div>
-</div>
-</div>
 <div class="md-content">
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
-<h2><a href="#usage" name="usage" class="anchor"><span class="anchor-link"></span></a>Usage</h2>
-<p>The kafka configurations are based on the the kafka4m typesafe configuration. In practice the intent is to achieve similar things to what Kafka Streams gives you (but w/o relying on the kafka streams API)</p>
-<h2><a href="#copy-a-kafka-topic-" name="copy-a-kafka-topic-" class="anchor"><span class="anchor-link"></span></a>Copy A Kafka Topic:</h2>
-<pre class="prettyprint"><code class="language-$xslt"><br/>// write data to kafka (assumes a configuration akin to kafka4m.producer.topic = someNewTopic)
-val kafkaWriter: Consumer[Array[Byte], Long] = kafka4m.writeBytes(config)
-
-// read data from kafka (assumes a configuration akin to kafka4m.consumer.topic = originalTopic)
-val kafkaData: Observable[ConsumerRecord[String, Array[Byte]]] = kafka4m.read(config)
-
-// then we&#39;d write it back into kafka like this.
-val task: Task[Long] = kafkaData.map(_.value).consumeWith(kafkaWriter)
+<p>Testing</p>
+<p>This project uses <a href="https://github.com/aaronp/dockerenv/#dockerenv">dockerenv</a> to run the tests against a &lsquo;real&rsquo; running kafka instance.</p>
+<p>When testing, either manually or via automated tests, it can be helpful to inspect the data for a particular topic.</p>
+<p>For example, in the Kafka4mAppTest, once data is written to some unique topic, you might want to ssh onto your locally running kafka instance and inspect the data:</p>
+<p>Assuming the Kafka4mApp created topic ABC123:</p>
+<pre class="prettyprint"><code class="language-$xslt">docker exec -it  test-kafka /bin/bash
+cd /opt/kafka_2.12-2.2.0/bin/
+./kafka-topics.sh --list  --zookeeper localhost:2181 | grep ABC123
+./kafka-console-consumer.sh  --topic ABC123  --bootstrap-server localhost:9092 --from-beginning
+</code></pre>
+<p>Or simply:</p>
+<pre class="prettyprint"><code class="language-$xslt">docker exec test-kafka /opt/kafka_2.12-2.2.0/bin/kafka-topics.sh --list  --zookeeper localhost:2181
 </code></pre>
 </div>
 <div>
-<a href="https://github.com/aaronp/kafka4m/tree/master/src/main/paradox/usage.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/aaronp/kafka4m/tree/master/src/main/paradox/testing.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
@@ -193,7 +170,7 @@ Edit this page
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav class="md-footer-nav__inner md-grid">
-<a href="index.html" title="Kafka4m" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<a href="building.html" title="Kafka4m" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
 <div class="md-flex__cell md-flex__cell--shrink">
 <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
 </div>
@@ -206,13 +183,13 @@ Kafka4m
 </span>
 </div>
 </a>
-<a href="building.html" title="Kafka4m" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<a href="license.html" title="License" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
 <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
 <span class="md-flex__ellipsis">
 <span class="md-footer-nav__direction">
 Next
 </span>
-Kafka4m
+License
 </span>
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">

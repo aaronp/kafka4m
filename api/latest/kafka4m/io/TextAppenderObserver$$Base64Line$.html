@@ -103,61 +103,64 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="kafka4m">kafka4m</a></dd></dl></div>
-    </li><li class="current-entities indented2">
-                        <a class="object" href="Base64AppenderObserver$.html" title=""></a>
-                        <a class="class" href="" title=""></a>
-                        <a href="" title="">Base64AppenderObserver</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="Base64Writer$.html" title=""></a>
-                        <a class="class" href="Base64Writer.html" title="An ETL configuration which will take Kafka records and write them to some directory"></a>
-                        <a href="Base64Writer.html" title="An ETL configuration which will take Kafka records and write them to some directory">Base64Writer</a>
-                      </li><li class="current-entities indented2">
+    </li><li name="kafka4m.io.TextAppenderObserver" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TextAppenderObserver"></a><a id="TextAppenderObserver:TextAppenderObserver"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/index.html#TextAppenderObserver" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="TextAppenderObserver$.html"><span class="name">TextAppenderObserver</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="kafka4m.io">io</a></dd></dl></div>
+    </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="FileSink$.html" title="Means to write data to zips"></a>
-                        <a href="FileSink$.html" title="Means to write data to zips">FileSink</a>
-                      </li><li class="current-entities indented2">
+                        <a class="object" href="" title="The 'show' for byte arrays is written to files as:"></a>
+                        <a href="" title="The 'show' for byte arrays is written to files as:">Base64Line</a>
+                      </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box."></a>
-                        <a href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box.">FileSource</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="class" href="ZipAppenderObserver.html" title=""></a>
-                        <a href="ZipAppenderObserver.html" title="">ZipAppenderObserver</a>
+                        <a class="object" href="TextAppenderObserver$$ShowRecord$.html" title=""></a>
+                        <a href="TextAppenderObserver$$ShowRecord$.html" title="">ShowRecord</a>
                       </li>
               </ul>
             </div>
           </div>
           <div id="content">
-            <body class="class type">
+            <body class="object value">
       <div id="definition">
-        <a href="Base64AppenderObserver$.html" title="See companion object"><div class="big-circle class-companion-object">c</div></a>
-        <p id="owner"><a href="../index.html" class="extype" name="kafka4m">kafka4m</a>.<a href="index.html" class="extype" name="kafka4m.io">io</a></p>
-        <h1><a href="Base64AppenderObserver$.html" title="See companion object">Base64AppenderObserver</a><span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html" title="Permalink">
+        <div class="big-circle object">o</div>
+        <p id="owner"><a href="../index.html" class="extype" name="kafka4m">kafka4m</a>.<a href="index.html" class="extype" name="kafka4m.io">io</a>.<a href="TextAppenderObserver$.html" class="extype" name="kafka4m.io.TextAppenderObserver">TextAppenderObserver</a></p>
+        <h1>Base64Line<span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
-        <h3><span class="morelinks"><div>
-            Companion <a href="Base64AppenderObserver$.html" title="See companion object">object Base64AppenderObserver</a>
-          </div></span></h3>
+        <h3><span class="morelinks"></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">Base64AppenderObserver</span><span class="result"> extends <span class="extype" name="monix.reactive.Observer">Observer</span>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span> with <span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span></span>
+        <span class="name">Base64Line</span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The 'show' for byte arrays is written to files as:</p><pre>&lt;key<span class="kw">&gt;:</span>&lt;base <span class="num">64</span>&gt;</pre><p> This extractor will parse a line as taken from an appended file
+</p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span>, <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span>, <span class="extype" name="monix.reactive.Observer">Observer</span>[<span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -183,7 +186,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="kafka4m.io.Base64AppenderObserver"><span>Base64AppenderObserver</span></li><li class="in" name="com.typesafe.scalalogging.StrictLogging"><span>StrictLogging</span></li><li class="in" name="java.lang.AutoCloseable"><span>AutoCloseable</span></li><li class="in" name="monix.reactive.Observer"><span>Observer</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="kafka4m.io.TextAppenderObserver.Base64Line"><span>Base64Line</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -201,26 +204,7 @@
 
       <div id="template">
         <div id="allMembers">
-        <div id="constructors" class="members">
-              <h3>Instance Constructors</h3>
-              <ol><li name="kafka4m.io.Base64AppenderObserver#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(file:java.nio.file.Path,flushEvery:Int):kafka4m.io.Base64AppenderObserver"></a><a id="&lt;init&gt;:Base64AppenderObserver"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#&lt;init&gt;(file:java.nio.file.Path,flushEvery:Int):kafka4m.io.Base64AppenderObserver" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">new</span>
-      </span>
-      <span class="symbol">
-        <span class="name">Base64AppenderObserver</span><span class="params">(<span name="file">file: <span class="extype" name="java.nio.file.Path">Path</span></span>, <span name="flushEvery">flushEvery: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">10</span></span>)</span>
-      </span>
-      
-      
-    </li></ol>
-            </div>
+        
 
         
 
@@ -232,7 +216,7 @@
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -248,7 +232,7 @@
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html###():Int" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -264,7 +248,7 @@
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -277,42 +261,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="kafka4m.io.Base64AppenderObserver#append" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="append(name:String,data:Array[Byte]):Unit"></a><a id="append(String,Array[Byte]):Unit"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#append(name:String,data:Array[Byte]):Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">append</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="data">data: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      
-      
-    </li><li name="kafka4m.io.Base64AppenderObserver#appendLine" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="appendLine(line:String):Unit"></a><a id="appendLine(String):Unit"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#appendLine(line:String):Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">appendLine</span><span class="params">(<span name="line">line: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      
-      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -328,7 +280,7 @@
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#clone():Object" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -349,26 +301,10 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="kafka4m.io.Base64AppenderObserver#close" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="close():Unit"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#close():Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">close</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="kafka4m.io.Base64AppenderObserver">Base64AppenderObserver</a> → AutoCloseable</dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -384,7 +320,7 @@
     </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#equals(x$1:Any):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#equals(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -397,26 +333,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="kafka4m.io.Base64AppenderObserver#file" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="file:java.nio.file.Path"></a><a id="file:Path"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#file:java.nio.file.Path" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">file</span><span class="result">: <span class="extype" name="java.nio.file.Path">Path</span></span>
-      </span>
-      
-      
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#finalize():Unit" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -435,26 +355,10 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="kafka4m.io.Base64AppenderObserver#flush" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="flush():Unit"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#flush():Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">flush</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      
-      
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#getClass():Class[_]" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -473,7 +377,7 @@
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#hashCode():Int" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#hashCode():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -489,26 +393,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="kafka4m.io.Base64AppenderObserver#isClosed" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="isClosed():Boolean"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#isClosed():Boolean" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">isClosed</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      
-      
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -521,26 +409,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="com.typesafe.scalalogging.StrictLogging#logger" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="logger:com.typesafe.scalalogging.Logger"></a><a id="logger:Logger"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#logger:com.typesafe.scalalogging.Logger" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">logger</span><span class="result">: <span class="extype" name="com.typesafe.scalalogging.Logger">Logger</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>StrictLogging</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -556,7 +428,7 @@
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#notify():Unit" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -575,7 +447,7 @@
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#notifyAll():Unit" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -591,74 +463,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="kafka4m.io.Base64AppenderObserver#onComplete" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="onComplete():Unit"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#onComplete():Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">onComplete</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="kafka4m.io.Base64AppenderObserver">Base64AppenderObserver</a> → Observer</dd></dl></div>
-    </li><li name="kafka4m.io.Base64AppenderObserver#onError" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="onError(ex:Throwable):Unit"></a><a id="onError(Throwable):Unit"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#onError(ex:Throwable):Unit" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">onError</span><span class="params">(<span name="ex">ex: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="kafka4m.io.Base64AppenderObserver">Base64AppenderObserver</a> → Observer</dd></dl></div>
-    </li><li name="kafka4m.io.Base64AppenderObserver#onNext" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="onNext(elem:String):scala.concurrent.Future[monix.execution.Ack]"></a><a id="onNext(String):Future[Ack]"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#onNext(elem:String):scala.concurrent.Future[monix.execution.Ack]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">onNext</span><span class="params">(<span name="elem">elem: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="monix.execution.Ack">Ack</span>]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="kafka4m.io.Base64AppenderObserver">Base64AppenderObserver</a> → Observer</dd></dl></div>
-    </li><li name="kafka4m.io.Base64AppenderObserver#size" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="size():Int"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#size():Int" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">size</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      
-      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -674,7 +482,7 @@
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#toString():String" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#toString():String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -687,10 +495,26 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="kafka4m.io.TextAppenderObserver.Base64Line#unapply" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="unapply(line:String):Option[(String,Array[Byte])]"></a><a id="unapply(String):Option[(String,Array[Byte])]"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#unapply(line:String):Option[(String,Array[Byte])]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">unapply</span><span class="params">(<span name="line">line: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>])]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#wait():Unit" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -712,7 +536,7 @@
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -734,7 +558,7 @@
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/Base64AppenderObserver.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../kafka4m/io/TextAppenderObserver$$Base64Line$.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -765,17 +589,7 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="com.typesafe.scalalogging.StrictLogging">
-              <h3>Inherited from <span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span></h3>
-            </div><div class="parent" name="java.lang.AutoCloseable">
-              <h3>Inherited from <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span></h3>
-            </div><div class="parent" name="monix.reactive.Observer">
-              <h3>Inherited from <span class="extype" name="monix.reactive.Observer">Observer</span>[<span class="extype" name="scala.Predef.String">String</span>]</h3>
-            </div><div class="parent" name="scala.Serializable">
-              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="java.io.Serializable">
-              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

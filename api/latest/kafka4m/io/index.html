@@ -136,10 +136,6 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="kafka4m">kafka4m</a></dd></dl></div>
     </li><li class="current-entities indented2">
-                        <a class="object" href="Base64AppenderObserver$.html" title=""></a>
-                        <a class="class" href="Base64AppenderObserver.html" title=""></a>
-                        <a href="Base64AppenderObserver.html" title="">Base64AppenderObserver</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="Base64Writer$.html" title=""></a>
                         <a class="class" href="Base64Writer.html" title="An ETL configuration which will take Kafka records and write them to some directory"></a>
                         <a href="Base64Writer.html" title="An ETL configuration which will take Kafka records and write them to some directory">Base64Writer</a>
@@ -151,6 +147,10 @@
                         <span class="separator"></span>
                         <a class="object" href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box."></a>
                         <a href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box.">FileSource</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="TextAppenderObserver$.html" title=""></a>
+                        <a class="class" href="TextAppenderObserver.html" title=""></a>
+                        <a href="TextAppenderObserver.html" title="">TextAppenderObserver</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="ZipAppenderObserver.html" title=""></a>
@@ -266,23 +266,7 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="kafka4m.io.Base64AppenderObserver" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Base64AppenderObserverextendsObserver[String]withAutoCloseablewithStrictLogging"></a><a id="Base64AppenderObserver:Base64AppenderObserver"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/index.html#Base64AppenderObserverextendsObserver[String]withAutoCloseablewithStrictLogging" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="Base64AppenderObserver.html"><span class="name">Base64AppenderObserver</span></a><span class="result"> extends <span class="extype" name="monix.reactive.Observer">Observer</span>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span> with <span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span></span>
-      </span>
-      
-      
-    </li><li name="kafka4m.io.Base64Writer" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="kafka4m.io.Base64Writer" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="Base64Writer[A]extendsProductwithSerializable"></a><a id="Base64Writer[A]:Base64Writer[A]"></a>
       <span class="permalink">
       <a href="../../kafka4m/io/index.html#Base64Writer[A]extendsProductwithSerializable" title="Permalink">
@@ -300,6 +284,22 @@
       <p class="shortcomment cmt">An ETL configuration which will take Kafka records and write them to some directory
 </p><div class="fullcomment"><div class="comment cmt"><p>An ETL configuration which will take Kafka records and write them to some directory
 </p></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the record type</p></dd><dt class="param">dir</dt><dd class="cmt"><p>the directory to write the buckets under</p></dd><dt class="param">recordsReceivedBeforeClosingBucket</dt><dd class="cmt"><p>see comments in reference.conf</p></dd><dt class="param">numberOfAppendsBeforeWriterFlush</dt><dd class="cmt"><p>see comments in reference.conf</p></dd><dt class="param">timeBucketMinutes</dt><dd class="cmt"><p>see comments in reference.conf</p></dd></dl></div>
+    </li><li name="kafka4m.io.TextAppenderObserver" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TextAppenderObserverextendsObserver[String]withAutoCloseablewithStrictLogging"></a><a id="TextAppenderObserver:TextAppenderObserver"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/index.html#TextAppenderObserverextendsObserver[String]withAutoCloseablewithStrictLogging" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="TextAppenderObserver.html"><span class="name">TextAppenderObserver</span></a><span class="result"> extends <span class="extype" name="monix.reactive.Observer">Observer</span>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span> with <span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span></span>
+      </span>
+      
+      
     </li><li name="kafka4m.io.ZipAppenderObserver" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ZipAppenderObserverextendsObserver[(String,Array[Byte])]withAutoCloseablewithStrictLogging"></a><a id="ZipAppenderObserver:ZipAppenderObserver"></a>
       <span class="permalink">
@@ -324,23 +324,7 @@
         <div class="values members">
               <h3>Value Members</h3>
               <ol>
-                <li name="kafka4m.io.Base64AppenderObserver" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Base64AppenderObserver"></a><a id="Base64AppenderObserver:Base64AppenderObserver"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/io/index.html#Base64AppenderObserver" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="Base64AppenderObserver$.html"><span class="name">Base64AppenderObserver</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      
-      
-    </li><li name="kafka4m.io.Base64Writer" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+                <li name="kafka4m.io.Base64Writer" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Base64Writer"></a><a id="Base64Writer:Base64Writer"></a>
       <span class="permalink">
       <a href="../../kafka4m/io/index.html#Base64Writer" title="Permalink">
@@ -390,6 +374,22 @@
       
       <p class="shortcomment cmt">A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box.</p><div class="fullcomment"><div class="comment cmt"><p>A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box.</p><p>This way we can get a stream of data from each file
 </p></div></div>
+    </li><li name="kafka4m.io.TextAppenderObserver" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TextAppenderObserver"></a><a id="TextAppenderObserver:TextAppenderObserver"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/index.html#TextAppenderObserver" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="TextAppenderObserver$.html"><span class="name">TextAppenderObserver</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
     </li>
               </ol>
             </div>

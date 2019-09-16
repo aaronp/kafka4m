@@ -149,7 +149,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">EtlConfig</span><span class="params">(<span name="dataDir">dataDir: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="cache">cache: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="rateLimitPerSecond">rateLimitPerSecond: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="repeat">repeat: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="fileNamesAsKeys">fileNamesAsKeys: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">EtlConfig</span><span class="params">(<span name="dataDir">dataDir: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="cache">cache: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="rateLimitPerSecond">rateLimitPerSecond: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="limit">limit: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Long">Long</span>]</span>, <span name="repeat">repeat: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="fileNamesAsKeys">fileNamesAsKeys: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
@@ -205,9 +205,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="kafka4m.io.FileSource.EtlConfig#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(dataDir:String,cache:Boolean,rateLimitPerSecond:Option[Int],repeat:Boolean,fileNamesAsKeys:Boolean):kafka4m.io.FileSource.EtlConfig"></a><a id="&lt;init&gt;:EtlConfig"></a>
+      <a id="&lt;init&gt;(dataDir:String,cache:Boolean,rateLimitPerSecond:Option[Int],limit:Option[Long],repeat:Boolean,fileNamesAsKeys:Boolean):kafka4m.io.FileSource.EtlConfig"></a><a id="&lt;init&gt;:EtlConfig"></a>
       <span class="permalink">
-      <a href="../../kafka4m/io/FileSource$$EtlConfig.html#&lt;init&gt;(dataDir:String,cache:Boolean,rateLimitPerSecond:Option[Int],repeat:Boolean,fileNamesAsKeys:Boolean):kafka4m.io.FileSource.EtlConfig" title="Permalink">
+      <a href="../../kafka4m/io/FileSource$$EtlConfig.html#&lt;init&gt;(dataDir:String,cache:Boolean,rateLimitPerSecond:Option[Int],limit:Option[Long],repeat:Boolean,fileNamesAsKeys:Boolean):kafka4m.io.FileSource.EtlConfig" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -216,7 +216,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">EtlConfig</span><span class="params">(<span name="dataDir">dataDir: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="cache">cache: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="rateLimitPerSecond">rateLimitPerSecond: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="repeat">repeat: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="fileNamesAsKeys">fileNamesAsKeys: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span>
+        <span class="name">EtlConfig</span><span class="params">(<span name="dataDir">dataDir: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="cache">cache: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="rateLimitPerSecond">rateLimitPerSecond: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="limit">limit: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Long">Long</span>]</span>, <span name="repeat">repeat: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="fileNamesAsKeys">fileNamesAsKeys: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span>
       </span>
       
       
@@ -439,6 +439,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="kafka4m.io.FileSource.EtlConfig#limit" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="limit:Option[Long]"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/FileSource$$EtlConfig.html#limit:Option[Long]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">limit</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Long">Long</span>]</span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">

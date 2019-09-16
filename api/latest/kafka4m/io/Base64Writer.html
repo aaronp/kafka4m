@@ -104,10 +104,6 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="kafka4m">kafka4m</a></dd></dl></div>
     </li><li class="current-entities indented2">
-                        <a class="object" href="Base64AppenderObserver$.html" title=""></a>
-                        <a class="class" href="Base64AppenderObserver.html" title=""></a>
-                        <a href="Base64AppenderObserver.html" title="">Base64AppenderObserver</a>
-                      </li><li class="current-entities indented2">
                         <a class="object" href="Base64Writer$.html" title=""></a>
                         <a class="class" href="" title="An ETL configuration which will take Kafka records and write them to some directory"></a>
                         <a href="" title="An ETL configuration which will take Kafka records and write them to some directory">Base64Writer</a>
@@ -119,6 +115,10 @@
                         <span class="separator"></span>
                         <a class="object" href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box."></a>
                         <a href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box.">FileSource</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="TextAppenderObserver$.html" title=""></a>
+                        <a class="class" href="TextAppenderObserver.html" title=""></a>
+                        <a href="TextAppenderObserver.html" title="">TextAppenderObserver</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="ZipAppenderObserver.html" title=""></a>
@@ -278,6 +278,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="kafka4m.io.Base64Writer#asEvents" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="asEvents(input:monix.reactive.Observable[A]):monix.reactive.Observable[kafka4m.partitions.AppendEvent[A]]"></a><a id="asEvents(Observable[A]):Observable[AppendEvent[A]]"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#asEvents(input:monix.reactive.Observable[A]):monix.reactive.Observable[kafka4m.partitions.AppendEvent[A]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asEvents</span><span class="params">(<span name="input">input: <span class="extype" name="monix.reactive.Observable">Observable</span>[<span class="extype" name="kafka4m.io.Base64Writer.A">A</span>]</span>)</span><span class="result">: <span class="extype" name="monix.reactive.Observable">Observable</span>[<a href="../partitions/AppendEvent.html" class="extype" name="kafka4m.partitions.AppendEvent">AppendEvent</a>[<span class="extype" name="kafka4m.io.Base64Writer.A">A</span>]]</span>
+      </span>
+      
+      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
@@ -609,6 +625,22 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="kafka4m.io.Base64Writer#write" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="write(events:monix.reactive.Observable[kafka4m.partitions.AppendEvent[A]]):monix.reactive.Observable[(kafka4m.partitions.TimeBucket,java.nio.file.Path)]"></a><a id="write(Observable[AppendEvent[A]]):Observable[(TimeBucket,Path)]"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#write(events:monix.reactive.Observable[kafka4m.partitions.AppendEvent[A]]):monix.reactive.Observable[(kafka4m.partitions.TimeBucket,java.nio.file.Path)]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">write</span><span class="params">(<span name="events">events: <span class="extype" name="monix.reactive.Observable">Observable</span>[<a href="../partitions/AppendEvent.html" class="extype" name="kafka4m.partitions.AppendEvent">AppendEvent</a>[<span class="extype" name="kafka4m.io.Base64Writer.A">A</span>]]</span>)</span><span class="result">: <span class="extype" name="monix.reactive.Observable">Observable</span>[(<a href="../partitions/TimeBucket.html" class="extype" name="kafka4m.partitions.TimeBucket">TimeBucket</a>, <span class="extype" name="java.nio.file.Path">Path</span>)]</span>
+      </span>
+      
+      
     </li>
               </ol>
             </div>
