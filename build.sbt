@@ -20,7 +20,7 @@ paradoxProperties += ("project.url" -> "https://aaronp.github.io/kafka4m/docs/cu
 
 Compile / paradoxMaterialTheme ~= {
   _.withLanguage(java.util.Locale.ENGLISH)
-    .withColor("red", "orange")
+    .withColor("blue", "white")
     .withLogoIcon("kafka4m")
     .withLogoUri(new URI("https://images.app.goo.gl/fSucxpUKKzkWEqKv6"))
     .withRepository(uri("https://github.com/aaronp/kafka4m"))

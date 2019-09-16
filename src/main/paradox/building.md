@@ -18,3 +18,13 @@ $ docker login
 $ docker tag abcdefg123456789 porpoiseltd/kafka4m:dev0.0.0
 $ docker push porpoiseltd/kafka4m:dev0.0.0
 ```
+
+
+## Releasing
+
+To release a new version:
+
+```$xslt
+sbt release
+```
+
