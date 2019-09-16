@@ -87,10 +87,10 @@
       <p class="shortcomment cmt">The high-level API space for kafka consumers
 </p><div class="fullcomment"><div class="comment cmt"><p>The high-level API space for kafka consumers
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
-    </li><li name="kafka4m.producer" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="producer"></a><a id="producer:producer"></a>
+    </li><li name="kafka4m.io" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="io"></a><a id="io:io"></a>
       <span class="permalink">
-      <a href="../kafka4m/index.html#producer" title="Permalink">
+      <a href="../kafka4m/index.html#io" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -99,68 +99,67 @@
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="index.html"><span class="name">producer</span></a>
+        <a title="" href="index.html"><span class="name">io</span></a>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="kafka4m">kafka4m</a></dd></dl></div>
     </li><li class="current-entities indented2">
-                        <a class="object" href="AsProducerRecord$.html" title=""></a>
-                        <a class="trait" href="" title="A typeclass to allow the publication of any record 'A' which can be converted into a producer record"></a>
-                        <a href="" title="A typeclass to allow the publication of any record 'A' which can be converted into a producer record">AsProducerRecord</a>
+                        <a class="object" href="Base64AppenderObserver$.html" title=""></a>
+                        <a class="class" href="Base64AppenderObserver.html" title=""></a>
+                        <a href="Base64AppenderObserver.html" title="">Base64AppenderObserver</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="Base64Writer$.html" title=""></a>
+                        <a class="class" href="" title="An ETL configuration which will take Kafka records and write them to some directory"></a>
+                        <a href="" title="An ETL configuration which will take Kafka records and write them to some directory">Base64Writer</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="object" href="LoggingCallback$.html" title=""></a>
-                        <a href="LoggingCallback$.html" title="">LoggingCallback</a>
+                        <a class="object" href="FileSink$.html" title="Means to write data to zips"></a>
+                        <a href="FileSink$.html" title="Means to write data to zips">FileSink</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="PromiseCallback.html" title=""></a>
-                        <a href="PromiseCallback.html" title="">PromiseCallback</a>
+                        <a class="object" href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box."></a>
+                        <a href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box.">FileSource</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="RichKafkaProducer$.html" title=""></a>
-                        <a class="class" href="RichKafkaProducer.html" title=""></a>
-                        <a href="RichKafkaProducer.html" title="">RichKafkaProducer</a>
+                        <span class="separator"></span>
+                        <a class="class" href="ZipAppenderObserver.html" title=""></a>
+                        <a href="ZipAppenderObserver.html" title="">ZipAppenderObserver</a>
                       </li>
               </ul>
             </div>
           </div>
           <div id="content">
-            <body class="trait type">
+            <body class="class type">
       <div id="definition">
-        <a href="AsProducerRecord$.html" title="See companion object"><div class="big-circle trait-companion-object">t</div></a>
-        <p id="owner"><a href="../index.html" class="extype" name="kafka4m">kafka4m</a>.<a href="index.html" class="extype" name="kafka4m.producer">producer</a></p>
-        <h1><a href="AsProducerRecord$.html" title="See companion object">AsProducerRecord</a><span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html" title="Permalink">
+        <a href="Base64Writer$.html" title="See companion object"><div class="big-circle class-companion-object">c</div></a>
+        <p id="owner"><a href="../index.html" class="extype" name="kafka4m">kafka4m</a>.<a href="index.html" class="extype" name="kafka4m.io">io</a></p>
+        <h1><a href="Base64Writer$.html" title="See companion object">Base64Writer</a><span class="permalink">
+      <a href="../../kafka4m/io/Base64Writer.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
         <h3><span class="morelinks"><div>
-            Companion <a href="AsProducerRecord$.html" title="See companion object">object AsProducerRecord</a>
+            Companion <a href="Base64Writer$.html" title="See companion object">object Base64Writer</a>
           </div></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">AsProducerRecord</span><span class="tparams">[<span name="A">-A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">Base64Writer</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="dir">dir: <span class="extype" name="java.nio.file.Path">Path</span></span>, <span name="recordsReceivedBeforeClosingBucket">recordsReceivedBeforeClosingBucket: <span class="extype" name="scala.Int">Int</span></span>, <span name="numberOfAppendsBeforeWriterFlush">numberOfAppendsBeforeWriterFlush: <span class="extype" name="scala.Int">Int</span></span>, <span name="timeBucketMinutes">timeBucketMinutes: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evidence$1">evidence$1: <a href="../partitions/HasTimestamp.html" class="extype" name="kafka4m.partitions.HasTimestamp">HasTimestamp</a>[<span class="extype" name="kafka4m.io.Base64Writer.A">A</span>]</span>, <span name="evidence$2">evidence$2: <span class="extype" name="cats.Show">Show</span>[<span class="extype" name="kafka4m.io.Base64Writer.A">A</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A typeclass to allow the publication of any record 'A' which can be converted into a producer record
-</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>An ETL configuration which will take Kafka records and write them to some directory
+</p></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the record type</p></dd><dt class="param">dir</dt><dd class="cmt"><p>the directory to write the buckets under</p></dd><dt class="param">recordsReceivedBeforeClosingBucket</dt><dd class="cmt"><p>see comments in reference.conf</p></dd><dt class="param">numberOfAppendsBeforeWriterFlush</dt><dd class="cmt"><p>see comments in reference.conf</p></dd><dt class="param">timeBucketMinutes</dt><dd class="cmt"><p>see comments in reference.conf</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
-        </div><div class="toggleContainer block">
-            <span class="toggle">
-              Known Subclasses
-            </span>
-            <div class="subClasses hiddenContent"><a href="AsProducerRecord$$FromBytes.html" class="extype" name="kafka4m.producer.AsProducerRecord.FromBytes">FromBytes</a>, <a href="AsProducerRecord$$FromKeyAndBytes.html" class="extype" name="kafka4m.producer.AsProducerRecord.FromKeyAndBytes">FromKeyAndBytes</a>, <a href="AsProducerRecord$$FromString.html" class="extype" name="kafka4m.producer.AsProducerRecord.FromString">FromString</a></div>
-          </div></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
         
 
       <div id="mbrsel">
@@ -185,7 +184,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="kafka4m.producer.AsProducerRecord"><span>AsProducerRecord</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="kafka4m.io.Base64Writer"><span>Base64Writer</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -203,73 +202,38 @@
 
       <div id="template">
         <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="kafka4m.io.Base64Writer#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;init&gt;(dir:java.nio.file.Path,recordsReceivedBeforeClosingBucket:Int,numberOfAppendsBeforeWriterFlush:Int,timeBucketMinutes:Int)(implicitevidence$1:kafka4m.partitions.HasTimestamp[A],implicitevidence$2:cats.Show[A]):kafka4m.io.Base64Writer[A]"></a><a id="&lt;init&gt;:Base64Writer[A]"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#&lt;init&gt;(dir:java.nio.file.Path,recordsReceivedBeforeClosingBucket:Int,numberOfAppendsBeforeWriterFlush:Int,timeBucketMinutes:Int)(implicitevidence$1:kafka4m.partitions.HasTimestamp[A],implicitevidence$2:cats.Show[A]):kafka4m.io.Base64Writer[A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Base64Writer</span><span class="params">(<span name="dir">dir: <span class="extype" name="java.nio.file.Path">Path</span></span>, <span name="recordsReceivedBeforeClosingBucket">recordsReceivedBeforeClosingBucket: <span class="extype" name="scala.Int">Int</span></span>, <span name="numberOfAppendsBeforeWriterFlush">numberOfAppendsBeforeWriterFlush: <span class="extype" name="scala.Int">Int</span></span>, <span name="timeBucketMinutes">timeBucketMinutes: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="../partitions/HasTimestamp.html" class="extype" name="kafka4m.partitions.HasTimestamp">HasTimestamp</a>[<span class="extype" name="kafka4m.io.Base64Writer.A">A</span>]</span>, <span name="arg1">arg1: <span class="extype" name="cats.Show">Show</span>[<span class="extype" name="kafka4m.io.Base64Writer.A">A</span>]</span>)</span>
+      </span>
+      
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the directory to write the buckets under</p></dd><dt class="param">recordsReceivedBeforeClosingBucket</dt><dd class="cmt"><p>see comments in reference.conf</p></dd><dt class="param">numberOfAppendsBeforeWriterFlush</dt><dd class="cmt"><p>see comments in reference.conf</p></dd><dt class="param">timeBucketMinutes</dt><dd class="cmt"><p>see comments in reference.conf</p></dd></dl></div>
+    </li></ol>
+            </div>
+
         
 
-        <div id="types" class="types members">
-              <h3>Type Members</h3>
-              <ol><li name="kafka4m.producer.AsProducerRecord.K" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="K"></a><a id="K:K"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#K" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">type</span>
-      </span>
-      <span class="symbol">
-        <span class="name">K</span>
-      </span>
-      
-      <p class="shortcomment cmt">The key type</p>
-    </li><li name="kafka4m.producer.AsProducerRecord.V" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="V"></a><a id="V:V"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#V" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">type</span>
-      </span>
-      <span class="symbol">
-        <span class="name">V</span>
-      </span>
-      
-      <p class="shortcomment cmt">The value type</p>
-    </li></ol>
-            </div>
+        
 
         <div class="values members">
-              <h3>Abstract Value Members</h3>
-              <ol><li name="kafka4m.producer.AsProducerRecord#asRecord" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="asRecord(value:A):org.apache.kafka.clients.producer.ProducerRecord[AsProducerRecord.this.K,AsProducerRecord.this.V]"></a><a id="asRecord(A):ProducerRecord[K,V]"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#asRecord(value:A):org.apache.kafka.clients.producer.ProducerRecord[AsProducerRecord.this.K,AsProducerRecord.this.V]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">asRecord</span><span class="params">(<span name="value">value: <span class="extype" name="kafka4m.producer.AsProducerRecord.A">A</span></span>)</span><span class="result">: <span class="extype" name="org.apache.kafka.clients.producer.ProducerRecord">ProducerRecord</span>[<a href="#K" class="extmbr" name="kafka4m.producer.AsProducerRecord.K">K</a>, <a href="#V" class="extmbr" name="kafka4m.producer.AsProducerRecord.V">V</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">value</dt><dd class="cmt"><p>the value to convert</p></dd><dt>returns</dt><dd class="cmt"><p>a producer record for the given value</p></dd></dl></div>
-    </li></ol>
-            </div>
-
-        <div class="values members">
-              <h3>Concrete Value Members</h3>
+              <h3>Value Members</h3>
               <ol>
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -285,7 +249,7 @@
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html###():Int" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -301,7 +265,7 @@
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -317,7 +281,7 @@
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -333,7 +297,7 @@
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#clone():Object" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -354,10 +318,26 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="kafka4m.io.Base64Writer#dir" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="dir:java.nio.file.Path"></a><a id="dir:Path"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#dir:java.nio.file.Path" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dir</span><span class="result">: <span class="extype" name="java.nio.file.Path">Path</span></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -370,26 +350,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#equals(x$1:Any):Boolean" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#finalize():Unit" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -411,7 +375,7 @@
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#getClass():Class[_]" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -427,29 +391,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#hashCode():Int" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
-                <span class="name">@native</span><span class="args">()</span>
-              
-        </dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -465,7 +410,7 @@
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -481,7 +426,7 @@
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#notify():Unit" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -500,7 +445,7 @@
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#notifyAll():Unit" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -516,10 +461,58 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="kafka4m.io.Base64Writer#numberOfAppendsBeforeWriterFlush" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="numberOfAppendsBeforeWriterFlush:Int"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#numberOfAppendsBeforeWriterFlush:Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">numberOfAppendsBeforeWriterFlush</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      
+      
+    </li><li name="kafka4m.io.Base64Writer#partition" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="partition(input:monix.reactive.Observable[A]):monix.reactive.Observable[(kafka4m.partitions.TimeBucket,java.nio.file.Path)]"></a><a id="partition(Observable[A]):Observable[(TimeBucket,Path)]"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#partition(input:monix.reactive.Observable[A]):monix.reactive.Observable[(kafka4m.partitions.TimeBucket,java.nio.file.Path)]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">partition</span><span class="params">(<span name="input">input: <span class="extype" name="monix.reactive.Observable">Observable</span>[<span class="extype" name="kafka4m.io.Base64Writer.A">A</span>]</span>)</span><span class="result">: <span class="extype" name="monix.reactive.Observable">Observable</span>[(<a href="../partitions/TimeBucket.html" class="extype" name="kafka4m.partitions.TimeBucket">TimeBucket</a>, <span class="extype" name="java.nio.file.Path">Path</span>)]</span>
+      </span>
+      
+      
+    </li><li name="kafka4m.io.Base64Writer#recordsReceivedBeforeClosingBucket" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="recordsReceivedBeforeClosingBucket:Int"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#recordsReceivedBeforeClosingBucket:Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">recordsReceivedBeforeClosingBucket</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -532,26 +525,26 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toString():String"></a>
+    </li><li name="kafka4m.io.Base64Writer#timeBucketMinutes" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="timeBucketMinutes:Int"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#toString():String" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#timeBucketMinutes:Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+        <span class="name">timeBucketMinutes</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#wait():Unit" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -573,7 +566,7 @@
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -595,7 +588,7 @@
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../kafka4m/io/Base64Writer.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -626,7 +619,15 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

@@ -87,10 +87,10 @@
       <p class="shortcomment cmt">The high-level API space for kafka consumers
 </p><div class="fullcomment"><div class="comment cmt"><p>The high-level API space for kafka consumers
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
-    </li><li name="kafka4m.producer" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="producer"></a><a id="producer:producer"></a>
+    </li><li name="kafka4m.io" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="io"></a><a id="io:io"></a>
       <span class="permalink">
-      <a href="../kafka4m/index.html#producer" title="Permalink">
+      <a href="../kafka4m/index.html#io" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -99,68 +99,64 @@
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="index.html"><span class="name">producer</span></a>
+        <a title="" href="index.html"><span class="name">io</span></a>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="kafka4m">kafka4m</a></dd></dl></div>
     </li><li class="current-entities indented2">
-                        <a class="object" href="AsProducerRecord$.html" title=""></a>
-                        <a class="trait" href="" title="A typeclass to allow the publication of any record 'A' which can be converted into a producer record"></a>
-                        <a href="" title="A typeclass to allow the publication of any record 'A' which can be converted into a producer record">AsProducerRecord</a>
+                        <a class="object" href="Base64AppenderObserver$.html" title=""></a>
+                        <a class="class" href="Base64AppenderObserver.html" title=""></a>
+                        <a href="Base64AppenderObserver.html" title="">Base64AppenderObserver</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="Base64Writer$.html" title=""></a>
+                        <a class="class" href="Base64Writer.html" title="An ETL configuration which will take Kafka records and write them to some directory"></a>
+                        <a href="Base64Writer.html" title="An ETL configuration which will take Kafka records and write them to some directory">Base64Writer</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="object" href="LoggingCallback$.html" title=""></a>
-                        <a href="LoggingCallback$.html" title="">LoggingCallback</a>
+                        <a class="object" href="FileSink$.html" title="Means to write data to zips"></a>
+                        <a href="FileSink$.html" title="Means to write data to zips">FileSink</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="PromiseCallback.html" title=""></a>
-                        <a href="PromiseCallback.html" title="">PromiseCallback</a>
+                        <a class="object" href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box."></a>
+                        <a href="FileSource$.html" title="A means to get a stream of data from a directory, if only to make kafka4m useful out-of-the-box.">FileSource</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="RichKafkaProducer$.html" title=""></a>
-                        <a class="class" href="RichKafkaProducer.html" title=""></a>
-                        <a href="RichKafkaProducer.html" title="">RichKafkaProducer</a>
+                        <span class="separator"></span>
+                        <a class="class" href="" title=""></a>
+                        <a href="" title="">ZipAppenderObserver</a>
                       </li>
               </ul>
             </div>
           </div>
           <div id="content">
-            <body class="trait type">
+            <body class="class type">
       <div id="definition">
-        <a href="AsProducerRecord$.html" title="See companion object"><div class="big-circle trait-companion-object">t</div></a>
-        <p id="owner"><a href="../index.html" class="extype" name="kafka4m">kafka4m</a>.<a href="index.html" class="extype" name="kafka4m.producer">producer</a></p>
-        <h1><a href="AsProducerRecord$.html" title="See companion object">AsProducerRecord</a><span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html" title="Permalink">
+        <div class="big-circle class">c</div>
+        <p id="owner"><a href="../index.html" class="extype" name="kafka4m">kafka4m</a>.<a href="index.html" class="extype" name="kafka4m.io">io</a></p>
+        <h1>ZipAppenderObserver<span class="permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
-        <h3><span class="morelinks"><div>
-            Companion <a href="AsProducerRecord$.html" title="See companion object">object AsProducerRecord</a>
-          </div></span></h3>
+        <h3><span class="morelinks"></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">AsProducerRecord</span><span class="tparams">[<span name="A">-A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">ZipAppenderObserver</span><span class="result"> extends <span class="extype" name="monix.reactive.Observer">Observer</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>])] with <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span> with <span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A typeclass to allow the publication of any record 'A' which can be converted into a producer record
-</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
-        </div><div class="toggleContainer block">
-            <span class="toggle">
-              Known Subclasses
-            </span>
-            <div class="subClasses hiddenContent"><a href="AsProducerRecord$$FromBytes.html" class="extype" name="kafka4m.producer.AsProducerRecord.FromBytes">FromBytes</a>, <a href="AsProducerRecord$$FromKeyAndBytes.html" class="extype" name="kafka4m.producer.AsProducerRecord.FromKeyAndBytes">FromKeyAndBytes</a>, <a href="AsProducerRecord$$FromString.html" class="extype" name="kafka4m.producer.AsProducerRecord.FromString">FromString</a></div>
-          </div></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span>, <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span>, <span class="extype" name="monix.reactive.Observer">Observer</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>])], <span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
         
 
       <div id="mbrsel">
@@ -185,7 +181,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="kafka4m.producer.AsProducerRecord"><span>AsProducerRecord</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="kafka4m.io.ZipAppenderObserver"><span>ZipAppenderObserver</span></li><li class="in" name="com.typesafe.scalalogging.StrictLogging"><span>StrictLogging</span></li><li class="in" name="java.lang.AutoCloseable"><span>AutoCloseable</span></li><li class="in" name="monix.reactive.Observer"><span>Observer</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -203,73 +199,38 @@
 
       <div id="template">
         <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="kafka4m.io.ZipAppenderObserver#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(zipFile:java.nio.file.Path,flushEvery:Int,zipLevel:Int):kafka4m.io.ZipAppenderObserver"></a><a id="&lt;init&gt;:ZipAppenderObserver"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#&lt;init&gt;(zipFile:java.nio.file.Path,flushEvery:Int,zipLevel:Int):kafka4m.io.ZipAppenderObserver" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ZipAppenderObserver</span><span class="params">(<span name="zipFile">zipFile: <span class="extype" name="java.nio.file.Path">Path</span></span>, <span name="flushEvery">flushEvery: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">10</span></span>, <span name="zipLevel">zipLevel: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">-1</span></span>)</span>
+      </span>
+      
+      
+    </li></ol>
+            </div>
+
         
 
-        <div id="types" class="types members">
-              <h3>Type Members</h3>
-              <ol><li name="kafka4m.producer.AsProducerRecord.K" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="K"></a><a id="K:K"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#K" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">type</span>
-      </span>
-      <span class="symbol">
-        <span class="name">K</span>
-      </span>
-      
-      <p class="shortcomment cmt">The key type</p>
-    </li><li name="kafka4m.producer.AsProducerRecord.V" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="V"></a><a id="V:V"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#V" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">type</span>
-      </span>
-      <span class="symbol">
-        <span class="name">V</span>
-      </span>
-      
-      <p class="shortcomment cmt">The value type</p>
-    </li></ol>
-            </div>
+        
 
         <div class="values members">
-              <h3>Abstract Value Members</h3>
-              <ol><li name="kafka4m.producer.AsProducerRecord#asRecord" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="asRecord(value:A):org.apache.kafka.clients.producer.ProducerRecord[AsProducerRecord.this.K,AsProducerRecord.this.V]"></a><a id="asRecord(A):ProducerRecord[K,V]"></a>
-      <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#asRecord(value:A):org.apache.kafka.clients.producer.ProducerRecord[AsProducerRecord.this.K,AsProducerRecord.this.V]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">asRecord</span><span class="params">(<span name="value">value: <span class="extype" name="kafka4m.producer.AsProducerRecord.A">A</span></span>)</span><span class="result">: <span class="extype" name="org.apache.kafka.clients.producer.ProducerRecord">ProducerRecord</span>[<a href="#K" class="extmbr" name="kafka4m.producer.AsProducerRecord.K">K</a>, <a href="#V" class="extmbr" name="kafka4m.producer.AsProducerRecord.V">V</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">value</dt><dd class="cmt"><p>the value to convert</p></dd><dt>returns</dt><dd class="cmt"><p>a producer record for the given value</p></dd></dl></div>
-    </li></ol>
-            </div>
-
-        <div class="values members">
-              <h3>Concrete Value Members</h3>
+              <h3>Value Members</h3>
               <ol>
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -285,7 +246,7 @@
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html###():Int" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -301,7 +262,7 @@
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -317,7 +278,7 @@
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -333,7 +294,7 @@
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#clone():Object" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -354,10 +315,26 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="kafka4m.io.ZipAppenderObserver#close" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="close():Unit"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#close():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">close</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="kafka4m.io.ZipAppenderObserver">ZipAppenderObserver</a> → AutoCloseable</dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -373,7 +350,7 @@
     </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#equals(x$1:Any):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#equals(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -389,7 +366,7 @@
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#finalize():Unit" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -408,10 +385,26 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="kafka4m.io.ZipAppenderObserver#flushCount" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="flushCount:Int"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#flushCount:Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">var</span>
+      </span>
+      <span class="symbol">
+        <span class="name">flushCount</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#getClass():Class[_]" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -430,7 +423,7 @@
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#hashCode():Int" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#hashCode():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -449,7 +442,7 @@
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -462,10 +455,26 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="com.typesafe.scalalogging.StrictLogging#logger" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="logger:com.typesafe.scalalogging.Logger"></a><a id="logger:Logger"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#logger:com.typesafe.scalalogging.Logger" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">logger</span><span class="result">: <span class="extype" name="com.typesafe.scalalogging.Logger">Logger</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>StrictLogging</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -481,7 +490,7 @@
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#notify():Unit" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -500,7 +509,7 @@
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#notifyAll():Unit" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -516,10 +525,58 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="kafka4m.io.ZipAppenderObserver#onComplete" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onComplete():Unit"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#onComplete():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onComplete</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="kafka4m.io.ZipAppenderObserver">ZipAppenderObserver</a> → Observer</dd></dl></div>
+    </li><li name="kafka4m.io.ZipAppenderObserver#onError" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onError(ex:Throwable):Unit"></a><a id="onError(Throwable):Unit"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#onError(ex:Throwable):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onError</span><span class="params">(<span name="ex">ex: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="kafka4m.io.ZipAppenderObserver">ZipAppenderObserver</a> → Observer</dd></dl></div>
+    </li><li name="kafka4m.io.ZipAppenderObserver#onNext" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="onNext(elem:(String,Array[Byte])):scala.concurrent.Future[monix.execution.Ack]"></a><a id="onNext((String,Array[Byte])):Future[Ack]"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#onNext(elem:(String,Array[Byte])):scala.concurrent.Future[monix.execution.Ack]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">onNext</span><span class="params">(<span name="elem">elem: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>])</span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="monix.execution.Ack">Ack</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="kafka4m.io.ZipAppenderObserver">ZipAppenderObserver</a> → Observer</dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -535,7 +592,7 @@
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#toString():String" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#toString():String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -551,7 +608,7 @@
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#wait():Unit" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -573,7 +630,7 @@
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -595,7 +652,7 @@
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../kafka4m/producer/AsProducerRecord.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -616,6 +673,22 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="kafka4m.io.ZipAppenderObserver#zipOut" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="zipOut:java.util.zip.ZipOutputStream"></a><a id="zipOut:ZipOutputStream"></a>
+      <span class="permalink">
+      <a href="../../kafka4m/io/ZipAppenderObserver.html#zipOut:java.util.zip.ZipOutputStream" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zipOut</span><span class="result">: <span class="extype" name="java.util.zip.ZipOutputStream">ZipOutputStream</span></span>
+      </span>
+      
+      
     </li>
               </ol>
             </div>
@@ -626,7 +699,17 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="com.typesafe.scalalogging.StrictLogging">
+              <h3>Inherited from <span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span></h3>
+            </div><div class="parent" name="java.lang.AutoCloseable">
+              <h3>Inherited from <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span></h3>
+            </div><div class="parent" name="monix.reactive.Observer">
+              <h3>Inherited from <span class="extype" name="monix.reactive.Observer">Observer</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>])]</h3>
+            </div><div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

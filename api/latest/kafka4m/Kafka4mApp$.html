@@ -119,6 +119,38 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="kafka4m">kafka4m</a></dd></dl></div>
+    </li><li name="kafka4m.io" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="io"></a><a id="io:io"></a>
+      <span class="permalink">
+      <a href="../kafka4m/index.html#io" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="io/index.html"><span class="name">io</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="kafka4m">kafka4m</a></dd></dl></div>
+    </li><li name="kafka4m.partitions" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="partitions"></a><a id="partitions:partitions"></a>
+      <span class="permalink">
+      <a href="../kafka4m/index.html#partitions" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="partitions/index.html"><span class="name">partitions</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="kafka4m">kafka4m</a></dd></dl></div>
     </li><li name="kafka4m.producer" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="producer"></a><a id="producer:producer"></a>
       <span class="permalink">
@@ -178,7 +210,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">Kafka4mApp</span><span class="result"> extends <span class="extype" name="args4c.ConfigApp">ConfigApp</span></span>
+        <span class="name">Kafka4mApp</span><span class="result"> extends <span class="extype" name="args4c.ConfigApp">ConfigApp</span> with <span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span></span>
       </span>
       </h4>
 
@@ -187,7 +219,7 @@
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="args4c.ConfigApp">ConfigApp</span>, <span class="extype" name="args4c.LowPriorityArgs4cImplicits">LowPriorityArgs4cImplicits</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span>, <span class="extype" name="args4c.ConfigApp">ConfigApp</span>, <span class="extype" name="args4c.LowPriorityArgs4cImplicits">LowPriorityArgs4cImplicits</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -213,7 +245,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="kafka4m.Kafka4mApp"><span>Kafka4mApp</span></li><li class="in" name="args4c.ConfigApp"><span>ConfigApp</span></li><li class="in" name="args4c.LowPriorityArgs4cImplicits"><span>LowPriorityArgs4cImplicits</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="kafka4m.Kafka4mApp"><span>Kafka4mApp</span></li><li class="in" name="com.typesafe.scalalogging.StrictLogging"><span>StrictLogging</span></li><li class="in" name="args4c.ConfigApp"><span>ConfigApp</span></li><li class="in" name="args4c.LowPriorityArgs4cImplicits"><span>LowPriorityArgs4cImplicits</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -647,6 +679,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>ConfigApp</dd></dl></div>
+    </li><li name="com.typesafe.scalalogging.StrictLogging#logger" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="logger:com.typesafe.scalalogging.Logger"></a><a id="logger:Logger"></a>
+      <span class="permalink">
+      <a href="../kafka4m/Kafka4mApp$.html#logger:com.typesafe.scalalogging.Logger" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">logger</span><span class="result">: <span class="extype" name="com.typesafe.scalalogging.Logger">Logger</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>StrictLogging</dd></dl></div>
     </li><li name="args4c.ConfigApp#main" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="main(args:Array[String]):Unit"></a><a id="main(Array[String]):Unit"></a>
       <span class="permalink">
@@ -877,6 +925,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>ConfigApp</dd></dl></div>
+    </li><li name="kafka4m.Kafka4mApp#startupLog" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="startupLog(action:String,config:com.typesafe.config.Config):String"></a><a id="startupLog(String,Config):String"></a>
+      <span class="permalink">
+      <a href="../kafka4m/Kafka4mApp$.html#startupLog(action:String,config:com.typesafe.config.Config):String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">startupLog</span><span class="params">(<span name="action">action: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -987,7 +1051,9 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="args4c.ConfigApp">
+        <div class="parent" name="com.typesafe.scalalogging.StrictLogging">
+              <h3>Inherited from <span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span></h3>
+            </div><div class="parent" name="args4c.ConfigApp">
               <h3>Inherited from <span class="extype" name="args4c.ConfigApp">ConfigApp</span></h3>
             </div><div class="parent" name="args4c.LowPriorityArgs4cImplicits">
               <h3>Inherited from <span class="extype" name="args4c.LowPriorityArgs4cImplicits">LowPriorityArgs4cImplicits</span></h3>

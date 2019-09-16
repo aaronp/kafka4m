@@ -119,6 +119,38 @@
       </span>
       
       
+    </li><li name="kafka4m.io" visbl="pub" class="indented2 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="io"></a><a id="io:io"></a>
+      <span class="permalink">
+      <a href="../kafka4m/index.html#io" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="io/index.html"><span class="name">io</span></a>
+      </span>
+      
+      
+    </li><li name="kafka4m.partitions" visbl="pub" class="indented2 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="partitions"></a><a id="partitions:partitions"></a>
+      <span class="permalink">
+      <a href="../kafka4m/index.html#partitions" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="partitions/index.html"><span class="name">partitions</span></a>
+      </span>
+      
+      
     </li><li name="kafka4m.producer" visbl="pub" class="indented2 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="producer"></a><a id="producer:producer"></a>
       <span class="permalink">
@@ -342,10 +374,10 @@ if that's how it's configured.
       </span>
       
       
-    </li><li name="kafka4m#writeBytes" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="writeBytes(config:com.typesafe.config.Config):monix.reactive.Consumer[Array[Byte],Long]"></a><a id="writeBytes(Config):Consumer[Array[Byte],Long]"></a>
+    </li><li name="kafka4m#writeKeyAndBytes" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="writeKeyAndBytes(config:com.typesafe.config.Config):monix.reactive.Consumer[(String,Array[Byte]),Long]"></a><a id="writeKeyAndBytes(Config):Consumer[(String,Array[Byte]),Long]"></a>
       <span class="permalink">
-      <a href="../kafka4m/index.html#writeBytes(config:com.typesafe.config.Config):monix.reactive.Consumer[Array[Byte],Long]" title="Permalink">
+      <a href="../kafka4m/index.html#writeKeyAndBytes(config:com.typesafe.config.Config):monix.reactive.Consumer[(String,Array[Byte]),Long]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -354,7 +386,7 @@ if that's how it's configured.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">writeBytes</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>)</span><span class="result">: <span class="extype" name="monix.reactive.Consumer">Consumer</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>], <span class="extype" name="scala.Long">Long</span>]</span>
+        <span class="name">writeKeyAndBytes</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>)</span><span class="result">: <span class="extype" name="monix.reactive.Consumer">Consumer</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]), <span class="extype" name="scala.Long">Long</span>]</span>
       </span>
       
       
@@ -386,7 +418,7 @@ if that's how it's configured.
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a title="" href="Kafka4mApp$.html"><span class="name">Kafka4mApp</span></a><span class="result"> extends <span class="extype" name="args4c.ConfigApp">ConfigApp</span></span>
+        <a title="" href="Kafka4mApp$.html"><span class="name">Kafka4mApp</span></a><span class="result"> extends <span class="extype" name="args4c.ConfigApp">ConfigApp</span> with <span class="extype" name="com.typesafe.scalalogging.StrictLogging">StrictLogging</span></span>
       </span>
       
       
