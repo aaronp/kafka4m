@@ -120,7 +120,7 @@ aaronp/kafka4m
 <ul>
   <li><a href="usage.html" class="active page">Usage</a></li>
   <li><a href="building.html" class="page">Kafka4m</a></li>
-  <li><a href="testing.html" class="page">testing.html</a></li>
+  <li><a href="testing.html" class="page">Testing</a></li>
   <li><a href="license.html" class="page">License</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
@@ -129,6 +129,7 @@ aaronp/kafka4m
   <li><a href="usage.html#usage" class="header">Usage</a>
   <ul>
     <li><a href="usage.html#copy-a-kafka-topic-" class="header">Copy A Kafka Topic:</a></li>
+    <li><a href="usage.html#etl" class="header">ETL</a></li>
   </ul></li>
 </ul>
 </nav>
@@ -153,6 +154,7 @@ aaronp/kafka4m
   <li><a href="usage.html#usage" class="header">Usage</a>
   <ul>
     <li><a href="usage.html#copy-a-kafka-topic-" class="header">Copy A Kafka Topic:</a></li>
+    <li><a href="usage.html#etl" class="header">ETL</a></li>
   </ul></li>
 </ul>
 </nav>
@@ -166,15 +168,25 @@ aaronp/kafka4m
 <h2><a href="#usage" name="usage" class="anchor"><span class="anchor-link"></span></a>Usage</h2>
 <p>The kafka configurations are based on the the kafka4m typesafe configuration. In practice the intent is to achieve similar things to what Kafka Streams gives you (but w/o relying on the kafka streams API)</p>
 <h2><a href="#copy-a-kafka-topic-" name="copy-a-kafka-topic-" class="anchor"><span class="anchor-link"></span></a>Copy A Kafka Topic:</h2>
-<pre class="prettyprint"><code class="language-$xslt"><br/>// write data to kafka (assumes a configuration akin to kafka4m.producer.topic = someNewTopic)
-val kafkaWriter: Consumer[Array[Byte], Long] = kafka4m.writeBytes(config)
+<pre class="prettyprint"><code class="language-$xslt">  val config = ConfigFactory.load()
 
-// read data from kafka (assumes a configuration akin to kafka4m.consumer.topic = originalTopic)
-val kafkaData: Observable[ConsumerRecord[String, Array[Byte]]] = kafka4m.read(config)
+  // write data to kafka (assumes a configuration akin to kafka4m.producer.topic = someNewTopic)
+  val kafkaWriter: Consumer[(String, Array[Byte]), Long] = kafka4m.writeKeyAndBytes(config)
 
-// then we&#39;d write it back into kafka like this.
-val task: Task[Long] = kafkaData.map(_.value).consumeWith(kafkaWriter)
+  // read data from kafka (assumes a configuration akin to kafka4m.consumer.topic = originalTopic)
+  val kafkaData: Observable[ConsumerRecord[String, Array[Byte]]] = kafka4m.read(config)
+
+  // then we&#39;d write it back into kafka like this.
+  val task: Task[Long] = kafkaData.map(r =&gt; (r.key, r.value)).consumeWith(kafkaWriter)
 </code></pre>
+<p>That provides the base primitives &ndash; getting data into and out of Kafka.</p>
+<h2><a href="#etl" name="etl" class="anchor"><span class="anchor-link"></span></a>ETL</h2>
+<p>On top of that, kafka4m provides some basic conveniences for getting data into Kafka from some files in a directory and writing data from kafka to the local filesystem.</p>
+<p>Writing data into can be useful for some performance testing, getting test data in, or just a normal loading of application data.</p>
+<p>Reading data from Kafka can be a nice convenience for viewing data locally, or as an interim step to sftp-ing or otherwise uploading the data somewhere.</p>
+<p>The Observables provided can just as easily provided data to a multi-part request, a websocket, etc.</p>
+<h3><a href="#kafka4mapp" name="kafka4mapp" class="anchor"><span class="anchor-link"></span></a>Kafka4mApp</h3>
+<p>The &lsquo;Kafka4mApp&rsquo; serves as the entry-point for the ETL jobs and uses the <a href="https://porpoiseltd.co.uk/args4c/index.html">args4c</a> library. That simply means that the first argument should be either &lsquo;read&rsquo; or &lsquo;write&rsquo; (as in read data from kafka or write data to kafka), and the subsequent args are either key=value pairs or the location of a configuration file.</p>
 </div>
 <div>
 <a href="https://github.com/aaronp/kafka4m/tree/master/src/main/paradox/usage.md" title="Edit this page" class="md-source-file md-edit">

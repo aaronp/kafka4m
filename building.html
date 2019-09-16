@@ -120,7 +120,7 @@ aaronp/kafka4m
 <ul>
   <li><a href="usage.html" class="page">Usage</a></li>
   <li><a href="building.html" class="active page">Kafka4m</a></li>
-  <li><a href="testing.html" class="page">testing.html</a></li>
+  <li><a href="testing.html" class="page">Testing</a></li>
   <li><a href="license.html" class="page">License</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
@@ -142,7 +142,15 @@ aaronp/kafka4m
 <div class="md-content__searchable">
 <h1><a href="#kafka4m" name="kafka4m" class="anchor"><span class="anchor-link"></span></a>Kafka4m</h1>
 <p>This project is built using sbt:</p>
-<pre class="prettyprint"><code class="language-$xslt">sbt -mem 4096 clean test
+<pre class="prettyprint"><code class="language-$xslt">sbt -mem 4096 clean test docker
+</code></pre>
+<p>This will create a docker image which can launch the Kafka4mApp.</p>
+<p>Publishing is currently managed locally:</p>
+<p>e.g.</p>
+<pre><code>$ docker login
+&lt;credentials&gt;
+$ docker tag abcdefg123456789 porpoiseltd/kafka4m:dev0.0.0
+$ docker push porpoiseltd/kafka4m:dev0.0.0
 </code></pre>
 </div>
 <div>
@@ -175,12 +183,13 @@ Usage
 </span>
 </div>
 </a>
-<a href="testing.html" title="" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<a href="testing.html" title="Testing" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
 <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
 <span class="md-flex__ellipsis">
 <span class="md-footer-nav__direction">
 Next
 </span>
+Testing
 </span>
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">

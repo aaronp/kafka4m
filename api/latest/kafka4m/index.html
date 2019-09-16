@@ -358,7 +358,7 @@ if that's how it's configured.
       </span>
       
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>the kafka4m configuration which contains the 'kafka4m.consumer' values</p></dd><dt>returns</dt><dd class="cmt"><p>an Observable of data coming from kafka. The offsets, etc will be controlled by the kafka4m.consumer configuration, which includes default offset strategy, etc.</p></dd></dl></div>
-    </li><li name="kafka4m#write" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="kafka4m#write" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="write[A](config:com.typesafe.config.Config)(implicitevidence$1:kafka4m.producer.AsProducerRecord[A]):monix.reactive.Consumer[A,Long]"></a><a id="write[A](Config)(AsProducerRecord[A]):Consumer[A,Long]"></a>
       <span class="permalink">
       <a href="../kafka4m/index.html#write[A](config:com.typesafe.config.Config)(implicitevidence$1:kafka4m.producer.AsProducerRecord[A]):monix.reactive.Consumer[A,Long]" title="Permalink">
@@ -373,8 +373,8 @@ if that's how it's configured.
         <span class="name">write</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="producer/AsProducerRecord.html" class="extype" name="kafka4m.producer.AsProducerRecord">AsProducerRecord</a>[<span class="extype" name="kafka4m.write.A">A</span>]</span>)</span><span class="result">: <span class="extype" name="monix.reactive.Consumer">Consumer</span>[<span class="extype" name="kafka4m.write.A">A</span>, <span class="extype" name="scala.Long">Long</span>]</span>
       </span>
       
-      
-    </li><li name="kafka4m#writeKeyAndBytes" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>any type A which can be converted into a kafka ProducerRecord</p></dd><dt class="param">config</dt><dd class="cmt"><p>the kafka4m configuration</p></dd><dt>returns</dt><dd class="cmt"><p>a consumer of the 'A' values and produce the number written</p></dd></dl></div>
+    </li><li name="kafka4m#writeKeyAndBytes" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="writeKeyAndBytes(config:com.typesafe.config.Config):monix.reactive.Consumer[(String,Array[Byte]),Long]"></a><a id="writeKeyAndBytes(Config):Consumer[(String,Array[Byte]),Long]"></a>
       <span class="permalink">
       <a href="../kafka4m/index.html#writeKeyAndBytes(config:com.typesafe.config.Config):monix.reactive.Consumer[(String,Array[Byte]),Long]" title="Permalink">
@@ -386,11 +386,11 @@ if that's how it's configured.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">writeKeyAndBytes</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>)</span><span class="result">: <span class="extype" name="monix.reactive.Consumer">Consumer</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]), <span class="extype" name="scala.Long">Long</span>]</span>
+        <span class="name">writeKeyAndBytes</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span> = <span class="symbol">ConfigFactory.load()</span></span>)</span><span class="result">: <span class="extype" name="monix.reactive.Consumer">Consumer</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]), <span class="extype" name="scala.Long">Long</span>]</span>
       </span>
       
-      
-    </li><li name="kafka4m#writeText" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>the kafka4m configuration</p></dd><dt>returns</dt><dd class="cmt"><p>a consumer which will consume a stream of key/byte-array values into kafka and return the number written</p></dd></dl></div>
+    </li><li name="kafka4m#writeText" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="writeText(config:com.typesafe.config.Config):monix.reactive.Consumer[String,Long]"></a><a id="writeText(Config):Consumer[String,Long]"></a>
       <span class="permalink">
       <a href="../kafka4m/index.html#writeText(config:com.typesafe.config.Config):monix.reactive.Consumer[String,Long]" title="Permalink">
@@ -402,10 +402,10 @@ if that's how it's configured.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">writeText</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span></span>)</span><span class="result">: <span class="extype" name="monix.reactive.Consumer">Consumer</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Long">Long</span>]</span>
+        <span class="name">writeText</span><span class="params">(<span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span> = <span class="symbol">ConfigFactory.load()</span></span>)</span><span class="result">: <span class="extype" name="monix.reactive.Consumer">Consumer</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Long">Long</span>]</span>
       </span>
       
-      
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>the kafka4m configuration</p></dd><dt>returns</dt><dd class="cmt"><p>a consumer which will consume raw text data and write it with null keys</p></dd></dl></div>
     </li><li name="kafka4m.Kafka4mApp" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Kafka4mApp"></a><a id="Kafka4mApp:Kafka4mApp"></a>
       <span class="permalink">

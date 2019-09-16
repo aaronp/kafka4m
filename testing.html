@@ -20,7 +20,7 @@
 
 <meta name="description" content="kafka4m">
 <link rel="shortcut icon" href="assets/images/favicon.png">
-<title> · Kafka4m</title>
+<title>Testing · Kafka4m</title>
 <link rel="stylesheet" href="assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#ef5350" />
@@ -60,6 +60,7 @@ data-md-color-accent="orange"
 Kafka4m
 </span>
 <span class="md-header-nav__topic">
+Testing
 </span>
 </div>
 </div>
@@ -119,10 +120,18 @@ aaronp/kafka4m
 <ul>
   <li><a href="usage.html" class="page">Usage</a></li>
   <li><a href="building.html" class="page">Kafka4m</a></li>
-  <li><a href="testing.html" class="active page">testing.html</a></li>
+  <li><a href="testing.html" class="active page">Testing</a></li>
   <li><a href="license.html" class="page">License</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="testing.html#testing" class="header">Testing</a>
+  <ul>
+    <li><a href="testing.html#testing-upload-download-locally" class="header">testing upload/download locally</a></li>
+    <li><a href="testing.html#testing-on-a-kafka-cluster" class="header">Testing On a Kafka Cluster</a></li>
+  </ul></li>
+</ul>
 </nav>
 
 </nav>
@@ -136,10 +145,28 @@ aaronp/kafka4m
 </div>
 </div>
 </div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">Table of contents</label>
+<ul>
+  <li><a href="testing.html#testing" class="header">Testing</a>
+  <ul>
+    <li><a href="testing.html#testing-upload-download-locally" class="header">testing upload/download locally</a></li>
+    <li><a href="testing.html#testing-on-a-kafka-cluster" class="header">Testing On a Kafka Cluster</a></li>
+  </ul></li>
+</ul>
+</nav>
+
+</div>
+</div>
+</div>
 <div class="md-content">
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
-<p>Testing</p>
+<h1><a href="#testing" name="testing" class="anchor"><span class="anchor-link"></span></a>Testing</h1>
+<h2><a href="#testing-upload-download-locally" name="testing-upload-download-locally" class="anchor"><span class="anchor-link"></span></a>testing upload/download locally</h2>
 <p>This project uses <a href="https://github.com/aaronp/dockerenv/#dockerenv">dockerenv</a> to run the tests against a &lsquo;real&rsquo; running kafka instance.</p>
 <p>When testing, either manually or via automated tests, it can be helpful to inspect the data for a particular topic.</p>
 <p>For example, in the Kafka4mAppTest, once data is written to some unique topic, you might want to ssh onto your locally running kafka instance and inspect the data:</p>
@@ -152,6 +179,7 @@ cd /opt/kafka_2.12-2.2.0/bin/
 <p>Or simply:</p>
 <pre class="prettyprint"><code class="language-$xslt">docker exec test-kafka /opt/kafka_2.12-2.2.0/bin/kafka-topics.sh --list  --zookeeper localhost:2181
 </code></pre>
+<h1><a href="#testing-on-a-kafka-cluster" name="testing-on-a-kafka-cluster" class="anchor"><span class="anchor-link"></span></a>Testing On a Kafka Cluster</h1>
 </div>
 <div>
 <a href="https://github.com/aaronp/kafka4m/tree/master/src/main/paradox/testing.md" title="Edit this page" class="md-source-file md-edit">
