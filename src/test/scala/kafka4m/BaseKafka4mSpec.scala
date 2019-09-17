@@ -16,13 +16,12 @@ abstract class BaseKafka4mSpec extends WordSpec with Matchers with ScalaFutures 
   implicit override def patienceConfig =
     PatienceConfig(timeout = scaled(Span(testTimeout.toSeconds, Seconds)), interval = scaled(Span(150, Millis)))
 
-
-  def withTmpDir(f : Path => Unit): Unit = BaseKafka4mSpec.withTmpDir(f)
+  def withTmpDir(f: Path => Unit): Unit = BaseKafka4mSpec.withTmpDir(f)
 }
 object BaseKafka4mSpec {
 
   private val counter = new AtomicInteger(0)
-  def withTmpDir(f : Path => Unit): Unit = {
+  def withTmpDir(f: Path => Unit): Unit = {
     import eie.io._
     val dir = s"target/${getClass}-${counter.incrementAndGet}".asPath.mkDirs()
     try {

@@ -20,8 +20,7 @@ class FileSourceTest extends BaseKafka4mSpec {
   "FileSource.keysAndData" should {
     "pick up newly created files which appear in the directory" in {
       withTmpDir { dir =>
-
-      }
+        }
     }
     "repeat cached data" in withTestDir { dir =>
       val data: Observable[(String, Array[Byte])] = FileSource.keysAndData(

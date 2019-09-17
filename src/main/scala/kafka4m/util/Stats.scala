@@ -163,9 +163,9 @@ object Stats {
     }
 
     def renderHtml: String = {
-      Seq(                           //
-          min.describe,              //
-          max.describe,              //
+      Seq( //
+          min.describe, //
+          max.describe, //
           latest.describe).mkString( //
                                     "<td>",
                                     "</td><td>",
@@ -183,8 +183,8 @@ object Stats {
     def nonEmpty = partitions.nonEmpty
     def renderHtml: String = {
       val head = Seq("partition", "total", "min offset", "max offset", "min latency", "max latency", "latest latency").mkString( //
-                                                                                                                                "<thead><tr><td>",   //
-                                                                                                                                "</td><td>",         //
+                                                                                                                                "<thead><tr><td>", //
+                                                                                                                                "</td><td>", //
                                                                                                                                 "</td></tr></thead>" //
       )
       partitions.keySet.toList.sorted

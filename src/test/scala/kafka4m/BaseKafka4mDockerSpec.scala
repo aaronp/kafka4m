@@ -14,5 +14,5 @@ abstract class BaseKafka4mDockerSpec extends BaseKafkaSpec with ScalaFutures wit
   // travis can be quite slow
   override def testTimeout: FiniteDuration = 15.seconds
 
-  def withTmpDir(f : Path => Unit): Unit = BaseKafka4mSpec.withTmpDir(f)
+  def withTmpDir(f: Path => Unit): Unit = BaseKafka4mSpec.withTmpDir(f)
 }
