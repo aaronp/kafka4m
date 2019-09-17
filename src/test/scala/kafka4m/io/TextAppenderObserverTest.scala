@@ -5,22 +5,20 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 import cats.Show
-import dockerenv.BaseKafkaSpec
+import kafka4m.BaseKafka4mDockerSpec
 import kafka4m.partitions.TimeBucketTest._
-import kafka4m.partitions.{AppendEvent, FlushBucket, TimeBucket, TimePartitionState}
+import kafka4m.partitions.{BatchEvent, FlushBucket, MiniBatchState, TimeBucket}
 import kafka4m.util.Schedulers
 import monix.reactive.Observable
+import eie.io._
 
 import scala.concurrent.duration._
 
-class TextAppenderObserverTest extends BaseKafkaSpec {
-  "Base64AppenderObserver.fromEvents" should {
+class TextAppenderObserverTest extends BaseKafka4mDockerSpec {
+  "TextAppenderObserver.fromEvents" should {
     "write the data to batches under a directory" in {
       Schedulers.using { implicit s =>
-        import eie.io._
-        val dir = s"target/base64AppenderObserver/${System.currentTimeMillis}".asPath.mkDirs()
-
-        try {
+        withTmpDir { dir =>
           val disorderedTimes = for {
             hour <- (1 to 2)
             min  <- (0 to 59 by (3))
@@ -35,18 +33,18 @@ class TextAppenderObserverTest extends BaseKafkaSpec {
             }
           }
 
-          val grouped: Observable[AppendEvent[ZonedDateTime]] = {
+          val grouped: Observable[BatchEvent[ZonedDateTime, TimeBucket]] = {
             // let's group into 30 minute buckets
             val bucketMinutes = 30
             val buckets       = disorderedTimes.map(TimeBucket(bucketMinutes, _)).distinct
-            val events        = TimePartitionState.appendEvents(input, 100, bucketMinutes.minutes)
+            val events        = MiniBatchState.byTime(input, 100, bucketMinutes.minutes)
 
             // in our test we want to flush all the buckets at the end. In normal runtime we listen for 'recordsReceivedBeforeFlush' messages
             // as a way to ensure we don't flush a bucket, and then immediately see a timestamped event which would've fallen within that
             // bucket
-            events ++ Observable.fromIterable(buckets.map(FlushBucket.apply[ZonedDateTime]))
+            events ++ Observable.fromIterable(buckets.map(FlushBucket.apply[ZonedDateTime, TimeBucket]))
           }
-          val files: Observable[(TimeBucket, Path)] = TextAppenderObserver.fromEvents(dir, 1, grouped)
+          val files: Observable[(TimeBucket, Path)] = TextAppenderObserver.fromEvents(dir, 1, 1, grouped)
           val byBucket: List[(TimeBucket, List[String])] = files
             .map {
               case (bucket, data: Path) => bucket -> data.text.linesIterator.toList
@@ -87,8 +85,6 @@ class TextAppenderObserverTest extends BaseKafkaSpec {
             minute.toInt should be <= 60
           }
 
-        } finally {
-          dir.delete()
         }
       }
     }

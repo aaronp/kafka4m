@@ -39,15 +39,6 @@ object AsProducerRecord {
     }
   }
 
-  case class FromBytes(topic: String) extends AsProducerRecord[Array[Byte]] {
-    override type K = Key
-    override type V = Bytes
-
-    override def asRecord(value: Array[Byte]) = {
-      new ProducerRecord[Key, Array[Byte]](topic, value)
-    }
-  }
-
   case class FromKeyAndBytes(topic: String) extends AsProducerRecord[(String, Array[Byte])] {
     override type K = Key
     override type V = Bytes
@@ -58,20 +49,4 @@ object AsProducerRecord {
     }
   }
 
-  implicit def lift[A](asKeyValue: A => ProducerRecord[kafka4m.Key, kafka4m.Bytes]): AsProducerRecord[A] = new AsProducerRecord[A] {
-    override type K = kafka4m.Key
-    override type V = kafka4m.Bytes
-
-    override def asRecord(value: A): ProducerRecord[kafka4m.Key, kafka4m.Bytes] = {
-      val record: ProducerRecord[Key, Bytes] = asKeyValue(value)
-      record
-    }
-  }
-
-  implicit def identity[KEY, VALUE]: AsProducerRecord[ProducerRecord[KEY, VALUE]] = new AsProducerRecord[ProducerRecord[KEY, VALUE]] {
-    override type K = KEY
-    override type V = VALUE
-
-    override def asRecord(value: ProducerRecord[KEY, VALUE]): ProducerRecord[KEY, VALUE] = value
-  }
 }

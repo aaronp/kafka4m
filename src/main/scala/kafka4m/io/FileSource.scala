@@ -44,15 +44,15 @@ object FileSource {
 
     conf.rateLimitPerSecond.fold(limited) { perSecond =>
       import concurrent.duration._
-      limited.sample(1.second / perSecond)
+      limited.bufferTimedWithPressure(1.second / perSecond, 1).flatMap { buffer =>
+        Observable.fromIterable(buffer)
+      }
     }
-
-    limited
   }
 
   private def unlimited(conf: EtlConfig): Observable[(String, Array[Byte])] = {
     val dir = Paths.get(conf.dataDir)
-    def all: Observable[(String, Array[Byte])] =
+    def all: Observable[(String, Array[Byte])] = {
       if (conf.cache) {
         val data: List[(String, Array[Byte])] = cacheDirContents(dir)
         if (conf.repeat) {
@@ -60,12 +60,12 @@ object FileSource {
         } else {
           Observable.fromIterable(data)
         }
-        Observable.fromIterable(data).repeat
       } else {
         listChildrenObservable(dir, conf.repeat).map { file =>
           file.getFileName.toString -> Files.readAllBytes(file)
         }
       }
+    }
 
     if (conf.repeat) {
       val LastDot = "(.*?)\\.(.*)".r

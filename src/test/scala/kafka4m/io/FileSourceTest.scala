@@ -18,6 +18,11 @@ class FileSourceTest extends BaseKafka4mSpec {
   }
 
   "FileSource.keysAndData" should {
+    "pick up newly created files which appear in the directory" in {
+      withTmpDir { dir =>
+
+      }
+    }
     "repeat cached data" in withTestDir { dir =>
       val data: Observable[(String, Array[Byte])] = FileSource.keysAndData(
         EtlConfig(dir.toAbsolutePath.toString, cache = true, rateLimitPerSecond = None, limit = None, repeat = true, fileNamesAsKeys = true)
@@ -89,13 +94,11 @@ class FileSourceTest extends BaseKafka4mSpec {
 
   def withTestDir(f: Path => Unit) = {
     import eie.io._
-    val dir   = s"target/FileSourceTest/${System.currentTimeMillis}".asPath.mkDirs()
-    val file1 = dir.resolve("file1.txt").text = "hello"
-    val file2 = dir.resolve("file2.txt").text = "world"
-    try {
+    withTmpDir { dir =>
+      dir.resolve("file1.txt").text = "hello"
+      dir.resolve("file2.txt").text = "world"
       f(dir)
-    } finally {
-      dir.delete()
     }
+
   }
 }

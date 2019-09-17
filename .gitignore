@@ -11,3 +11,4 @@ shared-src
 .users
 .srl
 .target
+src/test/demo/kubernetes-kafka

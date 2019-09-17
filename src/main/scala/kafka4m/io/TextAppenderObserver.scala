@@ -2,7 +2,6 @@ package kafka4m.io
 
 import java.io.{BufferedWriter, FileOutputStream, OutputStreamWriter}
 import java.nio.file.{Files, Path}
-import java.time.ZonedDateTime
 import java.util.Base64
 
 import cats.Show
@@ -10,11 +9,14 @@ import com.typesafe.scalalogging.StrictLogging
 import kafka4m.partitions._
 import kafka4m.{Bytes, Key}
 import monix.execution.Ack
-import monix.reactive.{Notification, Observable, Observer}
+import monix.reactive.{Observable, Observer}
 import org.apache.kafka.clients.consumer.ConsumerRecord
 
 import scala.concurrent.Future
 
+/**
+  * A namespace which holds a 'fromEvents' as a means to transform append events into time-bucketed files
+  */
 object TextAppenderObserver {
 
   private val KeyValueR = """(.*?):(.*)""".r
@@ -36,6 +38,9 @@ object TextAppenderObserver {
     }
   }
 
+  /**
+    * A means to represent a byte-array record as a base-64 encoded text value
+    */
   implicit object ShowRecord extends Show[ConsumerRecord[Key, Bytes]] {
     override def show(record: ConsumerRecord[Key, Bytes]): String = {
       val dataString = Base64.getEncoder.encodeToString(record.value)
@@ -43,73 +48,48 @@ object TextAppenderObserver {
     }
   }
 
-  def asFileName(first: ZonedDateTime, bucket: TimeBucket) = {
-    s"${first.getYear}-${first.getMonthValue}-${first.getDayOfMonth}__${bucket.hour}hr_${bucket.fromMinute}-${bucket.toMinute}.txt"
-  }
+  /**
+    *
+    * @param dir
+    * @param flushEvery
+    * @param bucketRangeInMinutes the number
+    * @param appendEvents the input events
+    * @tparam A
+    * @return an observable of the time buckets and the file which was written which contains the base64-encoded data in that bucket
+    */
+  def fromEvents[A: HasTimestamp: Show](dir: Path,
+                                        flushEvery: Int,
+                                        bucketRangeInMinutes: Int,
+                                        appendEvents: Observable[BatchEvent[A, TimeBucket]]): Observable[(TimeBucket, Path)] = {
+    implicit val partitioner: Partitioner[A, TimeBucket] = Partitioner.byTime[A](bucketRangeInMinutes)
 
-  def fromEvents[A: HasTimestamp: Show](dir: Path, flushEvery: Int, appendEvents: Observable[AppendEvent[A]]): Observable[(TimeBucket, Path)] = {
-    appendEvents
-      .scan(GroupState[A](dir, flushEvery, Map.empty) -> Seq.empty[Notification[(TimeBucket, Path)]]) {
-        case ((st8, _), next) => st8.update(next)
-      }
-      .flatMap {
-        case (_, notifications) => Observable.fromIterable(notifications)
-      }
-      .dematerialize
-  }
+    val partitionedByTime = PartitionState.partitionEvents[A, TimeBucket, TextAppenderObserver[A]](appendEvents) {
+      case (bucket, firstValue) =>
+        val file = dir.resolve(bucket.asFileName(HasTimestamp[A].timestamp(firstValue)))
+        new TextAppenderObserver(file, flushEvery)
+    }
 
-  private case class GroupState[A: HasTimestamp: Show](dir: Path, flushEvery: Int, byBucket: Map[TimeBucket, TextAppenderObserver]) {
-    private val NoOp = (this, Nil)
-    def update(event: AppendEvent[A]): (GroupState[A], Seq[Notification[(TimeBucket, Path)]]) = {
-      event match {
-        case AppendData(bucket, data) =>
-          val text = Show[A].show(data)
-          byBucket.get(bucket) match {
-            case Some(appender) =>
-              appender.appendLine(text)
-              NoOp
-            case None =>
-              val file     = dir.resolve(asFileName(HasTimestamp[A].timestamp(data), bucket))
-              val appender = new TextAppenderObserver(file, flushEvery)
-              appender.appendLine(text)
-              copy(byBucket = byBucket.updated(bucket, appender)) -> Nil
-          }
-
-        case ForceFlushBuckets() =>
-          val onNexts = byBucket.map {
-            case (bucket, appender) =>
-              appender.close()
-              Notification.OnNext(bucket -> appender.file)
-          }
-          copy(byBucket = Map.empty) -> (onNexts.toSeq :+ Notification.OnComplete)
-
-        case FlushBucket(bucket) =>
-          byBucket.get(bucket) match {
-            case Some(appender) =>
-              appender.close()
-              copy(byBucket = byBucket - bucket) -> Seq(Notification.OnNext(bucket -> appender.file))
-            case None =>
-              NoOp
-          }
-      }
+    partitionedByTime.map {
+      case (bucket, appender) => (bucket, appender.file)
     }
   }
 }
-class TextAppenderObserver(val file: Path, flushEvery: Int = 10) extends Observer[String] with AutoCloseable with StrictLogging {
+class TextAppenderObserver[A: Show](val file: Path, flushEvery: Int = 10) extends Observer[A] with Appender[A] with StrictLogging {
   require(flushEvery >= 0)
   if (!Files.exists(file)) {
     Files.createFile(file)
   }
-  private val writer     = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file.toFile, false)))
-  private var flushCount = flushEvery
-  private var written    = 0
-  private var closed     = false
+  private val writer       = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file.toFile, false)))
+  private var flushCount   = flushEvery
+  private var written      = 0
+  private var closed       = false
+  private val dataToString = Show[A]
 
-  def appendLine(line: String): Unit = {
+  override def append(data: A): Unit = {
     if (written > 0) {
       writer.newLine()
     }
-    writer.write(line)
+    writer.write(dataToString.show(data))
     written = written + 1
     flushCount = flushCount - 1
     if (flushCount <= 0) {
@@ -122,8 +102,8 @@ class TextAppenderObserver(val file: Path, flushEvery: Int = 10) extends Observe
     writer.flush()
   }
 
-  override def onNext(elem: String): Future[Ack] = {
-    appendLine(elem)
+  override def onNext(elem: A): Future[Ack] = {
+    append(elem)
     Ack.Continue
   }
 
@@ -147,4 +127,5 @@ class TextAppenderObserver(val file: Path, flushEvery: Int = 10) extends Observe
     writer.close()
     closed = true
   }
+
 }

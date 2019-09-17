@@ -8,7 +8,11 @@ import java.time.ZonedDateTime
   * @param fromMinute
   * @param toMinute
   */
-final case class TimeBucket(hour: Int, fromMinute: Int, toMinute: Int)
+final case class TimeBucket(hour: Int, fromMinute: Int, toMinute: Int) {
+  def asFileName(first: ZonedDateTime) = {
+    s"${first.getYear}-${first.getMonthValue}-${first.getDayOfMonth}__${hour}hr_${fromMinute}-${toMinute}.txt"
+  }
+}
 object TimeBucket {
   def apply(minutes: Int, epochMilli: Long): TimeBucket = {
     apply(minutes, utcForEpochMillis(epochMilli))

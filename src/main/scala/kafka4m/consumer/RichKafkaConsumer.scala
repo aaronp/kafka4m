@@ -54,22 +54,10 @@ class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topic: String, 
     }
   }
 
-  def seek(partition: Int, offset: Long): Boolean = swallow {
-    logger.info(s"seek($partition, $offset)")
-    val tp = new TopicPartition(topic, partition)
-    consumer.seek(tp, offset)
-  }
-
   def seekToBeginning(partition: Int): Boolean = swallow {
     logger.info(s"seekToBeginning(${partition})")
     val tp = new TopicPartition(topic, partition)
     consumer.seekToBeginning(java.util.Collections.singletonList(tp))
-  }
-
-  def seekToEnd(partition: Int): Boolean = swallow {
-    logger.info(s"seekToEnd(${partition})")
-    val tp = new TopicPartition(topic, partition)
-    consumer.seekToEnd(java.util.Collections.singletonList(tp))
   }
 
   def positionFor(partition: Int): Long = consumer.position(new TopicPartition(topic, partition))
@@ -127,12 +115,6 @@ object RichKafkaConsumer extends StrictLogging {
       java.time.Duration.ofMillis(d.toMillis)
     } else {
       java.time.Duration.ofDays(Long.MaxValue)
-    }
-  }
-
-  def asResource(rootConfig: Config)(implicit ioSched: Scheduler): Resource[IO, RichKafkaConsumer[String, Array[Byte]]] = {
-    Resource.make(IO(byteArrayValues(rootConfig))) { consumer =>
-      IO(consumer.close())
     }
   }
 

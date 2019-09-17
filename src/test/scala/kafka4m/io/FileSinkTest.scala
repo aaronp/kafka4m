@@ -1,7 +1,5 @@
 package kafka4m.io
 
-import java.util.Base64
-
 import com.typesafe.scalalogging.StrictLogging
 import eie.io._
 import kafka4m.BaseKafka4mSpec
@@ -26,11 +24,10 @@ class FileSinkTest extends BaseKafka4mSpec with StrictLogging {
       val inc = Task.eval {
         count = count + 1
       }
-      val timestamp = System.currentTimeMillis
-      val testDir   = s"target/${getClass.getSimpleName}-${timestamp}".asPath.mkDirs()
-      try {
+      withTmpDir { testDir =>
         val textFile = testDir.resolve("file.txt")
-        val sink     = FileSink.base64(textFile, flushEvery = 1000)
+        import cats.instances.string._
+        val sink = FileSink.text[String](textFile, flushEvery = 1000)
 
         Schedulers.using { s =>
           import concurrent.duration._
@@ -43,10 +40,13 @@ class FileSinkTest extends BaseKafka4mSpec with StrictLogging {
             throughputObserved += throughput
             lastCount = count
           }
-          val stop             = BooleanCancelable()
-          var isDone           = false
-          val noteWhenDone     = Task.delay[Unit] { isDone = true }
-          val task: Cancelable = input.doOnNext(_ => inc).takeWhileNotCanceled(stop).guarantee(noteWhenDone).subscribe(sink)(s)
+          val stop         = BooleanCancelable()
+          var isDone       = false
+          val noteWhenDone = Task.delay[Unit] { isDone = true }
+          val task: Cancelable = {
+            val testData: Observable[String] = input.doOnNext(_ => inc).takeWhileNotCanceled(stop).guarantee(noteWhenDone)
+            testData.subscribe(sink)(s)
+          }
 
           eventually {
             throughputObserved.exists(_ > expectedRecordsPerSecond) shouldBe true
@@ -60,26 +60,23 @@ class FileSinkTest extends BaseKafka4mSpec with StrictLogging {
           sink.size() shouldBe count - 1
           textFile.lines.next() shouldBe s"0:some data"
         }
-      } finally {
-        testDir.delete()
       }
 
     }
     "write to a zip file" in {
       val timestamp = System.currentTimeMillis
-      val testDir   = s"target/${getClass.getSimpleName}-${timestamp}".asPath.mkDirs()
-      val unzipDir  = s"target/${getClass.getSimpleName}-${timestamp + 1}".asPath.mkDirs()
-      try {
-        val zipFile = testDir.resolve("file.zip")
-        val sink    = FileSink.zipped(zipFile, flushEvery = 1)
-        sink.onNext("foo" -> "foo data".getBytes()).futureValue
-        sink.onNext("bar" -> "bar data".getBytes()).futureValue
-        sink.onComplete()
+      withTmpDir { testDir =>
+        withTmpDir { unzipDir =>
+          val zipFile = testDir.resolve("file.zip")
+          val sink    = FileSink.zipped(zipFile, flushEvery = 1)
+          sink.onNext("foo" -> "foo data".getBytes()).futureValue
+          sink.onNext("bar" -> "bar data".getBytes()).futureValue
+          sink.onComplete()
 
-        Unzip.to(zipFile, unzipDir)
-        unzipDir.children.map(f => f.fileName -> f.text).toMap shouldBe Map("foo" -> "foo data", "bar" -> "bar data")
-      } finally {
-        testDir.delete()
+          Unzip.to(zipFile, unzipDir)
+          unzipDir.children.map(f => f.fileName -> f.text).toMap shouldBe Map("foo" -> "foo data", "bar" -> "bar data")
+
+        }
       }
     }
   }

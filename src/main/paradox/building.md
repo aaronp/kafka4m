@@ -1,4 +1,4 @@
-Kafka4m
+Building
 ======
 This project is built using sbt:
 

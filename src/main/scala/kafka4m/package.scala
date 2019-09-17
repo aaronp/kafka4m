@@ -3,7 +3,7 @@ import kafka4m.admin.RichKafkaAdmin
 import kafka4m.consumer.RichKafkaConsumer
 import kafka4m.producer.AsProducerRecord._
 import kafka4m.producer.{AsProducerRecord, RichKafkaProducer}
-import kafka4m.util.{Env, Props}
+import kafka4m.util.{Props, Schedulers}
 import monix.eval.Task
 import monix.reactive.{Consumer, Observable}
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -47,17 +47,14 @@ package object kafka4m {
     * @return an Observable of data coming from kafka. The offsets, etc will be controlled by the kafka4m.consumer configuration, which includes default offset strategy, etc.
     */
   def read(config: Config): Observable[ConsumerRecord[Key, Bytes]] = {
-    val env = Env(config)
+    val scheduler = Schedulers.io()
 
-    val consumer: RichKafkaConsumer[String, Array[Byte]] = RichKafkaConsumer.byteArrayValues(config)(env.io)
+    val consumer: RichKafkaConsumer[String, Array[Byte]] = RichKafkaConsumer.byteArrayValues(config)(scheduler)
 
     val topic = Props.topic(config, "consumer")
     consumer.subscribe(topic)
 
-    val closeMe = Task.delay {
-      consumer.close()
-      env.close()
-    }
+    val closeMe = Task.delay(scheduler.shutdown())
     consumer.asObservable.guarantee(closeMe)
   }
 

@@ -1,0 +1,5 @@
+assign nodes to labels:
+https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes/
+
+kubectl get nodes --show-labels
+kubectl label nodes minikube purpose=test

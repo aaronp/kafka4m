@@ -5,7 +5,7 @@ import java.nio.file.{Files, Path, Paths}
 import cats.Show
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
-import kafka4m.partitions.{AppendEvent, HasTimestamp, TimeBucket, TimePartitionState}
+import kafka4m.partitions.{BatchEvent, HasTimestamp, MiniBatchState, TimeBucket}
 import kafka4m.{Bytes, Key}
 import monix.reactive.Observable
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -21,18 +21,24 @@ import scala.concurrent.duration._
   * @param timeBucketMinutes see comments in reference.conf
   * @tparam A the record type
   */
-case class Base64Writer[A: HasTimestamp: Show](dir: Path, recordsReceivedBeforeClosingBucket: Int, numberOfAppendsBeforeWriterFlush: Int, timeBucketMinutes: Int) {
+case class Base64Writer[A: HasTimestamp: Show](dir: Path,
+                                               recordsReceivedBeforeClosingBucket: Int,
+                                               numberOfAppendsBeforeWriterFlush: Int,
+                                               timeBucketMinutes: Int,
+                                               flushEvery: Int,
+                                               limit: Option[Long]) {
 
-  def asEvents(input: Observable[A]): Observable[AppendEvent[A]] = {
-    TimePartitionState.appendEvents(input, recordsReceivedBeforeClosingBucket, timeBucketMinutes.minutes)
+  def asEvents(input: Observable[A]): Observable[BatchEvent[A, TimeBucket]] = {
+    MiniBatchState.byTime(input, recordsReceivedBeforeClosingBucket, timeBucketMinutes.minutes)
   }
 
   def partition(input: Observable[A]): Observable[(TimeBucket, Path)] = {
-    write(asEvents(input))
+    val limitted = limit.fold(input)(input.take)
+    write(asEvents(limitted))
   }
 
-  def write(events: Observable[AppendEvent[A]]): Observable[(TimeBucket, Path)] = {
-    TextAppenderObserver.fromEvents(dir, numberOfAppendsBeforeWriterFlush, events)
+  def write(events: Observable[BatchEvent[A, TimeBucket]]): Observable[(TimeBucket, Path)] = {
+    TextAppenderObserver.fromEvents(dir, flushEvery, numberOfAppendsBeforeWriterFlush, events)
   }
 }
 
@@ -60,7 +66,9 @@ object Base64Writer extends StrictLogging {
       dir = dataDir,
       recordsReceivedBeforeClosingBucket = fromKafkaConfig.getInt("recordsReceivedBeforeClosingBucket"),
       numberOfAppendsBeforeWriterFlush = fromKafkaConfig.getInt("numberOfAppendsBeforeWriterFlush"),
-      timeBucketMinutes = fromKafkaConfig.getInt("timeBucketMinutes")
+      timeBucketMinutes = fromKafkaConfig.getInt("timeBucketMinutes"),
+      flushEvery = fromKafkaConfig.getInt("flushEvery"),
+      limit = Option(fromKafkaConfig.getLong("limit")).filter(_ > 0)
     )
   }
 }
