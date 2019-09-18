@@ -5,7 +5,7 @@ import java.nio.file.{Files, Path, Paths}
 import cats.Show
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
-import kafka4m.partitions.{BatchEvent, HasTimestamp, MiniBatchState, TimeBucket}
+import kafka4m.partitions.{PartitionEvent, HasTimestamp, MiniBatchState, TimeBucket}
 import kafka4m.{Bytes, Key}
 import monix.reactive.Observable
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -28,7 +28,7 @@ case class Base64Writer[A: HasTimestamp: Show](dir: Path,
                                                flushEvery: Int,
                                                limit: Option[Long]) {
 
-  def asEvents(input: Observable[A]): Observable[BatchEvent[A, TimeBucket]] = {
+  def asEvents(input: Observable[A]): Observable[PartitionEvent[A, TimeBucket]] = {
     MiniBatchState.byTime(input, recordsReceivedBeforeClosingBucket, timeBucketMinutes.minutes)
   }
 
@@ -37,7 +37,7 @@ case class Base64Writer[A: HasTimestamp: Show](dir: Path,
     write(asEvents(limitted))
   }
 
-  def write(events: Observable[BatchEvent[A, TimeBucket]]): Observable[(TimeBucket, Path)] = {
+  def write(events: Observable[PartitionEvent[A, TimeBucket]]): Observable[(TimeBucket, Path)] = {
     TextAppenderObserver.fromEvents(dir, flushEvery, numberOfAppendsBeforeWriterFlush, events)
   }
 }

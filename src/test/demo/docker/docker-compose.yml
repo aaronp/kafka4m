@@ -1,0 +1,23 @@
+version: '2'
+services:
+  kafka:
+    image: 67bb437e0ee6
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 10.223.6.151
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  etl:
+    image: kafka4m:latest
+    depends_on:
+      - kafka
+    environment:
+      KAFKA4M_BOOTSTRAP: "kafka:9092"
+    entrypoint: ["/app/boot.sh", "write", "kafka4m.etl.intoKafka.dataDir=/app/etl", "/app/etl-conf/docker.conf", "show=kafka4m"]
+    volumes:
+      - ./test:/app/etl
+      - ./conf:/app/etl-conf
+

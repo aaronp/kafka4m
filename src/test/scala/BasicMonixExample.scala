@@ -23,7 +23,7 @@ object BasicMonixExample extends App {
   //
   // let's imperatively load a topic in kafka
   //
-  val originalTopic = Props.topic(config, "producer")
+  val originalTopic = kafka4m.producerTopic(config)
   val producer      = RichKafkaProducer.byteArrayValues(config)
 
   val dataWritten = (0 to 10).map { i =>

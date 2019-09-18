@@ -5,7 +5,10 @@ package kafka4m.io
   * @tparam A
   */
 trait Appender[A] extends AutoCloseable {
+
+  /**
+    * Write some value
+    * @param value
+    */
   def append(value: A): Unit
 }
-
-object Appender {}

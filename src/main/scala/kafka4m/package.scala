@@ -28,7 +28,7 @@ package object kafka4m {
     * @return a consumer which will consume a stream of key/byte-array values into kafka and return the number written
     */
   def writeKeyAndBytes(config: Config = ConfigFactory.load()): Consumer[(String, Array[Byte]), Long] = {
-    write[(String, Array[Byte])](config)(FromKeyAndBytes(Props.topic(config, "producer")))
+    write[(String, Array[Byte])](config)(FromKeyAndBytes(producerTopic(config)))
   }
 
   /** @param config the kafka4m configuration
@@ -51,7 +51,7 @@ package object kafka4m {
 
     val consumer: RichKafkaConsumer[String, Array[Byte]] = RichKafkaConsumer.byteArrayValues(config)(scheduler)
 
-    val topic = Props.topic(config, "consumer")
+    val topic = consumerTopic(config)
     consumer.subscribe(topic)
 
     val closeMe = Task.delay(scheduler.shutdown())
@@ -69,4 +69,19 @@ package object kafka4m {
   def ensureTopicBlocking(config: Config)(implicit ec: ExecutionContext): Option[String] = {
     RichKafkaAdmin.ensureTopicBlocking(config)
   }
+
+  /** @param config the root configuration
+   * @return the producer topic as per the config
+   */
+  def producerTopic(config: Config) = Props.topic(config, "producer")
+
+  /** @param config the root configuration
+   * @return the consumer topic as per the config
+   */
+  def consumerTopic(config: Config) = Props.topic(config, "consumer")
+
+  /** @param config the root configuration
+   * @return the admin topic as per the config
+   */
+  def adminTopic(config: Config)    = Props.topic(config, "admin")
 }

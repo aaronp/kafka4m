@@ -1,6 +1,5 @@
 package kafka4m.util
 
-import java.util.concurrent.{Executors, ScheduledExecutorService, ThreadFactory}
 import java.util.{Properties, UUID}
 
 import com.typesafe.config.Config
@@ -25,7 +24,7 @@ object Props extends LazyLogging {
       case subconf if rootConfig.getString(s"kafka4m.${subconf}.topic").nonEmpty => rootConfig.getString(s"kafka4m.${subconf}.topic")
     }
 
-    foundOpt.getOrElse(rootConfig.getString(s"kafka4m.topic"))
+    foundOpt.getOrElse(rootConfig.getString("kafka4m.topic"))
   }
 
   def replaceUniqueId(str: String, uid: String = UUID.randomUUID.toString): String = {

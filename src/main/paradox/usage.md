@@ -20,17 +20,39 @@ to what Kafka Streams gives you (but w/o relying on the kafka streams API)
 That provides the base primitives -- getting data into and out of Kafka.
 
 ## ETL
-On top of that, kafka4m provides some basic conveniences for getting data into Kafka from some files in a directory and writing
-data from kafka to the local filesystem.
-
-Writing data into can be useful for some performance testing, getting test data in, or just a normal loading of application data.
-
-Reading data from Kafka can be a nice convenience for viewing data locally, or as an interim step to sftp-ing or otherwise uploading the data somewhere.
-
-The Observables provided can just as easily provided data to a multi-part request, a websocket, etc.
+On top of that, kafka4m provides some basic conveniences for getting data into Kafka from the filesystem and writing
+data from kafka to the filesystem.
 
 ### Kafka4mApp 
 The 'Kafka4mApp' serves as the entry-point for the ETL jobs and uses the [args4c](https://porpoiseltd.co.uk/args4c/index.html) library.
 That simply means that the first argument should be either 'read' or 'write' (as in read data from kafka or write data to kafka), and the 
 subsequent args are either key=value pairs or the location of a configuration file.
 
+
+### As a docker image
+Aside from being able to extend it in your project, it also works just out-of-the box, and so we've published a docker image
+to do just that:
+
+Write some data into kafka:
+```$xslt
+echo "example" > ./dataIn/example.txt
+docker run kafka4m:latest write kafka4m.etl.intoKafka.dataDir=./dataIn kafka4m.topic=foo
+``` 
+
+Write a lot of data into kafka:
+```$xslt
+docker run kafka4m:latest write \
+  kafka4m.etl.intoKafka.dataDir=./dataIn \
+  kafka4m.topic=foo \ 
+  kafka4m.etl.intoKafka.repeat=true
+``` 
+
+Read the data out:
+```$xslt
+docker run kafka4m:latest read \
+  kafka4m.etl.fromKafka.dataDir=./dataOut \
+  kafka4m.topic=foo
+``` 
+
+There are a lot more configuration options (caching, limits, rate-limiting, etc) for the ETL work. 
+Please just consume the reference.conf for options. 

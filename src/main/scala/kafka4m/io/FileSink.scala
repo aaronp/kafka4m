@@ -31,7 +31,7 @@ object FileSink {
     * @param zipFile the zip file
     * @return
     */
-  def zipped(zipFile: Path, flushEvery: Int = 10, zipLevel: Int = -1): ZipAppenderObserver = {
+  def zipped(zipFile: Path, flushEvery: Int = 10, zipLevel: Int = -1): ZipAppenderObserver[(Key, Bytes)] = {
     new ZipAppenderObserver(zipFile, flushEvery, zipLevel)
   }
 }

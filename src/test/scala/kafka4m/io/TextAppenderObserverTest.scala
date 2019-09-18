@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter
 import cats.Show
 import kafka4m.BaseKafka4mDockerSpec
 import kafka4m.partitions.TimeBucketTest._
-import kafka4m.partitions.{BatchEvent, FlushBucket, MiniBatchState, TimeBucket}
+import kafka4m.partitions.{PartitionEvent, FlushBucket, MiniBatchState, TimeBucket}
 import kafka4m.util.Schedulers
 import monix.reactive.Observable
 import eie.io._
@@ -33,7 +33,7 @@ class TextAppenderObserverTest extends BaseKafka4mDockerSpec {
             }
           }
 
-          val grouped: Observable[BatchEvent[ZonedDateTime, TimeBucket]] = {
+          val grouped: Observable[PartitionEvent[ZonedDateTime, TimeBucket]] = {
             // let's group into 30 minute buckets
             val bucketMinutes = 30
             val buckets       = disorderedTimes.map(TimeBucket(bucketMinutes, _)).distinct

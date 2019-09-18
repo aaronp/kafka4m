@@ -128,7 +128,7 @@ object RichKafkaConsumer extends StrictLogging {
 
     import args4c.implicits._
     val consumerConfig = rootConfig.getConfig("kafka4m.consumer")
-    val topic          = Props.topic(rootConfig, "consumer")
+    val topic          = kafka4m.consumerTopic(rootConfig)
 
     val props: Properties = {
       val properties = kafka4m.util.Props.propertiesForConfig(consumerConfig)

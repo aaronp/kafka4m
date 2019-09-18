@@ -60,10 +60,10 @@ object TextAppenderObserver {
   def fromEvents[A: HasTimestamp: Show](dir: Path,
                                         flushEvery: Int,
                                         bucketRangeInMinutes: Int,
-                                        appendEvents: Observable[BatchEvent[A, TimeBucket]]): Observable[(TimeBucket, Path)] = {
+                                        appendEvents: Observable[PartitionEvent[A, TimeBucket]]): Observable[(TimeBucket, Path)] = {
     implicit val partitioner: Partitioner[A, TimeBucket] = Partitioner.byTime[A](bucketRangeInMinutes)
 
-    val partitionedByTime = PartitionState.partitionEvents[A, TimeBucket, TextAppenderObserver[A]](appendEvents) {
+    val partitionedByTime = PartitionAppenderState.partitionEvents[A, TimeBucket, TextAppenderObserver[A]](appendEvents) {
       case (bucket, firstValue) =>
         val file = dir.resolve(bucket.asFileName(HasTimestamp[A].timestamp(firstValue)))
         new TextAppenderObserver(file, flushEvery)

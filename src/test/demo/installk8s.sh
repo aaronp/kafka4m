@@ -27,7 +27,6 @@ function installKafka() {
     kubectl get Pods --namespace=kafka
 }
 # https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/
-# https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/
 function configureKafka4m() {
   echo "creating kafka4m-config config"
   kubectl create configmap kafka4m-config --from-file=config/kafka4m-k8s.conf

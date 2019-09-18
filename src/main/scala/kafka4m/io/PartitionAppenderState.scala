@@ -3,21 +3,22 @@ package kafka4m.io
 import kafka4m.partitions._
 import monix.reactive.{Notification, Observable}
 
-private[io] object PartitionState {
+/**
+  * A consumer of [[PartitionEvent]]s which feeds the events into an [[Appender]]
+  */
+private[io] object PartitionAppenderState {
 
   /**
     *
     * @param appendEvents the input events (append, flush)
     * @param newAppender a means to create a new appender from a key and the first value which applied to that key
-    * @param partitioner the way to derive keys of type 'K' from 'A' data values
     * @tparam A the data types we're being appended (e.g. byte arrays, byte buffers, other typed values)
     * @tparam K some sort of key used to route the values to a particular appender
     * @return an observable of keys with completed appenders
     */
-  def partitionEvents[A, K, Writer <: Appender[A]](appendEvents: Observable[BatchEvent[A, K]])(newAppender: (K, A) => Writer)(
-      implicit partitioner: Partitioner[A, K]): Observable[(K, Writer)] = {
+  def partitionEvents[A, K, Writer <: Appender[A]](appendEvents: Observable[PartitionEvent[A, K]])(newAppender: (K, A) => Writer): Observable[(K, Writer)] = {
     appendEvents
-      .scan(PartitionState[A, K, Writer](newAppender, Map.empty, partitioner) -> Seq.empty[Notification[(K, Writer)]]) {
+      .scan(PartitionAppenderState[A, K, Writer](newAppender, Map.empty) -> Seq.empty[Notification[(K, Writer)]]) {
         case ((st8, _), next) => st8.update(next)
       }
       .flatMap {
@@ -27,9 +28,9 @@ private[io] object PartitionState {
   }
 }
 
-private[io] case class PartitionState[A, K, Writer <: Appender[A]](newAppender: (K, A) => Writer, byBucket: Map[K, Writer], partitioner: Partitioner[A, K]) {
+private[io] case class PartitionAppenderState[A, K, Writer <: Appender[A]](newAppender: (K, A) => Writer, byBucket: Map[K, Writer]) {
   private val NoOp = (this, Nil)
-  def update(event: BatchEvent[A, K]): (PartitionState[A, K, Writer], Seq[Notification[(K, Writer)]]) = {
+  def update(event: PartitionEvent[A, K]): (PartitionAppenderState[A, K, Writer], Seq[Notification[(K, Writer)]]) = {
     event match {
       case AppendData(bucket, data) =>
         byBucket.get(bucket) match {
@@ -42,13 +43,13 @@ private[io] case class PartitionState[A, K, Writer <: Appender[A]](newAppender: 
             copy(byBucket = byBucket.updated(bucket, appender)) -> Nil
         }
 
-      case ForceFlushBuckets(close) =>
+      case ForceFlushBuckets(signalComplete) =>
         val onNexts = byBucket.map {
           case (bucket, appender) =>
             appender.close()
             Notification.OnNext(bucket -> appender)
         }
-        val events = if (close) {
+        val events = if (signalComplete) {
           onNexts.toSeq :+ Notification.OnComplete
         } else {
           onNexts.toSeq

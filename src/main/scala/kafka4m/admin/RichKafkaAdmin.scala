@@ -5,7 +5,7 @@ import java.util.Properties
 import java.util.concurrent.TimeUnit
 
 import com.typesafe.config.Config
-import com.typesafe.scalalogging.{LazyLogging, StrictLogging}
+import com.typesafe.scalalogging.StrictLogging
 import kafka4m.util.{Props, Using}
 import org.apache.kafka.clients.admin._
 import org.apache.kafka.common.KafkaFuture
@@ -71,10 +71,20 @@ final class RichKafkaAdmin(val admin: AdminClient) extends AutoCloseable with St
 }
 
 object RichKafkaAdmin extends StrictLogging {
+
+  /**
+    * Make a blocking call to create the topic using the 'kafka4m.admin.topic' and kafka4m.admin client.
+    *
+    * This is very naughty to be done as a blocking call. I'm sorry.
+    *
+    * @param config the root configuration
+    * @param ec
+    * @return None if kafka4m.whenMissingTopic.create is true or the topic already exists, Some(topic) if the topic was created
+    */
   def ensureTopicBlocking(config: Config)(implicit ec: ExecutionContext): Option[String] = {
     Using(RichKafkaAdmin(config)) { admin =>
       val whenMissingConfig = config.getConfig("kafka4m.whenMissingTopic")
-      val topic             = Props.topic(config, "streams", "admin")
+      val topic             = kafka4m.adminTopic(config)
 
       if (whenMissingConfig.getBoolean("create")) {
         val numPartitions     = whenMissingConfig.getInt("numPartitions")

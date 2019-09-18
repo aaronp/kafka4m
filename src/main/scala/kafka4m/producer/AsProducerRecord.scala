@@ -1,6 +1,6 @@
 package kafka4m.producer
 
-import kafka4m.{Bytes, Key}
+import kafka4m.{Bytes, Key, KeyValue}
 import org.apache.kafka.clients.producer.ProducerRecord
 
 /**
@@ -20,6 +20,17 @@ trait AsProducerRecord[-A] {
     * @return a producer record for the given value
     */
   def asRecord(value: A): ProducerRecord[K, V]
+
+  final def contraMap[B](f: B => A): AsProducerRecord[B] = {
+    val parent = this
+    new AsProducerRecord[B] {
+      override type K = parent.K
+      override type V = parent.V
+      override def asRecord(value: B): ProducerRecord[K, V] = {
+        parent.asRecord(f(value))
+      }
+    }
+  }
 }
 
 object AsProducerRecord {
@@ -29,6 +40,19 @@ object AsProducerRecord {
   }
 
   def apply[A](implicit apr: AsProducerRecord[A]): AsProducerRecord[A] = apr
+
+  def lift[A, KafkaKey, KafkaValue](f: A => ProducerRecord[KafkaKey, KafkaValue]): AsProducerRecord[A] = new AsProducerRecord[A] {
+    override type K = KafkaKey
+    override type V = KafkaValue
+    override def asRecord(value: A) = f(value)
+  }
+
+  def liftForTopic[A](topic: String)(f: A => KeyValue): AsProducerRecord[A] = {
+    lift[A, Key, Bytes] { a =>
+      val (key, data) = f(a)
+      new ProducerRecord[Key, Bytes](topic, key, data)
+    }
+  }
 
   case class FromString(topic: String) extends AsProducerRecord[String] {
     override type K = Key

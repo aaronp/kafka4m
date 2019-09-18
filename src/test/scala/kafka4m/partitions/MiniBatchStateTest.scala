@@ -4,18 +4,33 @@ import java.time.ZonedDateTime
 import java.util.concurrent.atomic.AtomicInteger
 
 import kafka4m.BaseKafka4mSpec
+import kafka4m.util.Schedulers
+import monix.reactive.Observable
 import org.scalatest.GivenWhenThen
 
 class MiniBatchStateTest extends BaseKafka4mSpec with GivenWhenThen {
   import TimeBucketTest._
 
+  "MiniBatchState.partitionEvents" should {
+    "partition data based on a partitioner" in {
+      implicit object EvensAndOdds extends Partitioner[Long, String] {
+        override def bucketForValue(value: Long): String = if (value % 2 == 0) "even" else "odd"
+      }
+      val partitions = MiniBatchState.partitionEvents(Observable.range(0, 5), 3, true)
+      Schedulers.using { s =>
+        val list: List[PartitionEvent[Long, String]] = partitions.toListL.runToFuture(s).futureValue
+        list.foreach(println)
+      }
+
+    }
+  }
   "MiniBatchState.update" should {
     "produce a 'flush' event if N records have been observed since the last time we saw a record for a particular time bucket" in {
       Given("A MiniBatchState which will put records into 7 minute buckets and flush buckets after 2 messages are seen in different buckets")
-      val initialState = MiniBatchState[ZonedDateTime, TimeBucket](miniBatchSize = 2)(Partitioner.byTime[ZonedDateTime](minutesPerBucket = 7))
+      val initialState = MiniBatchState[ZonedDateTime, TimeBucket](miniBatchSize = 2, strictBatchSizes = false)(Partitioner.byTime[ZonedDateTime](minutesPerBucket = 7))
       val index        = new AtomicInteger(0)
       var state        = initialState
-      def inc(next: ZonedDateTime): Seq[BatchEvent[ZonedDateTime, TimeBucket]] = {
+      def inc(next: ZonedDateTime): Seq[PartitionEvent[ZonedDateTime, TimeBucket]] = {
         val (s, r) = state.update(next, index.incrementAndGet)
         state = s
         r

@@ -18,22 +18,32 @@ import scala.concurrent.duration.FiniteDuration
   * @tparam A
   * @tparam K
   */
-final case class MiniBatchState[A, K] private (miniBatchSize: Int, indicesRemaining: Long, lastReceivedPerBucket: Map[K, Long])(implicit partitioner: Partitioner[A, K]) {
+final case class MiniBatchState[A, K] private (miniBatchSize: Int, indicesRemaining: Long, strict: Boolean, lastReceivedPerBucket: Map[K, Long])(
+    implicit partitioner: Partitioner[A, K]) {
 
-  def update(record: A, messageNumber: Long): (MiniBatchState[A, K], Seq[BatchEvent[A, K]]) = {
+  def update(record: A, messageNumber: Long): (MiniBatchState[A, K], Seq[PartitionEvent[A, K]]) = {
     val bucket      = partitioner.bucketForValue(record)
-    val newBuckets  = lastReceivedPerBucket.updated(bucket, messageNumber)
     val appendEvent = AppendData(bucket, record)
+    def newBuckets  = lastReceivedPerBucket.updated(bucket, messageNumber)
     if (indicesRemaining == 0) {
-      val threshold = messageNumber - miniBatchSize
-      val (toFlush, remaining) = newBuckets.partition {
-        case (_, lastReceivedIndex) => lastReceivedIndex <= threshold
-      }
-      val flushes  = toFlush.keysIterator.map(FlushBucket.apply[A, K])
-      val newState = MiniBatchState[A, K](miniBatchSize, miniBatchSize, remaining)
+      if (strict) {
+        val newState = new MiniBatchState[A, K](miniBatchSize, miniBatchSize, strict, Map.empty)
+        val events = {
+          val flushes = lastReceivedPerBucket.keysIterator.map(FlushBucket.apply[A, K])
+          Iterator(appendEvent) ++ flushes
+        }
+        (newState, events.toSeq)
+      } else {
+        val threshold = messageNumber - miniBatchSize
+        val (toFlush, remaining) = newBuckets.partition {
+          case (_, lastReceivedIndex) => lastReceivedIndex <= threshold
+        }
+        val flushes  = toFlush.keysIterator.map(FlushBucket.apply[A, K])
+        val newState = MiniBatchState[A, K](miniBatchSize, miniBatchSize, strict, remaining)
 
-      val events: Seq[BatchEvent[A, K]] = appendEvent +: flushes.toSeq
-      (newState, events)
+        val events: Seq[PartitionEvent[A, K]] = appendEvent +: flushes.toSeq
+        (newState, events)
+      }
     } else {
       val newState: MiniBatchState[A, K] = copy(indicesRemaining = indicesRemaining - 1, lastReceivedPerBucket = newBuckets)
       (newState, Seq(appendEvent))
@@ -51,14 +61,25 @@ object MiniBatchState {
     * @tparam A
     * @return a stream of append events from the source observable
     */
-  def byTime[A: HasTimestamp](source: Observable[A], miniBatchSize: Int, timeBucketSize: FiniteDuration): Observable[BatchEvent[A, TimeBucket]] = {
+  def byTime[A: HasTimestamp](source: Observable[A], miniBatchSize: Int, timeBucketSize: FiniteDuration): Observable[PartitionEvent[A, TimeBucket]] = {
     implicit val timePartitioner: Partitioner[A, TimeBucket] = Partitioner.byTime[A](timeBucketSize.toMinutes.toInt)
-    partitionEvents(source, miniBatchSize)
+    partitionEvents(source, miniBatchSize, false)
   }
 
-  def partitionEvents[A, K](source: Observable[A], miniBatchSize: Int)(implicit partitioner: Partitioner[A, K]): Observable[BatchEvent[A, K]] = {
-    val stateMachine: Observable[(MiniBatchState[A, K], Seq[BatchEvent[A, K]])] =
-      source.zipWithIndex.scan(MiniBatchState[A, K](miniBatchSize) -> Seq.empty[BatchEvent[A, K]]) {
+  /**
+    * Return a stream of [[PartitionEvent]]s from the given observable
+    *
+    * @param source the original stream
+    * @param miniBatchSize a 'number of events received' indicator used to determine how often a [[FlushBucket]] event is sent
+    * @param strictBatchSizes if false, then the 'miniBatchSize' is used to indicate the number of 'A' values observed without the 'A' value appearing in a 'K' bucket before we flush
+    * @param partitioner a means to partition values of A into buckets of type K
+    * @tparam A
+    * @tparam K the bucket (batch) type
+    * @return an observable of events (append and flush) which
+    */
+  def partitionEvents[A, K](source: Observable[A], miniBatchSize: Int, strictBatchSizes: Boolean)(implicit partitioner: Partitioner[A, K]): Observable[PartitionEvent[A, K]] = {
+    val stateMachine: Observable[(MiniBatchState[A, K], Seq[PartitionEvent[A, K]])] =
+      source.zipWithIndex.scan(MiniBatchState[A, K](miniBatchSize, strictBatchSizes) -> Seq.empty[PartitionEvent[A, K]]) {
         case ((st8, _), (next, i)) => st8.update(next, i)
       }
     stateMachine.flatMap {
@@ -66,7 +87,7 @@ object MiniBatchState {
     }
   }
 
-  def apply[A, K](miniBatchSize: Int)(implicit partitioner: Partitioner[A, K]): MiniBatchState[A, K] = {
-    new MiniBatchState[A, K](miniBatchSize, miniBatchSize, Map.empty)
+  def apply[A, K](miniBatchSize: Int, strictBatchSizes: Boolean)(implicit partitioner: Partitioner[A, K]): MiniBatchState[A, K] = {
+    new MiniBatchState[A, K](miniBatchSize, miniBatchSize, strictBatchSizes, Map.empty)
   }
 }
