@@ -11,4 +11,4 @@ shared-src
 .users
 .srl
 .target
-src/test/demo/kubernetes-kafka
+src/test/demo/k8s/kubernetes-kafka

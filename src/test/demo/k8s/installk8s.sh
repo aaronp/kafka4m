@@ -29,12 +29,16 @@ function installKafka() {
 # https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/
 function configureKafka4m() {
   echo "creating kafka4m-config config"
-  kubectl create configmap kafka4m-config --from-file=config/kafka4m-k8s.conf
+  kubectl create configmap kafka4m-config --from-file=config/kafka4m-k8s.conf --from-file=config/logback.xml
 
   echo "created kafka4m-config config"
   kubectl get configmaps kafka4m-config -o yaml
 }
 
+function createSimpleHttpServer() {
+  jfloff/alpine-python python3 -m http.server 8080
+
+}
 # installKafka
 
 configureKafka4m

@@ -14,7 +14,7 @@ metadata:
   name: example-pv
 spec:
   capacity:
-    storage: 100Gi
+    storage: 1Gi
   # volumeMode field requires BlockVolume Alpha feature gate to be enabled.
   volumeMode: Filesystem
   accessModes:
@@ -33,3 +33,22 @@ spec:
           - example-node
 
 
+== persistent volumes ==
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/
+kubectl apply -f https://k8s.io/examples/pods/storage/pv-volume.yaml
+kubectl get pv task-pv-volume
+kubectl apply -f https://k8s.io/examples/pods/storage/pv-claim.yaml
+kubectl get pv task-pv-volume
+kubectl get pvc task-pv-claim
+kubectl apply -f https://k8s.io/examples/pods/storage/pv-pod.yaml
+kubectl exec -it task-pv-pod -- /bin/bash
+
+
+
+kubectl exec -it <pod> -- sh
+
+
+== services ===
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/nginx.key -out /tmp/nginx.crt -subj "/CN=nginx-service/O=nginx-service"
+cat /tmp/nginx.crt | base64
+cat /tmp/nginx.key | base64

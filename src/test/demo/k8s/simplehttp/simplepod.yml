@@ -1,0 +1,12 @@
+#https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+    - name: myapp-container
+      image: jfloff/alpine-python
+      command: ['python3', '-m', 'http.server', '8080']
