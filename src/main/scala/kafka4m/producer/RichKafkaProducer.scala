@@ -16,8 +16,6 @@ import scala.concurrent.Future
 
 final class RichKafkaProducer[K, V] private (val publisher: KafkaProducer[K, V]) extends AutoCloseable with StrictLogging {
 
-  logger.info("Creating Producer")
-
   def sendAsync(kafkaTopic: String, key: K, value: V, callback: Callback = null, partition: Int = -1): Future[RecordMetadata] = {
     val promise = PromiseCallback()
     send(kafkaTopic, key, value, promise, partition)
@@ -72,8 +70,13 @@ object RichKafkaProducer extends StrictLogging {
   }
 
   def apply[K, V](rootConfig: Config, keySerializer: Serializer[K], valueSerializer: Serializer[V]): RichKafkaProducer[K, V] = {
-    val props: Properties = Props.propertiesForConfig(rootConfig.getConfig("kafka4m.producer"))
+    val producerConf = rootConfig.getConfig("kafka4m.producer")
+    val props: Properties = Props.propertiesForConfig(producerConf)
     val publisher         = new KafkaProducer[K, V](props, keySerializer, valueSerializer)
+
+    import args4c.implicits._
+    logger.info(s"Creating Producer against ${producerConf.asList("bootstrap.servers").mkString("[",",","]")}")
+
     new RichKafkaProducer(publisher)
   }
 }
