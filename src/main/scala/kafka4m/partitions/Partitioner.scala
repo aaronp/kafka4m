@@ -2,8 +2,8 @@ package kafka4m.partitions
 
 /**
   * A means to place values of type A into buckets of type B
-  * @tparam A
-  * @tparam B
+  * @tparam A the input data type
+  * @tparam B the 'bucket' partition
   */
 trait Partitioner[A, B] {
 

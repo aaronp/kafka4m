@@ -133,19 +133,7 @@ object RichKafkaConsumer extends StrictLogging {
     val props: Properties = {
       val properties = kafka4m.util.Props.propertiesForConfig(consumerConfig)
 
-      //
-      // subscribe to our topic
-      // .. properties.asScala.mkString()  is broken as it tries to cast things as strings, and some values are integers
-      def propString = {
-        val keys = properties.propertyNames.asScala
-        keys
-          .map { key =>
-            s"$key : ${properties.getProperty(key.toString)}"
-          }
-          .mkString("\n\t", "\n\t", "\n\n")
-      }
-
-      logger.info(s"Creating consumer for '$topic', properties are:\n${propString}")
+      logger.info(s"Creating consumer for '$topic', properties are:\n${Props.format(properties)}")
       properties
     }
 

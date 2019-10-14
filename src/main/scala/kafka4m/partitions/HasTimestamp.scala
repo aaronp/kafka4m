@@ -4,6 +4,12 @@ import java.time.ZonedDateTime
 
 import org.apache.kafka.clients.consumer.ConsumerRecord
 
+/**
+  * Represents a value which has a timestamp.
+  *
+  * This can then be used by [[Partitioner]]s to partition values of 'A' on a timestamp
+  * @tparam A
+  */
 trait HasTimestamp[A] {
   def timestamp(value: A): ZonedDateTime
 }

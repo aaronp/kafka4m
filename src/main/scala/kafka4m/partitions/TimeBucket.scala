@@ -2,15 +2,18 @@ package kafka4m.partitions
 
 import java.time.ZonedDateTime
 
-/**
-  *
+/** Represents a key based on an hour and minute range
   * @param hour
   * @param fromMinute
   * @param toMinute
   */
 final case class TimeBucket(hour: Int, fromMinute: Int, toMinute: Int) {
-  def asFileName(first: ZonedDateTime) = {
-    s"${first.getYear}-${first.getMonthValue}-${first.getDayOfMonth}__${hour}hr_${fromMinute}-${toMinute}.txt"
+
+  /** @param time the time to format
+    * @return a filename for the given time
+    */
+  def asFileName(time: ZonedDateTime) = {
+    s"${time.getYear}-${time.getMonthValue}-${time.getDayOfMonth}__${hour}hr_${fromMinute}-${toMinute}.txt"
   }
 }
 object TimeBucket {

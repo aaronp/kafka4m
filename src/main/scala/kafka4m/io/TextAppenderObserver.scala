@@ -65,7 +65,8 @@ object TextAppenderObserver {
 
     val partitionedByTime = PartitionAppenderState.partitionEvents[A, TimeBucket, TextAppenderObserver[A]](appendEvents) {
       case (bucket, firstValue) =>
-        val file = dir.resolve(bucket.asFileName(HasTimestamp[A].timestamp(firstValue)))
+        val time = HasTimestamp[A].timestamp(firstValue)
+        val file: Path = dir.resolve(bucket.asFileName(time))
         new TextAppenderObserver(file, flushEvery)
     }
 

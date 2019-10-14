@@ -111,6 +111,7 @@ object RichKafkaAdmin extends StrictLogging {
 
   def apply(rootConfig: Config): RichKafkaAdmin = {
     val props: Properties  = Props.propertiesForConfig(rootConfig.getConfig("kafka4m.admin"))
+    logger.info(s"Connecting admin client with:\n${Props.format(props)}")
     val admin: AdminClient = AdminClient.create(props)
     new RichKafkaAdmin(admin)
   }
