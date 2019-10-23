@@ -71,17 +71,17 @@ package object kafka4m {
   }
 
   /** @param config the root configuration
-   * @return the producer topic as per the config
-   */
+    * @return the producer topic as per the config
+    */
   def producerTopic(config: Config) = Props.topic(config, "producer")
 
   /** @param config the root configuration
-   * @return the consumer topic as per the config
-   */
+    * @return the consumer topic as per the config
+    */
   def consumerTopic(config: Config) = Props.topic(config, "consumer")
 
   /** @param config the root configuration
-   * @return the admin topic as per the config
-   */
-  def adminTopic(config: Config)    = Props.topic(config, "admin")
+    * @return the admin topic as per the config
+    */
+  def adminTopic(config: Config) = Props.topic(config, "admin")
 }
