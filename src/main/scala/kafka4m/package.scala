@@ -54,7 +54,10 @@ package object kafka4m {
     val topic = consumerTopic(config)
     consumer.subscribe(topic)
 
-    val closeMe = Task.delay(scheduler.shutdown())
+    val closeMe = Task.delay {
+      consumer.close()
+      scheduler.shutdown()
+    }
     consumer.asObservable.guarantee(closeMe)
   }
 
