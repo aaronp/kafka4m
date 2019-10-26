@@ -5,8 +5,9 @@ import monix.execution.schedulers.SchedulerService
 import monix.execution.{ExecutionModel, Scheduler, UncaughtExceptionReporter}
 
 object Schedulers {
-  def using[A](f: Scheduler => A): A = {
-    val sched = compute()
+  def using[A](f: Scheduler => A): A = using()(f)
+
+  def using[A](sched: SchedulerService = compute())(f: Scheduler => A): A = {
     try {
       f(sched)
     } finally {
@@ -24,7 +25,7 @@ object Schedulers {
     Scheduler.io(name, daemonic = daemonic, reporter = LoggingReporter, executionModel = ExecutionModel.Default)
   }
 
-  def compute(name: String = "kafak4m-compute", daemonic: Boolean = true): SchedulerService = {
-    Scheduler.computation(name = name, daemonic = daemonic, reporter = LoggingReporter, executionModel = ExecutionModel.Default)
+  def compute(name: String = "kafak4m-compute", daemonic: Boolean = true, executionModel: ExecutionModel = ExecutionModel.Default): SchedulerService = {
+    Scheduler.computation(name = name, daemonic = daemonic, reporter = LoggingReporter, executionModel = executionModel)
   }
 }

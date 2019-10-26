@@ -3,14 +3,18 @@ package kafka4m.io
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
-import eie.io._
+import com.typesafe.config.ConfigFactory
 import kafka4m.BaseKafka4mSpec
 import kafka4m.io.FileSource.EtlConfig
 import kafka4m.util.Schedulers
 import monix.execution.Scheduler
+import monix.execution.ExecutionModel._
 import monix.reactive.Observable
 
 class FileSourceTest extends BaseKafka4mSpec {
+
+  import eie.io._
+
   implicit def asRichObs[A](obs: Observable[A])(implicit s: Scheduler) = new {
     def takeList(n: Int): List[A] = {
       obs.take(n).toListL.runToFuture(s).futureValue
@@ -20,7 +24,24 @@ class FileSourceTest extends BaseKafka4mSpec {
   "FileSource.keysAndData" should {
     "pick up newly created files which appear in the directory" in {
       withTmpDir { dir =>
+        val conf = ConfigFactory.parseString(s"""kafka4m.etl.intoKafka {
+             |  dataDir : "${dir.toAbsolutePath}"
+             |  repeat : false
+             |}""".stripMargin).withFallback(ConfigFactory.load())
+
+        val fs = FileSource(conf)
+
+        Schedulers.using(Schedulers.compute(executionModel = AlwaysAsyncExecution)) { implicit s =>
+          val three = fs.take(3).toListL.runToFuture
+
+          dir.resolve("a.txt").text = "hi"
+          dir.resolve("b.txt").text = "2"
+          dir.resolve("c.txt").text = "three"
+
+          val files = three.futureValue
+          files.map(_._1) should contain only ("a.txt", "b.txt", "c.txt")
         }
+      }
     }
     "repeat cached data" in withTestDir { dir =>
       val data: Observable[(String, Array[Byte])] = FileSource.keysAndData(

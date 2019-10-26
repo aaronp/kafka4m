@@ -23,7 +23,7 @@ object BaseKafka4mSpec {
   private val counter = new AtomicInteger(0)
   def withTmpDir(f: Path => Unit): Unit = {
     import eie.io._
-    val dir = s"target/${getClass}-${counter.incrementAndGet}".asPath.mkDirs()
+    val dir = s"target/${getClass.getSimpleName}-${counter.incrementAndGet}".asPath.mkDirs()
     try {
       f(dir)
     } finally {
