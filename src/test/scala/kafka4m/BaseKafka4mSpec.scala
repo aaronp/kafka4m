@@ -1,7 +1,7 @@
 package kafka4m
 
 import java.nio.file.Path
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import org.scalatest.time.{Millis, Seconds, Span}
@@ -20,7 +20,7 @@ abstract class BaseKafka4mSpec extends WordSpec with Matchers with ScalaFutures 
 }
 object BaseKafka4mSpec {
 
-  private val counter = new AtomicInteger(0)
+  private val counter = new AtomicLong(System.currentTimeMillis())
   def withTmpDir(f: Path => Unit): Unit = {
     import eie.io._
     val dir = s"target/${getClass.getSimpleName}-${counter.incrementAndGet}".asPath.mkDirs()
