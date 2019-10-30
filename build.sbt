@@ -58,6 +58,8 @@ libraryDependencies ++= List(
   "io.monix"                   %% "monix"          % "3.0.0",
   "io.monix"                   %% "monix-reactive" % "3.0.0",
   "io.monix"                   %% "monix-eval"     % "3.0.0",
+  "com.lihaoyi"                %% "os-lib"         % "0.4.2",
+  "com.lihaoyi"                %% "os-lib-watch"   % "0.4.2",
   "com.lihaoyi"                %% "sourcecode"     % "0.1.7",
   "com.github.aaronp"          %% "args4c"         % "0.6.6",
   "com.typesafe.scala-logging" %% "scala-logging"  % "3.9.2",
