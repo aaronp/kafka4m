@@ -3,10 +3,9 @@ package kafka4m.consumer
 import java.time
 import java.util.Properties
 
-import cats.effect.{IO, Resource}
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
-import kafka4m.util.Props
+import monix.eval.Task
 import monix.execution.Scheduler
 import monix.reactive.Observable
 import org.apache.kafka.clients.consumer._
@@ -20,8 +19,9 @@ import scala.util.control.NonFatal
 /**
   * A means of driving a kafka-stream using the consumer (not kafka streaming) API
   */
-class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topic: String, val defaultPollTimeout: Duration) extends AutoCloseable with StrictLogging {
-  require(topic.nonEmpty, "empty topic set for consumer")
+class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topics: Set[String], val defaultPollTimeout: Duration) extends AutoCloseable with StrictLogging {
+  require(topics.nonEmpty, "empty topic set for consumer")
+  require(topics.forall(_.nonEmpty), "blank topic set for consumer")
 
   private val javaPollDuration: time.Duration = RichKafkaConsumer.asJavaDuration(defaultPollTimeout)
 
@@ -34,12 +34,24 @@ class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topic: String, 
     consumer.subscribe(java.util.Collections.singletonList(topic), listener)
   }
 
-  def partitions: List[PartitionInfo] = partitionsByTopic().getOrElse(topic, Nil)
+  def partitions: List[PartitionInfo] = {
+    val byTopic = partitionsByTopic()
+    topics.toList.flatMap(byTopic.getOrElse(_, Nil))
+  }
 
-  def asObservable: Observable[ConsumerRecord[K, V]] = {
+  /**
+    * Represent this consumer as an observable
+    * @param closeOnComplete
+    */
+  def asObservable(closeOnComplete: Boolean)(implicit scheduler: Scheduler): Observable[ConsumerRecord[K, V]] = {
     val iterators: Observable[Iterable[ConsumerRecord[K, V]]] = Observable.repeatEval(poll())
-    iterators.flatMap { iter: Iterable[ConsumerRecord[K, V]] =>
+    val obs = iterators.flatMap { iter: Iterable[ConsumerRecord[K, V]] =>
       Observable.fromIterable(iter)
+    }
+    if (closeOnComplete) {
+      obs.guarantee(Task.delay(consumer.close()))
+    } else {
+      obs
     }
   }
 
@@ -56,20 +68,36 @@ class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topic: String, 
 
   def seekToBeginning(partition: Int): Boolean = swallow {
     logger.info(s"seekToBeginning(${partition})")
-    val tp = new TopicPartition(topic, partition)
-    consumer.seekToBeginning(java.util.Collections.singletonList(tp))
+    topics.foreach { topic =>
+      val tp = new TopicPartition(topic, partition)
+      consumer.seekToBeginning(java.util.Collections.singletonList(tp))
+    }
   }
 
-  def positionFor(partition: Int): Long = consumer.position(new TopicPartition(topic, partition))
+  def positionsFor(partition: Int) = {
+    val byTopic = topics.map { topic =>
+      topic -> consumer.position(new TopicPartition(topic, partition))
+    }
+    byTopic.toMap
+  }
 
-  def committed(partition: Int): OffsetAndMetadata = consumer.committed(new TopicPartition(topic, partition))
+  def committed(partition: Int): Map[String, OffsetAndMetadata] = {
+    val byTopic = topics.map { topic =>
+      topic -> consumer.committed(new TopicPartition(topic, partition))
+    }
+    byTopic.toMap
+  }
 
   def poll(timeout: time.Duration = javaPollDuration): Iterable[ConsumerRecord[K, V]] = {
     try {
       val records: ConsumerRecords[K, V] = consumer.poll(timeout)
       logger.trace(s"Got ${records.count()} records from ${records.partitions().asScala.mkString(s"[", ",", "]")}")
-      val forTopic: Iterable[ConsumerRecord[K, V]] = records.records(topic).asScala
-      logger.trace(s"Got ${forTopic.size} of ${records.count()} for topic '$topic' records from ${records.partitions().asScala.mkString(s"[", ",", "]")}")
+      val forTopic: Iterable[ConsumerRecord[K, V]] = {
+        records.asScala.filter { record =>
+          topics.contains(record.topic())
+        }
+      }
+      logger.trace(s"Got ${forTopic.size} of ${records.count()} for topic '$topics' records from ${records.partitions().asScala.mkString(s"[", ",", "]")}")
       forTopic
     } catch {
       case NonFatal(e) =>
@@ -80,27 +108,30 @@ class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topic: String, 
 
   def assignmentPartitions: List[Int] = {
     consumer.assignment().asScala.toList.map { tp =>
-      require(tp.topic() == topic, s"consumer for $topic has assignment on ${tp.topic()}")
+      require(topics.contains(tp.topic()), s"consumer for topics $topics has assignment on ${tp.topic()}")
       tp.partition()
     }
   }
 
   def status(verbose: Boolean): String = {
-    val topics: Map[kafka4m.Key, List[PartitionInfo]] = partitionsByTopic()
+    val byTopic: Map[kafka4m.Key, List[PartitionInfo]] = partitionsByTopic()
 
-    topics.get(topic).fold(s"topic '${topic}' doesn't exist") { partitions: Seq[PartitionInfo] =>
-      val ourAssignments = {
-        val all = assignmentPartitions
-        val detail = if (verbose) {
-          all.map(committed).mkString("\n\tCommit status:\n\t", "\n\t", "\n")
-        } else {
-          ""
+    val topicStatuses = topics.map { topic =>
+      byTopic.get(topic).fold(s"topic '${topic}' doesn't exist") { partitions: Seq[PartitionInfo] =>
+        val ourAssignments = {
+          val all = assignmentPartitions
+          val detail = if (verbose) {
+            all.map(committed).mkString("\n\tCommit status:\n\t", "\n\t", "\n")
+          } else {
+            ""
+          }
+          all.mkString(s"assigned to ${all.size}: [", ",", s"]$detail")
         }
-        all.mkString(s"assigned to ${all.size}: [", ",", s"]$detail")
-      }
 
-      s"'$topic' status (one of ${topics.size} topics [${topics.mkString("\n\t", "\n\t", "\n\t")}])\ncurrently $ourAssignments\n${TopicStatus(topic, partitions).toString}"
+        s"'$topic' status (one of ${topics.size} topics [${topics.mkString("\n\t", "\n\t", "\n\t")}])\ncurrently $ourAssignments\n${TopicStatus(topic, partitions).toString}"
+      }
     }
+    topicStatuses.mkString("\n")
   }
 
   override def close(): Unit = {
@@ -128,7 +159,7 @@ object RichKafkaConsumer extends StrictLogging {
 
     import args4c.implicits._
     val consumerConfig = rootConfig.getConfig("kafka4m.consumer")
-    val topic          = kafka4m.consumerTopic(rootConfig)
+    val topics         = kafka4m.consumerTopics(rootConfig)
 
     val props: Properties = {
       val properties = kafka4m.util.Props.propertiesForConfig(consumerConfig)
@@ -145,13 +176,13 @@ object RichKafkaConsumer extends StrictLogging {
           .mkString("\n\t", "\n\t", "\n\n")
       }
 
-      logger.info(s"Creating consumer for '$topic', properties are:\n${propString}")
+      logger.info(s"Creating consumer for '${topics.mkString(",")}', properties are:\n${propString}")
       properties
     }
 
     val consumer: KafkaConsumer[K, V] = new KafkaConsumer[K, V](props, keyDeserializer, valueDeserializer)
     val pollTimeout                   = rootConfig.asDuration("kafka4m.consumer.pollTimeout")
 
-    new RichKafkaConsumer(consumer, topic, pollTimeout)
+    new RichKafkaConsumer(consumer, topics, pollTimeout)
   }
 }

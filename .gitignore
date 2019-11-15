@@ -1,14 +1,13 @@
 .DS_Store
-.metals
+.metals/
+.bloop/
 *.log
 target
 .idea
 .idea_modules
 out
 shared-src
-.vertx/
 *.bak
 .users
 .srl
 .target
-src/test/demo/kubernetes-kafka

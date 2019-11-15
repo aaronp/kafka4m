@@ -7,13 +7,14 @@ import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.Try
 
+/**
+  * @define TOPIC Due to config resolution rules, other applications can't simply set "kafka4m.topic" and have that apply to the "kafka4m.XXX.topic" setting (e.g. "kafka4m.consumer.topic", "kafka4m.producer.topic", etc)
+  */
 object Props extends LazyLogging {
 
   type Bytes = Array[Byte]
 
-  /**
-    * Due to config resolution rules, other applications can't simply set "kafka4m.topic" and have that apply to
-    * the "kafka4m.XXX.topic" setting (e.g. "kafka4m.consumer.topic", "kafka4m.producer.topic", etc)
+  /** $TOPIC
     *
     * @param rootConfig
     * @param subconfName
@@ -25,6 +26,17 @@ object Props extends LazyLogging {
     }
 
     foundOpt.getOrElse(rootConfig.getString("kafka4m.topic"))
+  }
+
+  /**
+    * $TOPIC
+    *
+    * @param rootConfig
+    * @param subconfName
+    * @param orElse
+    */
+  def topics(rootConfig: Config, subconfName: String, orElse: String*): Set[String] = {
+    topic(rootConfig, subconfName, orElse: _*).split(",", -1).map(_.trim).toSet
   }
 
   def replaceUniqueId(str: String, uid: String = UUID.randomUUID.toString): String = {

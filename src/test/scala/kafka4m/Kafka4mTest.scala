@@ -31,7 +31,7 @@ class Kafka4mTest extends BaseKafka4mDockerSpec {
 
       And("a publisher")
       val writer1 = kafka4m.writeText(config1)
-      Schedulers.using { s =>
+      Schedulers.using { implicit s =>
         val numberOfRecordsToWrite = 100
         When("We push some test data through the publisher")
         val testData: Observable[String] = Observable.fromIterator(Task.eval(Iterator.from(0))).map(_.toString).take(numberOfRecordsToWrite)
@@ -62,14 +62,14 @@ class Kafka4mTest extends BaseKafka4mDockerSpec {
 
   "kafka4m.publisher" should {
     "publish data via kafka" in {
-      Given(s"A config with test topic")
-      val config = Kafka4mTest.configForTopic()
-
-      And("a kafka consumer")
-      val kafkaData = kafka4m.read(config)
-      And("A kafka publisher")
-      val writer = kafka4m.writeText(config)
       Schedulers.using { implicit s =>
+        Given(s"A config with test topic")
+        val config = Kafka4mTest.configForTopic()
+
+        And("a kafka consumer")
+        val kafkaData = kafka4m.read(config)
+        And("A kafka publisher")
+        val writer                 = kafka4m.writeText(config)
         val numberOfRecordsToWrite = 100
         When("We push some test data through the publisher")
         val testData: Observable[String] = Observable.fromIterator(Task.eval(Iterator.from(0))).map(_.toString).take(numberOfRecordsToWrite)
@@ -77,12 +77,13 @@ class Kafka4mTest extends BaseKafka4mDockerSpec {
         numWritten shouldBe numberOfRecordsToWrite
 
         kafkaData.take(numberOfRecordsToWrite).toListL.runToFuture.futureValue.size shouldBe numberOfRecordsToWrite
+
       }
     }
   }
   "kafka4m.consumerObservable()" should {
     "read data via kafka" in {
-      Schedulers.using { s =>
+      Schedulers.using { implicit s =>
         Given("A config with a test topic")
         val config = Kafka4mTest.configForTopic()
 

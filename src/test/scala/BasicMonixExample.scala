@@ -3,8 +3,9 @@ import java.nio.charset.StandardCharsets
 import args4c.implicits._
 import com.typesafe.config.ConfigFactory
 import kafka4m.producer.RichKafkaProducer
-import kafka4m.util.{Props, Schedulers}
+import kafka4m.util.Schedulers
 import monix.eval.Task
+import monix.execution.Scheduler.Implicits.global
 import monix.reactive.{Consumer, Observable}
 import org.apache.kafka.clients.consumer.ConsumerRecord
 

@@ -65,7 +65,7 @@ class Kafka4mAppTest extends BaseKafka4mDockerSpec {
       val originalTopic = Kafka4mAppTest.newTopic()
       Given(s"A configuration with a new topic '$originalTopic'")
       val conf1 = Kafka4mAppTest.testConfig(originalTopic)
-      Schedulers.using { s =>
+      Schedulers.using { implicit s =>
         When("We write some test data into kafka for that topic")
         val (report, task)   = Kafka4mApp.writeToKafka(conf1)(s)
         val numWritten: Long = task.futureValue
