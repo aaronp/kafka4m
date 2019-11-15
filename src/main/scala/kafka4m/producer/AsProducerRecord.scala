@@ -41,13 +41,13 @@ object AsProducerRecord {
 
   def apply[A](implicit apr: AsProducerRecord[A]): AsProducerRecord[A] = apr
 
-  def lift[A, KafkaKey, KafkaValue](f: A => ProducerRecord[KafkaKey, KafkaValue]): AsProducerRecord[A] = new AsProducerRecord[A] {
+  def lift[A, KafkaKey, KafkaValue](f: A => ProducerRecord[KafkaKey, KafkaValue]): AsProducerRecord.Aux[A, KafkaKey, KafkaValue] = new AsProducerRecord[A] {
     override type K = KafkaKey
     override type V = KafkaValue
     override def asRecord(value: A) = f(value)
   }
 
-  def liftForTopic[A](topic: String)(f: A => KeyValue): AsProducerRecord[A] = {
+  def liftForTopic[A](topic: String)(f: A => KeyValue): AsProducerRecord.Aux[A, Key, Bytes] = {
     lift[A, Key, Bytes] { a =>
       val (key, data) = f(a)
       new ProducerRecord[Key, Bytes](topic, key, data)
