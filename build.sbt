@@ -13,8 +13,9 @@ enablePlugins(ParadoxMaterialThemePlugin) // see https://jonas.github.io/paradox
 
 val username            = "aaronp"
 val scalaTwelve         = "2.12.10"
-val defaultScalaVersion = scalaTwelve
-crossScalaVersions := Seq(scalaTwelve)
+val scalaThirteen       = "2.13.0"
+val defaultScalaVersion = scalaThirteen
+crossScalaVersions := Seq(scalaTwelve, scalaThirteen)
 
 paradoxProperties += ("project.url" -> "https://aaronp.github.io/kafka4m/docs/current/")
 
@@ -61,7 +62,7 @@ libraryDependencies ++= List(
   "com.lihaoyi"                %% "os-lib"         % "0.4.2",
   "com.lihaoyi"                %% "os-lib-watch"   % "0.4.2",
   "com.lihaoyi"                %% "sourcecode"     % "0.1.7",
-  "com.github.aaronp"          %% "args4c"         % "0.6.6",
+  "com.github.aaronp"          %% "args4c"         % "0.7.0",
   "com.typesafe.scala-logging" %% "scala-logging"  % "3.9.2",
   "ch.qos.logback"             % "logback-classic" % "1.2.3",
   "com.typesafe"               % "config"          % "1.3.3",
