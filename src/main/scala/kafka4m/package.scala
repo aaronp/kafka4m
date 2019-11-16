@@ -38,8 +38,7 @@ package object kafka4m {
     * @return a consumer of the 'A' values and produce the number written
     */
   def write[A](config: Config)(implicit ev: AsProducerRecord.Aux[A, Key, Bytes]): Consumer[A, Long] = {
-    val fireAndForget = config.getBoolean("kafka4m.producer.fireAndForget")
-    kafkaProducer(config).asConsumer(fireAndForget)(ev)
+    kafkaProducer(config).asConsumer(fireAndForget(config))(ev)
   }
 
   /**
@@ -50,6 +49,8 @@ package object kafka4m {
   def kafkaProducer[A, K, V](config: Config)(implicit apr: AsProducerRecord.Aux[A, K, V]) = {
     RichKafkaProducer[K, V](config, null, null)
   }
+
+  def byteArrayProducer[A](config: Config)(implicit apr: AsProducerRecord.Aux[A, Key, Bytes]) = kafkaProducer(config)
 
   /**
     * @param config the kafka4m config
@@ -67,9 +68,15 @@ package object kafka4m {
     * @return an Observable of data coming from kafka. The offsets, etc will be controlled by the kafka4m.consumer configuration, which includes default offset strategy, etc.
     */
   def read(config: Config)(implicit scheduler: Scheduler): Observable[ConsumerRecord[Key, Bytes]] = {
-    val closeOnComplete = config.getBoolean("kafka4m.consumer.closeOnComplete")
-    kafkaConsumer(config).asObservable(closeOnComplete)
+    kafkaConsumer(config).asObservable(closeOnComplete(config))
   }
+
+  /** @param config the kafka4m config
+    * @return true if observables should be closed when complete
+    */
+  def closeOnComplete(config: Config) = config.getBoolean("kafka4m.consumer.closeOnComplete")
+
+  def fireAndForget(config: Config) = config.getBoolean("kafka4m.producer.fireAndForget")
 
   /**
     * Kafka Streams will fail if the topic does not yet exist. This way we can provide a means to 'getOrCreate' a topic
