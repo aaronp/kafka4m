@@ -56,28 +56,26 @@ siteSourceDirectory := target.value / "paradox" / "site" / "main"
 siteSubdirName in SiteScaladoc := "api/latest"
 
 libraryDependencies ++= List(
-  "io.monix"                   %% "monix"          % "3.0.0",
-  "io.monix"                   %% "monix-reactive" % "3.0.0",
-  "io.monix"                   %% "monix-eval"     % "3.0.0",
-  "com.lihaoyi"                %% "os-lib"         % "0.4.2",
-  "com.lihaoyi"                %% "os-lib-watch"   % "0.4.2",
+  "io.monix"                   %% "monix"          % "3.1.0",
+  "io.monix"                   %% "monix-reactive" % "3.1.0",
+  "io.monix"                   %% "monix-eval"     % "3.1.0",
   "com.lihaoyi"                %% "sourcecode"     % "0.1.7",
   "com.github.aaronp"          %% "args4c"         % "0.7.0",
   "com.typesafe.scala-logging" %% "scala-logging"  % "3.9.2",
-  "ch.qos.logback"             % "logback-classic" % "1.2.3",
-  "com.typesafe"               % "config"          % "1.3.3",
-  "org.apache.kafka"           % "kafka-clients"   % "2.3.0",
-  "org.apache.kafka"           % "kafka-streams"   % "2.3.0"
+  "com.typesafe"               % "config"          % "1.4.0",
+  "org.apache.kafka"           % "kafka-clients"   % "2.3.1",
+  "org.apache.kafka"           % "kafka-streams"   % "2.3.1"
 )
 
 libraryDependencies ++= List(
-  "com.github.aaronp" %% "eie"       % "0.0.5" % "test",
-  "org.scalactic"     %% "scalactic" % "3.0.4" % "test",
-  "org.scalatest"     %% "scalatest" % "3.0.4" % "test",
-  "org.pegdown"       % "pegdown"    % "1.6.0" % "test",
-  "junit"             % "junit"      % "4.12"  % "test",
-  "com.github.aaronp" %% "dockerenv" % "0.0.4" % "test",
-  "com.github.aaronp" %% "dockerenv" % "0.0.4" % "test" classifier ("tests")
+  "com.github.aaronp" %% "eie"            % "0.3.2" % "test",
+  "org.scalactic"     %% "scalactic"      % "3.0.8" % "test",
+  "org.scalatest"     %% "scalatest"      % "3.0.8" % "test",
+  "ch.qos.logback"    % "logback-classic" % "1.2.3" % "test",
+  "org.pegdown"       % "pegdown"         % "1.6.0" % "test",
+  "junit"             % "junit"           % "4.12"  % "test",
+  "com.github.aaronp" %% "dockerenv"      % "0.4.3" % "test",
+  "com.github.aaronp" %% "dockerenv"      % "0.4.3" % "test" classifier ("tests")
 )
 
 publishMavenStyle := true
