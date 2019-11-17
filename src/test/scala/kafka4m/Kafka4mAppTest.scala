@@ -24,6 +24,9 @@ class Kafka4mAppTest extends BaseKafka4mDockerSpec {
 
         val configFile = dir.getParent.resolve("testConfi.conf").text = s"""
                                                                          |kafka4m.topic : ${topic}
+                                                                         |kafka4m.consumer.topic = ${topic}
+                                                                         |kafka4m.producer.topic = ${topic}
+                                                                         |
                                                                          |kafka4m.consumer.group.id : group${topic}
                                                                          |kafka4m.etl {
                                                                          |    intoKafka {
@@ -93,8 +96,8 @@ class Kafka4mAppTest extends BaseKafka4mDockerSpec {
       }
     }
   }
-
 }
+
 object Kafka4mAppTest {
   def newTopic(): String = UUID.randomUUID.toString.filter(_.isLetterOrDigit)
 
@@ -109,11 +112,16 @@ object Kafka4mAppTest {
     val config = ConfigFactory.parseFile(file.toFile)
 
     val custom = ConfigFactory.parseString(s"""
+                                              |
                                               |kafka4m.topic : ${topic}
+                                              |kafka4m.producer.topic : ${topic}
+                                              |kafka4m.consumer.topic : ${topic}
+                                              |
                                               |kafka4m.consumer.group.id : group${topic}
-         |kafka4m.etl.intoKafka.dataDir : ${file.getParent.toAbsolutePath.toString}
-         |kafka4m.etl.fromKafka.dataDir : ./target/Kafka4mAppTest/${topic}
-         |""".stripMargin)
+                                              |
+                                              |kafka4m.etl.intoKafka.dataDir : ${file.getParent.toAbsolutePath.toString}
+                                              |kafka4m.etl.fromKafka.dataDir : ./target/Kafka4mAppTest/${topic}
+                                              |""".stripMargin)
 
     custom.withFallback(config).withFallback(ConfigFactory.load())
   }
