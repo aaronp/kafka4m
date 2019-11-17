@@ -20,8 +20,6 @@ import scala.concurrent.{Await, ExecutionContext, Future}
   */
 final class RichKafkaAdmin(val admin: AdminClient) extends AutoCloseable with StrictLogging {
 
-  logger.info("Creating Admin")
-
   /**
     * @param topic             the topic
     * @param numPartitions     the number of partitions

@@ -115,6 +115,7 @@ object Kafka4mTest {
          |  consumer.topic : ${topic}
          |  consumer.group.id : ${topic}
          |  producer.topic : ${topic}
+         |  admin.topic : ${topic}
          |  streams.topic : ${topic}
          |}""".stripMargin).withFallback(ConfigFactory.load())
   }

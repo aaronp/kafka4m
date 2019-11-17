@@ -68,7 +68,7 @@ libraryDependencies ++= List(
 )
 
 libraryDependencies ++= List(
-  "com.github.aaronp" %% "eie"            % "0.3.2" % "test",
+  "com.github.aaronp" %% "eie"            % "1.0.0" % "test",
   "org.scalactic"     %% "scalactic"      % "3.0.8" % "test",
   "org.scalatest"     %% "scalatest"      % "3.0.8" % "test",
   "ch.qos.logback"    % "logback-classic" % "1.2.3" % "test",
