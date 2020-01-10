@@ -1,7 +1,7 @@
 package kafka4m.consumer
 
-import java.time
 import java.util.Properties
+import java.{time, util}
 
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
@@ -14,12 +14,16 @@ import org.apache.kafka.common.{PartitionInfo, TopicPartition}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Future, Promise}
 import scala.util.control.NonFatal
 
 /**
   * A means of driving a kafka-stream using the consumer (not kafka streaming) API
   */
-class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topics: Set[String], val defaultPollTimeout: Duration) extends AutoCloseable with StrictLogging {
+final class RichKafkaConsumer[K, V](val consumer: KafkaConsumer[K, V], val topics: Set[String], val defaultPollTimeout: Duration) extends AutoCloseable with StrictLogging {
+
+  @volatile private var closed = false
+
   require(topics.nonEmpty, "empty topic set for consumer")
   require(topics.forall(_.nonEmpty), "blank topic set for consumer")
 
@@ -40,18 +44,69 @@ class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topics: Set[Str
   }
 
   /**
+    * @param closeOnComplete a flag indicating that this consumer should be closed when this observable is
+    * @param numberOfMessagesToReceiveBetweenOffsetCommits the number of messages which will be received before we commit our offsets
+    * @param scheduler
+    * @return an observable which will commit the offsets every n messages
+    */
+  def asObservableCommitEvery(closeOnComplete: Boolean, numberOfMessagesToReceiveBetweenOffsetCommits: Int)(implicit scheduler: Scheduler): Observable[ConsumerRecord[K, V]] = {
+    asObservableCommitEveryObservable(closeOnComplete, numberOfMessagesToReceiveBetweenOffsetCommits).map(_._3)
+  }
+
+  /**
+    * @param closeOnComplete a flag indicating that this consumer should be closed when this observable is
+    * @param numberOfMessagesToReceiveBetweenOffsetCommits the number of messages which will be received before we commit our offsets
+    * @param scheduler
+    * @return an observable which will commit the offsets every n messages
+    */
+  def asObservableCommitEveryObservable(closeOnComplete: Boolean, numberOfMessagesToReceiveBetweenOffsetCommits: Int)(implicit scheduler: Scheduler) = {
+
+    val initialTuple = (PartitionOffsetState(), Option.empty[Future[Unit]], (null: ConsumerRecord[K, V]))
+
+    asObservable(closeOnComplete).zipWithIndex.scan(initialTuple) {
+      case ((state, _, _), (record, i)) if i % numberOfMessagesToReceiveBetweenOffsetCommits == 0 =>
+        // gah! We have to let this run and not block so as not to FU Kafka's idea of liveliness for our consumer.
+        val future = commitAsync(state.incOffsets()).map(_ => ())
+        (PartitionOffsetState(), Option(future), record)
+      case ((state, _, _), (record, _)) => (state.update(record), None, record)
+    }
+  }
+
+  /**
     * Represent this consumer as an observable
-    * @param closeOnComplete
+    * @param closeOnComplete set to true if the underlying Kafka consumer should be closed when this observable completes
     */
   def asObservable(closeOnComplete: Boolean)(implicit scheduler: Scheduler): Observable[ConsumerRecord[K, V]] = {
-    val iterators: Observable[Iterable[ConsumerRecord[K, V]]] = Observable.repeatEval(poll())
-    val obs = iterators.flatMap { iter: Iterable[ConsumerRecord[K, V]] =>
-      Observable.fromIterable(iter)
-    }
+    val obs: Observable[ConsumerRecord[K, V]] = repeatedObservable(poll())
     if (closeOnComplete) {
-      obs.guarantee(Task.delay(consumer.close()))
+      obs.guarantee(Task.delay(close()))
     } else {
       obs
+    }
+  }
+
+  /** @param state the state to commit
+    * @return a future of the commit result
+    */
+  def commitAsync(state: PartitionOffsetState): Future[Map[TopicPartition, OffsetAndMetadata]] = {
+    if (state.nonEmpty) {
+      val promise = Promise[Map[TopicPartition, OffsetAndMetadata]]
+      object callback extends OffsetCommitCallback {
+        override def onComplete(offsets: util.Map[TopicPartition, OffsetAndMetadata], exception: Exception): Unit = {
+          logger.info(s"commitAsync($offsets, $exception)")
+          if (exception != null) {
+            promise.tryFailure(exception)
+          } else {
+            promise.trySuccess(offsets.asScala.toMap)
+          }
+        }
+      }
+      logger.info(s"commitAsync($state)")
+      consumer.commitAsync(state.asTopicPartitionMapJava, callback)
+      promise.future
+    } else {
+      logger.info(s"NOT committing empty state")
+      Future.successful(Map.empty)
     }
   }
 
@@ -134,7 +189,10 @@ class RichKafkaConsumer[K, V](consumer: KafkaConsumer[K, V], val topics: Set[Str
     topicStatuses.mkString("\n")
   }
 
+  def isClosed() = closed
+
   override def close(): Unit = {
+    closed = true
     consumer.close()
   }
 }

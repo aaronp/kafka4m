@@ -15,7 +15,8 @@ private[producer] class KafkaProducerObserver[A, K, V](asRecord: AsProducerRecor
                                                        scheduler: Scheduler,
                                                        cancelable: Cancelable,
                                                        unsafeCallback: Callback[Throwable, Long],
-                                                       fireAndForget: Boolean)
+                                                       fireAndForget: Boolean,
+                                                       continueOnError: Boolean)
     extends Observer[A]
     with LazyLogging {
   private val callback                                          = Callback.safe(unsafeCallback)(scheduler)
@@ -32,8 +33,12 @@ private[producer] class KafkaProducerObserver[A, K, V](asRecord: AsProducerRecor
     } catch {
       case NonFatal(e) =>
         logger.error(s"onNext error on $elem: ${e.getMessage}", e)
-        callback.onError(e)
-        Ack.Stop
+        if (continueOnError) {
+          Ack.Continue
+        } else {
+          callback.onError(e)
+          Ack.Stop
+        }
     }
   }
 

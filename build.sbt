@@ -16,6 +16,7 @@ val scalaTwelve         = "2.12.10"
 val scalaThirteen       = "2.13.0"
 val defaultScalaVersion = scalaThirteen
 crossScalaVersions := Seq(scalaTwelve, scalaThirteen)
+scalaVersion := defaultScalaVersion
 
 paradoxProperties += ("project.url" -> "https://aaronp.github.io/kafka4m/docs/current/")
 
@@ -59,23 +60,24 @@ libraryDependencies ++= List(
   "io.monix"                   %% "monix"          % "3.1.0",
   "io.monix"                   %% "monix-reactive" % "3.1.0",
   "io.monix"                   %% "monix-eval"     % "3.1.0",
-  "com.lihaoyi"                %% "sourcecode"     % "0.1.7",
+  "com.lihaoyi"                %% "sourcecode"     % "0.1.9",
   "com.github.aaronp"          %% "args4c"         % "0.7.0",
   "com.typesafe.scala-logging" %% "scala-logging"  % "3.9.2",
   "com.typesafe"               % "config"          % "1.4.0",
-  "org.apache.kafka"           % "kafka-clients"   % "2.3.1",
-  "org.apache.kafka"           % "kafka-streams"   % "2.3.1"
+  "org.apache.kafka"           % "kafka-clients"   % "2.4.0",
+  "org.apache.kafka"           % "kafka-streams"   % "2.4.0"
 )
 
 libraryDependencies ++= List(
-  "com.github.aaronp" %% "eie"            % "1.0.0" % "test",
-  "org.scalactic"     %% "scalactic"      % "3.0.8" % "test",
-  "org.scalatest"     %% "scalatest"      % "3.0.8" % "test",
-  "ch.qos.logback"    % "logback-classic" % "1.2.3" % "test",
-  "org.pegdown"       % "pegdown"         % "1.6.0" % "test",
-  "junit"             % "junit"           % "4.12"  % "test",
-  "com.github.aaronp" %% "dockerenv"      % "0.4.3" % "test",
-  "com.github.aaronp" %% "dockerenv"      % "0.4.3" % "test" classifier ("tests")
+  "com.github.aaronp" %% "eie"            % "1.0.0" % Test,
+  "org.scalactic"     %% "scalactic"      % "3.1.0" % Test,
+  "org.scalatest"     %% "scalatest"      % "3.1.0" % Test,
+  "com.vladsch.flexmark" % "flexmark-all" % "0.35.10" % Test, //https://github.com/sbt/sbt/issues/5308
+  "ch.qos.logback"    % "logback-classic" % "1.2.3" % Test,
+  "org.pegdown"       % "pegdown"         % "1.6.0" % Test,
+  "junit"             % "junit"           % "4.13"  % Test,
+  "com.github.aaronp" %% "dockerenv"      % "0.4.5" % Test,
+  "com.github.aaronp" %% "dockerenv"      % "0.4.5" % Test classifier ("tests")
 )
 
 publishMavenStyle := true
@@ -108,7 +110,6 @@ buildInfoPackage := "kafka4m.build"
 
 // see http://scalameta.org/scalafmt/
 scalafmtOnCompile in ThisBuild := true
-scalafmtVersion in ThisBuild := "1.4.0"
 
 // see http://www.scalatest.org/user_guide/using_scalatest_with_sbt
 testOptions in Test += (Tests.Argument(TestFrameworks.ScalaTest, "-h", s"target/scalatest-reports", "-oN"))

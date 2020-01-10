@@ -1,10 +1,8 @@
 package kafka4m.producer
 
-import java.util.UUID
-
-import com.typesafe.config.{Config, ConfigFactory}
-import kafka4m.BaseKafka4mDockerSpec
+import com.typesafe.config.Config
 import kafka4m.util.{Schedulers, Using}
+import kafka4m.{BaseKafka4mDockerSpec, Kafka4mTestConfig}
 
 class RichKafkaProducerTest extends BaseKafka4mDockerSpec {
 
@@ -12,14 +10,8 @@ class RichKafkaProducerTest extends BaseKafka4mDockerSpec {
     "send data through kafka" in {
 
       Schedulers.using { implicit sched =>
-        val topic = s"topic-${UUID.randomUUID}".filter(_.isLetter)
-        val config: Config = {
-          val c = ConfigFactory.parseString(s"""kafka4m.streams.topic=$topic
-               |kafka4m.streams.application.id=$topic
-               |kafka4m.producer.topic=$topic
-            """.stripMargin)
-          c.withFallback(ConfigFactory.load())
-        }
+        val topic          = Kafka4mTestConfig.newTopic()
+        val config: Config = Kafka4mTestConfig.forTopic(topic)
 
         val ingress = "someid payload".getBytes
 

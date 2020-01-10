@@ -2,7 +2,7 @@
 
 sbt clean coverage test coverageReport coveralls
 
-cp -r target/scala-2.12/scoverage-report target
+cp -r target/scala-2.13/scoverage-report target
 
 REPORT_URL="./target/scoverage-report/index.html"
 echo "See ${REPORT_URL}"

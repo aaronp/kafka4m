@@ -30,11 +30,11 @@ final class RichKafkaProducer[K, V] private (val publisher: KafkaProducer[K, V])
     * @tparam A the input type which will be converted to a ProducerRecord
     * @return a consumer which will consume 'A' values into Kafka and produce a number of inserted elements
     */
-  def asConsumer[A](fireAndForget: Boolean)(implicit ev: AsProducerRecord.Aux[A, K, V]): Consumer[A, Long] = {
+  def asConsumer[A](fireAndForget: Boolean, continueOnError: Boolean)(implicit ev: AsProducerRecord.Aux[A, K, V]): Consumer[A, Long] = {
     val producer = this
     Consumer.create[A, Long] {
       case (scheduler: Scheduler, cancelable: Cancelable, callback: MonixCallback[Throwable, Long]) =>
-        new KafkaProducerObserver[A, K, V](ev, producer, scheduler, cancelable, callback, fireAndForget)
+        new KafkaProducerObserver[A, K, V](ev, producer, scheduler, cancelable, callback, fireAndForget, continueOnError)
     }
   }
 

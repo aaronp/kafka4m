@@ -7,9 +7,12 @@ import java.util.concurrent.TimeUnit
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import kafka4m.util.{Props, Using}
+import monix.execution.{Cancelable, CancelableFuture}
 import org.apache.kafka.clients.admin._
-import org.apache.kafka.common.KafkaFuture
+import org.apache.kafka.clients.consumer.OffsetAndMetadata
+import org.apache.kafka.common.{KafkaFuture, TopicPartition}
 
+import scala.collection.JavaConverters._
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{Await, ExecutionContext, Future}
 
@@ -19,6 +22,8 @@ import scala.concurrent.{Await, ExecutionContext, Future}
   * @param admin the underlying kafka client
   */
 final class RichKafkaAdmin(val admin: AdminClient) extends AutoCloseable with StrictLogging {
+
+  @volatile private var closed = false
 
   /**
     * @param topic             the topic
@@ -56,14 +61,51 @@ final class RichKafkaAdmin(val admin: AdminClient) extends AutoCloseable with St
     admin.createTopics(java.util.Collections.singletonList(topic))
   }
 
+  def metrics = admin.metrics.asScala.toMap
+
+  def consumerGroupsStats(implicit ec: ExecutionContext): Future[Seq[ConsumerGroupStats]] = {
+    val groups: CancelableFuture[Iterable[ConsumerGroupListing]] = consumerGroups
+    val all: CancelableFuture[Future[Seq[ConsumerGroupStats]]] = groups.map { listings =>
+      val futures: Iterable[CancelableFuture[ConsumerGroupStats]] = listings.map { cgl =>
+        val groupId = cgl.groupId()
+        consumerGroupsPositions(groupId).map { stats =>
+          ConsumerGroupStats(groupId, stats)
+        }
+      }
+      val list: Seq[Future[ConsumerGroupStats]] = futures.toSeq
+      Future.sequence(list)
+    }
+    all.flatten
+  }
+  def consumerGroups(implicit ec: ExecutionContext): CancelableFuture[Seq[ConsumerGroupListing]] = {
+    val result  = admin.listConsumerGroups()
+    val kfuture = result.all()
+    val future: Future[Seq[ConsumerGroupListing]] = Future {
+      val list = kfuture.get().asScala.toSeq
+      println(s"consumerGroups is ${list}")
+      list
+    }
+    val cancel = Cancelable.apply(() => kfuture.cancel(true))
+    CancelableFuture(future, cancel)
+  }
+
+  def consumerGroupsPositions(groupId: String)(implicit ec: ExecutionContext): CancelableFuture[Map[TopicPartition, OffsetAndMetadata]] = {
+    val kfuture = admin.listConsumerGroupOffsets(groupId).partitionsToOffsetAndMetadata()
+    val future  = Future(kfuture.get().asScala.toMap)
+    val cancel  = Cancelable.apply(() => kfuture.cancel(true))
+    CancelableFuture(future, cancel)
+  }
+
   def topics(options: ListTopicsOptions = new ListTopicsOptions)(implicit ec: ExecutionContext): Future[Map[String, TopicListing]] = {
     val kFuture: KafkaFuture[util.Map[String, TopicListing]] = admin.listTopics(options).namesToListings()
-    import scala.collection.JavaConverters._
     Future(kFuture.get().asScala.toMap)
   }
 
+  def isClosed() = closed
+
   override def close(): Unit = {
     logger.warn("Closing the admin client")
+    closed = true
     admin.close()
   }
 }
