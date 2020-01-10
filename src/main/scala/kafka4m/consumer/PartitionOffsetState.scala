@@ -5,7 +5,7 @@ import java.util
 import org.apache.kafka.clients.consumer.{ConsumerRecord, OffsetAndMetadata}
 import org.apache.kafka.common.TopicPartition
 
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters._
 
 /**
   * an immutable means of tracking which offset/partitions have been observed
@@ -21,8 +21,8 @@ final case class PartitionOffsetState(offsetByPartitionByTopic: Map[String, Map[
     * If we have a system which is intolerable to processing duplicate messages, then we should really tell Kafka to commit the _next_ offset of the last message observed/processed
     */
   def incOffsets() = {
-    val next = offsetByPartitionByTopic.view.mapValues { offsetMap =>
-      val nextOffset = offsetMap.view.mapValues(_ + 1)
+    val next = offsetByPartitionByTopic.mapValues { offsetMap =>
+      val nextOffset = offsetMap.mapValues(_ + 1)
       nextOffset.toMap
     }
     copy(offsetByPartitionByTopic = next.toMap)
