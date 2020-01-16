@@ -63,6 +63,10 @@ final class RichKafkaAdmin(val admin: AdminClient) extends AutoCloseable with St
 
   def metrics = admin.metrics.asScala.toMap
 
+  /**
+    * @param ec
+    * @return the consumer group stats from Kafka
+    */
   def consumerGroupsStats(implicit ec: ExecutionContext): Future[Seq[ConsumerGroupStats]] = {
     val groups: CancelableFuture[Iterable[ConsumerGroupListing]] = consumerGroups
     val all: CancelableFuture[Future[Seq[ConsumerGroupStats]]] = groups.map { listings =>

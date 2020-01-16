@@ -39,7 +39,7 @@ class Kafka4mTest extends BaseKafka4mDockerSpec {
         numWritten shouldBe numberOfRecordsToWrite
 
         And("map that data into another topic")
-        val reader = kafka4m.read(config1)
+        val reader = kafka4m.readRecords(config1)
         val mappedData: Observable[String] = reader.take(numberOfRecordsToWrite).map { record =>
           val newNum = new String(record.value).toInt + 1000
           newNum.toString
@@ -48,7 +48,7 @@ class Kafka4mTest extends BaseKafka4mDockerSpec {
         Then("We should see the data in a new topic")
         val config2     = Kafka4mTest.configForTopic()
         val writer2     = kafka4m.writeText(config2)
-        val readFromTwo = kafka4m.read(config2)
+        val readFromTwo = kafka4m.readRecords(config2)
         mappedData.consumeWith(writer2).runToFuture(s).futureValue shouldBe numberOfRecordsToWrite
         val mappedAsList = readFromTwo.take(numberOfRecordsToWrite).toListL.runToFuture(s).futureValue
         val texts = mappedAsList.map { c =>
@@ -67,7 +67,7 @@ class Kafka4mTest extends BaseKafka4mDockerSpec {
         val config = Kafka4mTest.configForTopic()
 
         And("a kafka consumer")
-        val kafkaData = kafka4m.read(config)
+        val kafkaData = kafka4m.readRecords(config)
         And("A kafka publisher")
         val writer                 = kafka4m.writeText(config)
         val numberOfRecordsToWrite = 100
@@ -89,7 +89,7 @@ class Kafka4mTest extends BaseKafka4mDockerSpec {
 
         And("a kafka consumer")
         val numberOfRecordsToWrite = 100
-        val kafkaData              = kafka4m.read(config)
+        val kafkaData              = kafka4m.readRecords(config)
         val readBackFuture         = kafkaData.take(numberOfRecordsToWrite).toListL
 
         And("A kafka publisher")

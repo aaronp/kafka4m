@@ -5,8 +5,8 @@
         </encoder>
     </appender>
 
-    <logger name="kafka4m" level="info" />
-    <logger name="org.apache.kafka" level="warn" />
+    <logger name="org.apache.kafka" level="info" />
+    <logger name="kafka4m" level="trace" />
 
     <root level="info">
         <appender-ref ref="STDOUT" />

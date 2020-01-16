@@ -82,18 +82,23 @@ class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
         val numRecords = 10000
         val numWritten = Observable.range(0, numRecords).consumeWith(writer).runToFuture.futureValue
         numWritten shouldBe numRecords
-        val admin = kafka4m.richAdmin(config)
 
-        val read = kafka4m.kafkaConsumer(config).asObservableCommitEveryObservable(true, 5).take(100).toListL.runToFuture.futureValue
-        read.size shouldBe 100
+        val admin    = kafka4m.richAdmin(config)
+        val consumer = kafka4m.kafkaConsumer(config)
+        try {
+          val read = consumer.asObservableCommitEveryObservable(true, 5).take(100).toListL.runToFuture.futureValue
+          read.size shouldBe 100
 
-        val Seq(firstStatus) = admin.consumerGroupsStats.futureValue.filter(_.groupId == s"test${topic}")
-        firstStatus.offsetsByPartition should not be (empty)
-        firstStatus.offsetsByPartition shouldBe Map(0 -> 95)
+          val Seq(firstStatus) = admin.consumerGroupsStats.futureValue.filter(_.groupId == s"test${topic}")
+          firstStatus.offsetsByPartition should not be (empty)
+          firstStatus.offsetsByPartition shouldBe Map(0 -> 95)
+        } finally {
+          admin.close()
+          consumer.close()
+        }
       }
     }
-  }
-  "RichKafkaConsumer.asObservable" should {
+
     "honour the default auto.commit : false and explicit calls to commitAsync" in {
       val (topic, config) = Kafka4mTestConfig.next()
       implicit val ev     = intAsRecord(topic)
@@ -107,37 +112,35 @@ class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
 
         case class Received(state: PartitionOffsetState, offset: Long, value: Long)
         def take(n: Int, kermitOffsets: Boolean): Seq[Received] = {
-          val c = kafkaConsumer(config)
+          Using(kafkaConsumer(config)) { c =>
+            val obs = c.asObservableCommitEveryObservable(!kermitOffsets, 10)
 
-          val obs = c.asObservableCommitEveryObservable(!kermitOffsets, 10)
+            val list = obs.take(n).toListL.runToFuture.futureValue
 
-          val list = obs.take(n).toListL.runToFuture.futureValue
+            c.isClosed() shouldBe !kermitOffsets
 
-          c.isClosed() shouldBe !kermitOffsets
+            val state = list.last._1
 
-          val state = list.last._1
+            if (kermitOffsets) {
+              val f    = c.commitAsync(state.incOffsets)
+              var done = false
 
-          if (kermitOffsets) {
-            val f    = c.commitAsync(state.incOffsets)
-            var done = false
-
-            // this is nasty -- the 'commitAsync' fails if we don't keep polling while the commit request is processed,
-            // as kafka needs to maintain its liveliness status!
-            Future {
-              while (!done) {
-                c.poll()
-                Thread.sleep(100)
+              // this is nasty -- the 'commitAsync' fails if we don't keep polling while the commit request is processed,
+              // as kafka needs to maintain its liveliness status!
+              Future {
+                while (!done) {
+                  c.poll()
+                  Thread.sleep(100)
+                }
               }
+
+              f.futureValue
+              done = true
             }
-
-            f.futureValue
-            done = true
-            c.close()
-          }
-
-          list.map {
-            case (state, _, record) =>
-              Received(state, record.offset(), ByteBuffer.wrap(record.value()).getLong())
+            list.map {
+              case (state, _, record) =>
+                Received(state, record.offset(), ByteBuffer.wrap(record.value()).getLong())
+            }
           }
         }
 

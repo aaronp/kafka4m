@@ -34,7 +34,7 @@ object BasicMonixExample extends App {
   //
   // now read data from kafka (assumes a configuration akin to kafka4m.consumer.topic = originalTopic)
   //
-  val kafkaData: Observable[ConsumerRecord[String, Array[Byte]]] = kafka4m.read(config)
+  val kafkaData = kafka4m.readRecords(config)
 
   //
   // and create another write which will consume key/values (strings and byte-arrays) into kafka

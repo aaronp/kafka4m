@@ -7,11 +7,12 @@ import monix.execution.Scheduler.Implicits.global
 import monix.reactive.Observable
 import org.reactivestreams.{Subscriber, Subscription}
 import org.scalatest.concurrent.Eventually
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.collection.mutable.ListBuffer
 
-class ConsumerPackageTest extends WordSpec with Matchers with Eventually {
+class ConsumerPackageTest extends AnyWordSpec with Matchers with Eventually {
   "repeatedObservable" should {
     "not evaluate the provider until required" in {
 

@@ -77,6 +77,7 @@ final class RichKafkaConsumer[K, V](val consumer: KafkaConsumer[K, V], val topic
     * @param closeOnComplete set to true if the underlying Kafka consumer should be closed when this observable completes
     */
   def asObservable(closeOnComplete: Boolean)(implicit scheduler: Scheduler): Observable[ConsumerRecord[K, V]] = {
+
     val obs: Observable[ConsumerRecord[K, V]] = repeatedObservable(poll())
     if (closeOnComplete) {
       obs.guarantee(Task.delay(close()))
@@ -143,6 +144,11 @@ final class RichKafkaConsumer[K, V](val consumer: KafkaConsumer[K, V], val topic
     byTopic.toMap
   }
 
+  /**
+    * poll for records
+    * @param timeout the poll timeout
+    * @return the records returned from the poll
+    */
   def poll(timeout: time.Duration = javaPollDuration): Iterable[ConsumerRecord[K, V]] = {
     try {
       val records: ConsumerRecords[K, V] = consumer.poll(timeout)
@@ -157,7 +163,7 @@ final class RichKafkaConsumer[K, V](val consumer: KafkaConsumer[K, V], val topic
     } catch {
       case NonFatal(e) =>
         logger.warn(s"Poll threw $e")
-        Nil
+        throw e
     }
   }
 

@@ -4,12 +4,13 @@ import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicLong
 
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.concurrent.duration._
 
-abstract class BaseKafka4mSpec extends WordSpec with Matchers with ScalaFutures with Eventually {
+abstract class BaseKafka4mSpec extends AnyWordSpec with Matchers with ScalaFutures with Eventually {
 
   def testTimeout: FiniteDuration = 5.seconds
 

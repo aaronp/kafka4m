@@ -10,9 +10,9 @@ object Kafka4mTestConfig {
 
   def newTopic() = s"testtopic-${id.incrementAndGet()}"
 
-  def next(): (String, Config) = {
+  def next(closeOnComplete: Boolean = true): (String, Config) = {
     val topic = newTopic()
-    (topic, forTopic(topic))
+    (topic, forTopic(topic, closeOnComplete))
   }
   def forConsumerGroup(group: String, autoOffsetReset: String = "earliest", fallback: Config = ConfigFactory.load()) = {
     val c = ConfigFactory.parseString(s"""kafka4m.consumer.group.id : "$group"
@@ -21,7 +21,7 @@ object Kafka4mTestConfig {
             """.stripMargin)
     c.withFallback(fallback)
   }
-  def forTopic(topic: String = newTopic(), fallback: Config = ConfigFactory.load()) = {
+  def forTopic(topic: String = newTopic(), closeOnComplete: Boolean = true, fallback: Config = ConfigFactory.load()) = {
     val c = ConfigFactory.parseString(s"""
                                            |kafka4m.admin.topic=$topic
                                            |kafka4m.topic=$topic
@@ -33,6 +33,7 @@ object Kafka4mTestConfig {
                                            |kafka4m.consumer.group.id : "test"$topic
                                            |kafka4m.consumer.application.id : "test"$topic
                                            |kafka4m.consumer.auto.offset.reset : earliest
+                                           |kafka4m.consumer.closeOnComplete = $closeOnComplete
             """.stripMargin)
     c.withFallback(fallback)
 

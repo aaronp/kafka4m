@@ -88,9 +88,9 @@ object Kafka4mApp extends ConfigApp with StrictLogging {
 
     val kafkaData: Observable[ConsumerRecord[Key, Bytes]] = {
       if (stats.enabled) {
-        kafka4m.read(config).doOnNext(stats.onReadFromKafka)
+        kafka4m.readRecords(config).doOnNext(stats.onReadFromKafka)
       } else {
-        kafka4m.read(config)
+        kafka4m.readRecords(config)
       }
     }
 

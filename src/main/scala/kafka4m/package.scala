@@ -1,6 +1,6 @@
 import com.typesafe.config.{Config, ConfigFactory}
 import kafka4m.admin.RichKafkaAdmin
-import kafka4m.consumer.RichKafkaConsumer
+import kafka4m.consumer.{AckableRecord, RichKafkaConsumer}
 import kafka4m.producer.AsProducerRecord._
 import kafka4m.producer.{AsProducerRecord, RichKafkaProducer}
 import kafka4m.util.Props
@@ -65,10 +65,18 @@ package object kafka4m {
 
   /**
     * @param config the kafka4m configuration which contains the 'kafka4m.consumer' values
+    * @return an Observable of [[AckableRecord]]s from kafka. The offsets, etc will be controlled by the kafka4m.consumer configuration, which includes default offset strategy, etc.
+    */
+  def read(config: Config = ConfigFactory.load())(implicit scheduler: Scheduler): Observable[AckableRecord[ConsumerRecord[String, Array[Byte]]]] = {
+    AckableRecord(closeOnComplete(config))(kafkaConsumer(config))
+  }
+
+  /**
+    * @param config the kafka4m configuration which contains the 'kafka4m.consumer' values
     * @return an Observable of data coming from kafka. The offsets, etc will be controlled by the kafka4m.consumer configuration, which includes default offset strategy, etc.
     */
-  def read(config: Config = ConfigFactory.load())(implicit scheduler: Scheduler): Observable[ConsumerRecord[Key, Bytes]] = {
-    kafkaConsumer(config).asObservable(closeOnComplete(config))
+  def readRecords(config: Config = ConfigFactory.load())(implicit scheduler: Scheduler): Observable[ConsumerRecord[Key, Bytes]] = {
+    read(config).map(_.record)
   }
 
   /** @param config the kafka4m config
