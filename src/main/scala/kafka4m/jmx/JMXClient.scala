@@ -3,7 +3,7 @@ package kafka4m.jmx
 import javax.management._
 import javax.management.remote.{JMXConnectorFactory, JMXServiceURL}
 
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 import scala.util.Try
 
