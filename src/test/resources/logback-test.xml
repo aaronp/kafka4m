@@ -6,7 +6,7 @@
     </appender>
 
     <logger name="org.apache.kafka" level="info" />
-    <logger name="kafka4m" level="trace" />
+    <logger name="kafka4m" level="info" />
 
     <root level="info">
         <appender-ref ref="STDOUT" />
