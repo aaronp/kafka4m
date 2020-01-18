@@ -119,7 +119,7 @@ aaronp/kafka4m
 </div>
 <ul>
   <li><a href="usage.html" class="active page">Usage</a></li>
-  <li><a href="building.html" class="page">Kafka4m</a></li>
+  <li><a href="building.html" class="page">Building</a></li>
   <li><a href="testing.html" class="page">Testing</a></li>
   <li><a href="license.html" class="page">License</a></li>
 </ul>
@@ -128,7 +128,8 @@ aaronp/kafka4m
 <ul>
   <li><a href="usage.html#usage" class="header">Usage</a>
   <ul>
-    <li><a href="usage.html#copy-a-kafka-topic-" class="header">Copy A Kafka Topic:</a></li>
+    <li><a href="usage.html#copy-a-kafka-topic-i-e-mirror-maker-" class="header">Copy A Kafka Topic (i.e. Mirror Maker):</a></li>
+    <li><a href="usage.html#manually-acking" class="header">Manually Acking</a></li>
     <li><a href="usage.html#etl" class="header">ETL</a></li>
   </ul></li>
 </ul>
@@ -138,7 +139,7 @@ aaronp/kafka4m
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 0.0.1*
+<i class="md-icon" title="Version">label_outline</i> 0.6.1*
 </label>
 </li>
 </ul>
@@ -153,7 +154,8 @@ aaronp/kafka4m
 <ul>
   <li><a href="usage.html#usage" class="header">Usage</a>
   <ul>
-    <li><a href="usage.html#copy-a-kafka-topic-" class="header">Copy A Kafka Topic:</a></li>
+    <li><a href="usage.html#copy-a-kafka-topic-i-e-mirror-maker-" class="header">Copy A Kafka Topic (i.e. Mirror Maker):</a></li>
+    <li><a href="usage.html#manually-acking" class="header">Manually Acking</a></li>
     <li><a href="usage.html#etl" class="header">ETL</a></li>
   </ul></li>
 </ul>
@@ -167,26 +169,65 @@ aaronp/kafka4m
 <div class="md-content__searchable">
 <h2><a href="#usage" name="usage" class="anchor"><span class="anchor-link"></span></a>Usage</h2>
 <p>The kafka configurations are based on the the kafka4m typesafe configuration. In practice the intent is to achieve similar things to what Kafka Streams gives you (but w/o relying on the kafka streams API)</p>
-<h2><a href="#copy-a-kafka-topic-" name="copy-a-kafka-topic-" class="anchor"><span class="anchor-link"></span></a>Copy A Kafka Topic:</h2>
+<h2><a href="#copy-a-kafka-topic-i-e-mirror-maker-" name="copy-a-kafka-topic-i-e-mirror-maker-" class="anchor"><span class="anchor-link"></span></a>Copy A Kafka Topic (i.e. Mirror Maker):</h2>
 <pre class="prettyprint"><code class="language-$xslt">  val config = ConfigFactory.load()
 
   // write data to kafka (assumes a configuration akin to kafka4m.producer.topic = someNewTopic)
   val kafkaWriter: Consumer[(String, Array[Byte]), Long] = kafka4m.writeKeyAndBytes(config)
 
   // read data from kafka (assumes a configuration akin to kafka4m.consumer.topic = originalTopic)
-  val kafkaData: Observable[ConsumerRecord[String, Array[Byte]]] = kafka4m.read(config)
+  val kafkaData: Observable[ConsumerRecord[String, Array[Byte]]] = kafka4m.readRecords(config)
 
   // then we&#39;d write it back into kafka like this.
   val task: Task[Long] = kafkaData.map(r =&gt; (r.key, r.value)).consumeWith(kafkaWriter)
 </code></pre>
 <p>That provides the base primitives &ndash; getting data into and out of Kafka.</p>
+<h2><a href="#manually-acking" name="manually-acking" class="anchor"><span class="anchor-link"></span></a>Manually Acking</h2>
+<p>By default Kafka just commits paritions/offsets periodically. To give client code more control over that, kafka4m sets the default of &lsquo;enable.auto.commit&rsquo; to false.</p>
+<p>It does this via:</p>
+<pre><code>kafka4m.consumer.enable.auto.commit : false
+</code></pre>
+<p>Which you can of course change.</p>
+<p>The idea though is that a &lsquo;kafka4m.reader&rsquo; returns a stream of &lsquo;AckableRecords&rsquo;, which is a wrapper around the ConsumerRecord which exposes a &lsquo;persistOffset&rsquo; function which allows you to persist the current offset partitions back to Kafka.</p>
+<p>A very basic example would be something like this:</p>
+<pre><code>    // our custom data type
+    case class MyData(id : String, x: Int)
+
+    // a means to unmarshall it from a record
+    def unmarshal(bytes :Array[Byte]) : MyData = ???
+
+    // some method to persist our data
+    def writeToDB(value : MyData) : Future[Boolean] = ???
+
+    kafka4m.read().map { ackable: AckableRecord[ConsumerRecord[String, Array[Byte]]] =&gt;
+      val data = unmarshal(ackable.record.value())
+      val commitFuture: Future[Map[TopicPartition, OffsetAndMetadata]] = writeToDB(data).flatMap(_ =&gt; ackable.commitPosition())
+      commitFuture.onComplete(x =&gt; logger.info(&quot;Committed: &quot; + x))
+      data
+    } 
+</code></pre>
 <h2><a href="#etl" name="etl" class="anchor"><span class="anchor-link"></span></a>ETL</h2>
-<p>On top of that, kafka4m provides some basic conveniences for getting data into Kafka from some files in a directory and writing data from kafka to the local filesystem.</p>
-<p>Writing data into can be useful for some performance testing, getting test data in, or just a normal loading of application data.</p>
-<p>Reading data from Kafka can be a nice convenience for viewing data locally, or as an interim step to sftp-ing or otherwise uploading the data somewhere.</p>
-<p>The Observables provided can just as easily provided data to a multi-part request, a websocket, etc.</p>
+<p>On top of that, kafka4m provides some basic conveniences for getting data into Kafka from the filesystem and writing data from kafka to the filesystem.</p>
 <h3><a href="#kafka4mapp" name="kafka4mapp" class="anchor"><span class="anchor-link"></span></a>Kafka4mApp</h3>
 <p>The &lsquo;Kafka4mApp&rsquo; serves as the entry-point for the ETL jobs and uses the <a href="https://porpoiseltd.co.uk/args4c/index.html">args4c</a> library. That simply means that the first argument should be either &lsquo;read&rsquo; or &lsquo;write&rsquo; (as in read data from kafka or write data to kafka), and the subsequent args are either key=value pairs or the location of a configuration file.</p>
+<h3><a href="#as-a-docker-image" name="as-a-docker-image" class="anchor"><span class="anchor-link"></span></a>As a docker image</h3>
+<p>Aside from being able to extend it in your project, it also works just out-of-the box, and so we&rsquo;ve published a docker image to do just that:</p>
+<p>Write some data into kafka:</p>
+<pre class="prettyprint"><code class="language-$xslt">echo &quot;example&quot; &gt; ./dataIn/example.txt
+docker run kafka4m:latest write kafka4m.etl.intoKafka.dataDir=./dataIn kafka4m.topic=foo
+</code></pre>
+<p>Write a lot of data into kafka:</p>
+<pre class="prettyprint"><code class="language-$xslt">docker run kafka4m:latest write \
+  kafka4m.etl.intoKafka.dataDir=./dataIn \
+  kafka4m.topic=foo \ 
+  kafka4m.etl.intoKafka.repeat=true
+</code></pre>
+<p>Read the data out:</p>
+<pre class="prettyprint"><code class="language-$xslt">docker run kafka4m:latest read \
+  kafka4m.etl.fromKafka.dataDir=./dataOut \
+  kafka4m.topic=foo
+</code></pre>
+<p>There are a lot more configuration options (caching, limits, rate-limiting, etc) for the ETL work. Please just consume the reference.conf for options. </p>
 </div>
 <div>
 <a href="https://github.com/aaronp/kafka4m/tree/master/src/main/paradox/usage.md" title="Edit this page" class="md-source-file md-edit">
@@ -195,7 +236,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-0.0.1*
+0.6.1*
 </span>
 </div>
 </article>
@@ -218,13 +259,13 @@ Kafka4m
 </span>
 </div>
 </a>
-<a href="building.html" title="Kafka4m" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<a href="building.html" title="Building" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
 <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
 <span class="md-flex__ellipsis">
 <span class="md-footer-nav__direction">
 Next
 </span>
-Kafka4m
+Building
 </span>
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">
