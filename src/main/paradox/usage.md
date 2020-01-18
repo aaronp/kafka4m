@@ -3,7 +3,7 @@
 The kafka configurations are based on the the kafka4m typesafe configuration. In practice the intent is to achieve similar things
 to what Kafka Streams gives you (but w/o relying on the kafka streams API)
 
-## Copy A Kafka Topic:  
+## Copy A Kafka Topic (i.e. Mirror Maker):  
 ```$xslt
   val config = ConfigFactory.load()
 
@@ -11,13 +11,46 @@ to what Kafka Streams gives you (but w/o relying on the kafka streams API)
   val kafkaWriter: Consumer[(String, Array[Byte]), Long] = kafka4m.writeKeyAndBytes(config)
 
   // read data from kafka (assumes a configuration akin to kafka4m.consumer.topic = originalTopic)
-  val kafkaData: Observable[ConsumerRecord[String, Array[Byte]]] = kafka4m.read(config)
+  val kafkaData: Observable[ConsumerRecord[String, Array[Byte]]] = kafka4m.readRecords(config)
 
   // then we'd write it back into kafka like this.
   val task: Task[Long] = kafkaData.map(r => (r.key, r.value)).consumeWith(kafkaWriter)
 ``` 
 
 That provides the base primitives -- getting data into and out of Kafka.
+
+## Manually Acking
+
+By default Kafka just commits paritions/offsets periodically. To give client code more control over that, kafka4m sets the default of 'enable.auto.commit' to false.
+
+It does this via:
+```
+kafka4m.consumer.enable.auto.commit : false
+```
+
+Which you can of course change.
+
+The idea though is that a 'kafka4m.reader' returns a stream of 'AckableRecords', which is a wrapper around the ConsumerRecord which exposes a 'persistOffset' function which allows you to persist the current offset partitions back to Kafka.
+
+A very basic example would be something like this:
+
+```
+    // our custom data type
+    case class MyData(id : String, x: Int)
+
+    // a means to unmarshall it from a record
+    def unmarshal(bytes :Array[Byte]) : MyData = ???
+
+    // some method to persist our data
+    def writeToDB(value : MyData) : Future[Boolean] = ???
+
+    kafka4m.read().map { ackable: AckableRecord[ConsumerRecord[String, Array[Byte]]] =>
+      val data = unmarshal(ackable.record.value())
+      val commitFuture: Future[Map[TopicPartition, OffsetAndMetadata]] = writeToDB(data).flatMap(_ => ackable.commitPosition())
+      commitFuture.onComplete(x => logger.info("Committed: " + x))
+      data
+    } 
+```
 
 ## ETL
 On top of that, kafka4m provides some basic conveniences for getting data into Kafka from the filesystem and writing

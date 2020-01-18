@@ -2,14 +2,17 @@ import java.nio.charset.StandardCharsets
 
 import args4c.implicits._
 import com.typesafe.config.ConfigFactory
-import kafka4m.producer.RichKafkaProducer
+import com.typesafe.scalalogging.StrictLogging
+import kafka4m.consumer.AckableRecord
+import kafka4m.producer.{AsProducerRecord, RichKafkaProducer}
 import kafka4m.util.Schedulers
 import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
 import monix.reactive.{Consumer, Observable}
-import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.{ConsumerRecord, OffsetAndMetadata}
+import org.apache.kafka.common.TopicPartition
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
 /**
@@ -17,6 +20,25 @@ import scala.concurrent.duration._
   */
 object BasicMonixExample extends App {
 
+  object commitExample extends StrictLogging {
+
+    // our custom data type
+    case class MyData(id : String, x: Int)
+
+    // a means to unmarshall it from a record
+    def unmarshal(bytes :Array[Byte]) : MyData = ???
+
+
+    // some method to persist our data
+    def writeToDB(value : MyData) : Future[Boolean] = ???
+
+    kafka4m.read().map { ackable: AckableRecord[ConsumerRecord[String, Array[Byte]]] =>
+      val data = unmarshal(ackable.record.value())
+      val commitFuture: Future[Map[TopicPartition, OffsetAndMetadata]] = writeToDB(data).flatMap(_ => ackable.commitPosition())
+      commitFuture.onComplete(x => logger.info("Committed: " + x))
+      data
+    }
+  }
   dockerenv.kafka().start()
 
   val config = ConfigFactory.load()
