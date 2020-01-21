@@ -35,6 +35,6 @@ object JMXSupport {
   }
 
   def nameForClass(c1ass: Class[_], name: String): ObjectName = {
-    new ObjectName(s"${getClass.getPackage.getName}:type=$name")
+    new ObjectName(s"${c1ass.getPackage.getName}:type=$name")
   }
 }
