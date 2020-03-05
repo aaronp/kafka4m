@@ -85,9 +85,7 @@ final class RichKafkaAdmin(val admin: AdminClient) extends AutoCloseable with St
     val result  = admin.listConsumerGroups()
     val kfuture = result.all()
     val future: Future[Seq[ConsumerGroupListing]] = Future {
-      val list = kfuture.get().asScala.toSeq
-      println(s"consumerGroups is ${list}")
-      list
+      kfuture.get().asScala.toSeq
     }
     val cancel = Cancelable.apply(() => kfuture.cancel(true))
     CancelableFuture(future, cancel)

@@ -10,9 +10,9 @@ object Kafka4mTestConfig {
 
   def newTopic() = s"testtopic-${id.incrementAndGet()}"
 
-  def next(closeOnComplete: Boolean = true): (String, Config) = {
+  def next(closeOnComplete: Boolean = true, subscribeOnConnect: Boolean = true): (String, Config) = {
     val topic = newTopic()
-    (topic, forTopic(topic, closeOnComplete))
+    (topic, forTopic(topic, closeOnComplete, subscribeOnConnect))
   }
   def forConsumerGroup(group: String, autoOffsetReset: String = "earliest", fallback: Config = ConfigFactory.load()) = {
     val c = ConfigFactory.parseString(s"""kafka4m.consumer.group.id : "$group"
@@ -21,19 +21,19 @@ object Kafka4mTestConfig {
             """.stripMargin)
     c.withFallback(fallback)
   }
-  def forTopic(topic: String = newTopic(), closeOnComplete: Boolean = true, fallback: Config = ConfigFactory.load()) = {
+  def forTopic(topic: String = newTopic(), closeOnComplete: Boolean = true, subscribeOnConnect: Boolean = true, fallback: Config = ConfigFactory.load()) = {
     val c = ConfigFactory.parseString(s"""
                                            |kafka4m.admin.topic=$topic
                                            |kafka4m.topic=$topic
                                            |kafka4m.consumer.topic=$topic
-                                           |kafka4m.streams.topic=$topic
-                                           |kafka4m.streams.application.id=$topic
                                            |kafka4m.producer.topic=$topic
+                                           |kafka4m.producer.closeOnComplete=$closeOnComplete
                                            |
                                            |kafka4m.consumer.group.id : "test"$topic
                                            |kafka4m.consumer.application.id : "test"$topic
                                            |kafka4m.consumer.auto.offset.reset : earliest
                                            |kafka4m.consumer.closeOnComplete = $closeOnComplete
+                                           |kafka4m.consumer.subscribeOnConnect = $subscribeOnConnect
             """.stripMargin)
     c.withFallback(fallback)
 

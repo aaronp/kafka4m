@@ -78,7 +78,7 @@ class Kafka4mAppTest extends BaseKafka4mDockerSpec {
         Then("We should be able to read out the data from that topic")
         val bucketWrites: Observable[(TimeBucket, Path)] = {
           val writer     = Base64Writer(conf1)
-          val kafkaData  = kafka4m.readRecords(conf1).take(numWritten)
+          val kafkaData  = kafka4m.readRecords[ConsumerRecord[Key, Bytes]](conf1).take(numWritten)
           val readEvents = writer.asEvents(kafkaData)
           writer.write(readEvents :+ ForceFlushBuckets[ConsumerRecord[Key, Bytes], TimeBucket](true))
         }

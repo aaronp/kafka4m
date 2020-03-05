@@ -19,9 +19,8 @@ private[producer] class KafkaProducerObserver[A, K, V](asRecord: AsProducerRecor
                                                        continueOnError: Boolean)
     extends Observer[A]
     with LazyLogging {
-  private val callback                                          = Callback.safe(unsafeCallback)(scheduler)
-  private val sentCount                                         = new AtomicLong(0)
-  @volatile private var result: Option[Either[Throwable, Long]] = None
+  private val callback  = Callback.safe(unsafeCallback)(scheduler)
+  private val sentCount = new AtomicLong(0)
 
   private lazy val tidyUp = {
     Try(rkp.close()).isSuccess

@@ -22,4 +22,8 @@ object HasRecord {
   implicit def fromTuple2[K, V, T] = new HasRecord[(T, ConsumerRecord[K, V])] {
     override def recordFor(value: (T, ConsumerRecord[K, V])) = value._2
   }
+
+  implicit def identity[K, V] = new HasRecord[ConsumerRecord[K, V]] {
+    override def recordFor(value: ConsumerRecord[K, V]) = value
+  }
 }

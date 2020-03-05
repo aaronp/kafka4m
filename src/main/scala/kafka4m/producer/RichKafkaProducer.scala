@@ -7,6 +7,7 @@ import cats.effect.{IO, Resource}
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import kafka4m.util.Props
+import monix.eval.Task
 import monix.execution.{Cancelable, Scheduler, Callback => MonixCallback}
 import monix.reactive.Consumer
 import org.apache.kafka.clients.producer.{Callback, KafkaProducer, ProducerRecord, RecordMetadata}
@@ -30,12 +31,21 @@ final class RichKafkaProducer[K, V] private (val publisher: KafkaProducer[K, V])
     * @tparam A the input type which will be converted to a ProducerRecord
     * @return a consumer which will consume 'A' values into Kafka and produce a number of inserted elements
     */
-  def asConsumer[A](fireAndForget: Boolean, continueOnError: Boolean)(implicit ev: AsProducerRecord.Aux[A, K, V]): Consumer[A, Long] = {
+  def asConsumer[A](fireAndForget: Boolean, continueOnError: Boolean, closeOnComplete: Boolean)(implicit ev: AsProducerRecord.Aux[A, K, V]): Consumer[A, Long] = {
     val producer = this
-    Consumer.create[A, Long] {
+    val consumer = Consumer.create[A, Long] {
       case (scheduler: Scheduler, cancelable: Cancelable, callback: MonixCallback[Throwable, Long]) =>
         new KafkaProducerObserver[A, K, V](ev, producer, scheduler, cancelable, callback, fireAndForget, continueOnError)
     }
+
+    if (closeOnComplete) {
+      consumer.mapTask { result =>
+        Task {
+          close()
+          result
+        }
+      }
+    } else consumer
   }
 
   def send(kafkaTopic: String, key: K, value: V, callback: Callback = null, partition: Int = -1): JFuture[RecordMetadata] = {

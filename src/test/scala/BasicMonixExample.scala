@@ -2,17 +2,13 @@ import java.nio.charset.StandardCharsets
 
 import args4c.implicits._
 import com.typesafe.config.ConfigFactory
-import com.typesafe.scalalogging.StrictLogging
-import kafka4m.consumer.AckableRecord
-import kafka4m.producer.{AsProducerRecord, RichKafkaProducer}
+import kafka4m.producer.RichKafkaProducer
 import kafka4m.util.Schedulers
 import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
-import monix.reactive.{Consumer, Observable}
-import org.apache.kafka.clients.consumer.{ConsumerRecord, OffsetAndMetadata}
-import org.apache.kafka.common.TopicPartition
+import monix.reactive.Consumer
 
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Await
 import scala.concurrent.duration._
 
 /**
@@ -20,28 +16,9 @@ import scala.concurrent.duration._
   */
 object BasicMonixExample extends App {
 
-  object commitExample extends StrictLogging {
-
-    // our custom data type
-    case class MyData(id : String, x: Int)
-
-    // a means to unmarshall it from a record
-    def unmarshal(bytes :Array[Byte]) : MyData = ???
-
-
-    // some method to persist our data
-    def writeToDB(value : MyData) : Future[Boolean] = ???
-
-    kafka4m.read().map { ackable: AckableRecord[ConsumerRecord[String, Array[Byte]]] =>
-      val data = unmarshal(ackable.record.value())
-      val commitFuture: Future[Map[TopicPartition, OffsetAndMetadata]] = writeToDB(data).flatMap(_ => ackable.commitPosition())
-      commitFuture.onComplete(x => logger.info("Committed: " + x))
-      data
-    }
-  }
   dockerenv.kafka().start()
 
-  val config = ConfigFactory.load()
+  val config = Array("kafka4m.topic=read-back").asConfig(ConfigFactory.load())
 
   //
   // let's imperatively load a topic in kafka
@@ -56,19 +33,18 @@ object BasicMonixExample extends App {
   //
   // now read data from kafka (assumes a configuration akin to kafka4m.consumer.topic = originalTopic)
   //
-  val kafkaData = kafka4m.readRecords(config)
+  val kafkaData = kafka4m.readRecords[String](config)
 
   //
   // and create another write which will consume key/values (strings and byte-arrays) into kafka
   //
-  val kafkaWriter: Consumer[(String, Array[Byte]), Long] = kafka4m.writeKeyAndBytes(Array("kafka4m.topic=read-back").asConfig(config))
+  val kafkaWriter: Consumer[String, Long] = kafka4m.writeText(config)
 
   //
   // now wire it up -- attached the reader to the writer with some trivial transformation using some monix operations:
   //
   val task: Task[Long] = kafkaData
     .dump("from kafka")
-    .map(r => (r.key.reverse, r.value))
     .take(dataWritten.size)
     .consumeWith(kafkaWriter)
 

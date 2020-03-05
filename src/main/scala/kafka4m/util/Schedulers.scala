@@ -4,6 +4,8 @@ import com.typesafe.scalalogging.StrictLogging
 import monix.execution.schedulers.SchedulerService
 import monix.execution.{ExecutionModel, Scheduler, UncaughtExceptionReporter}
 
+import scala.util.Try
+
 object Schedulers {
   def using[A](f: Scheduler => A): A = using()(f)
 
@@ -21,11 +23,21 @@ object Schedulers {
     }
   }
 
-  def io(name: String = "kafak4m-io", daemonic: Boolean = true): SchedulerService = {
-    Scheduler.io(name, daemonic = daemonic, reporter = LoggingReporter, executionModel = ExecutionModel.Default)
+  def io(name: String = "kafak4m-io", daemonic: Boolean = true, executionModel: ExecutionModel = ExecutionModel.Default): SchedulerService = {
+    Scheduler.io(name, daemonic = daemonic, reporter = LoggingReporter, executionModel = executionModel)
   }
 
   def compute(name: String = "kafak4m-compute", daemonic: Boolean = true, executionModel: ExecutionModel = ExecutionModel.Default): SchedulerService = {
     Scheduler.computation(name = name, daemonic = daemonic, reporter = LoggingReporter, executionModel = executionModel)
+  }
+
+  def close(s: Scheduler): Unit = {
+    Try {
+      s match {
+        case ss: SchedulerService => ss.shutdown()
+        case c: AutoCloseable     => c.close()
+        case _                    =>
+      }
+    }
   }
 }

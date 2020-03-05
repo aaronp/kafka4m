@@ -5,22 +5,39 @@ import java.{time, util}
 
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
+import kafka4m.data.{CommittedStatus, KafkaPartitionInfo, PartitionOffsetState}
+import kafka4m.util.{FixedScheduler, Schedulers}
+import monix.catnap.ConcurrentQueue
 import monix.eval.Task
-import monix.execution.Scheduler
+import monix.execution.{BufferCapacity, Scheduler}
 import monix.reactive.Observable
 import org.apache.kafka.clients.consumer._
+import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization.Deserializer
-import org.apache.kafka.common.{PartitionInfo, TopicPartition}
 
-import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Future, Promise}
+import scala.jdk.CollectionConverters._
+import scala.util.Try
 import scala.util.control.NonFatal
 
 /**
   * A means of driving a kafka-stream using the consumer (not kafka streaming) API
   */
-final class RichKafkaConsumer[K, V](val consumer: KafkaConsumer[K, V], val topics: Set[String], val defaultPollTimeout: Duration) extends AutoCloseable with StrictLogging {
+final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
+                                             val topics: Set[String],
+                                             val defaultPollTimeout: Duration,
+                                             commandQueue: ConcurrentQueue[Task, ExecOnConsumer[K, V, _]],
+                                             kafkaScheduler: Scheduler,
+                                             val asyncScheduler: Scheduler,
+                                             startPollingOnStart: Boolean = true)
+    extends AutoCloseable
+    with ConsumerAccess
+    with StrictLogging { self =>
+
+  override type Key   = K
+  override type Value = V
 
   @volatile private var closed = false
 
@@ -29,8 +46,13 @@ final class RichKafkaConsumer[K, V](val consumer: KafkaConsumer[K, V], val topic
 
   private val javaPollDuration: time.Duration = RichKafkaConsumer.asJavaDuration(defaultPollTimeout)
 
-  def partitionsByTopic(): Map[kafka4m.Key, List[PartitionInfo]] = {
-    consumer.listTopics().asScala.mapValues(_.asScala.toList).toMap
+  def partitionsByTopic(limitToOurTopic: Boolean = true): Map[String, List[KafkaPartitionInfo]] = {
+    val view = consumer.listTopics().asScala.view.mapValues(_.asScala.map(KafkaPartitionInfo.apply).toList)
+    if (limitToOurTopic) {
+      view.filterKeys(topics.contains).toMap
+    } else {
+      view.toMap
+    }
   }
 
   def subscribe(topic: String, listener: ConsumerRebalanceListener = RebalanceListener): Unit = {
@@ -38,63 +60,84 @@ final class RichKafkaConsumer[K, V](val consumer: KafkaConsumer[K, V], val topic
     consumer.subscribe(java.util.Collections.singletonList(topic), listener)
   }
 
-  def partitions: List[PartitionInfo] = {
-    val byTopic = partitionsByTopic()
+  def partitions: List[KafkaPartitionInfo] = {
+    val byTopic = partitionsByTopic(true)
     topics.toList.flatMap(byTopic.getOrElse(_, Nil))
   }
 
   /**
-    * @param closeOnComplete a flag indicating that this consumer should be closed when this observable is
-    * @param numberOfMessagesToReceiveBetweenOffsetCommits the number of messages which will be received before we commit our offsets
-    * @param scheduler
-    * @return an observable which will commit the offsets every n messages
+    * this poll is unsafe as it will fail if invoked from a different thread from which this consumer was created
+    * @param timeout
+    * @return the records pull from Kafka
     */
-  def asObservableCommitEvery(closeOnComplete: Boolean, numberOfMessagesToReceiveBetweenOffsetCommits: Int)(implicit scheduler: Scheduler): Observable[ConsumerRecord[K, V]] = {
-    asObservableCommitEveryObservable(closeOnComplete, numberOfMessagesToReceiveBetweenOffsetCommits).map(_._3)
-  }
-
-  /**
-    * @param closeOnComplete a flag indicating that this consumer should be closed when this observable is
-    * @param numberOfMessagesToReceiveBetweenOffsetCommits the number of messages which will be received before we commit our offsets
-    * @param scheduler
-    * @return an observable which will commit the offsets every n messages
-    */
-  def asObservableCommitEveryObservable(closeOnComplete: Boolean, numberOfMessagesToReceiveBetweenOffsetCommits: Int)(implicit scheduler: Scheduler) = {
-
-    val initialTuple = (PartitionOffsetState(), Option.empty[Future[Unit]], (null: ConsumerRecord[K, V]))
-
-    asObservable(closeOnComplete).zipWithIndex.scan(initialTuple) {
-      case ((state, _, _), (record, i)) if i % numberOfMessagesToReceiveBetweenOffsetCommits == 0 =>
-        // gah! We have to let this run and not block so as not to FU Kafka's idea of liveliness for our consumer.
-        val future = commitAsync(state.incOffsets()).map(_ => ())
-        (PartitionOffsetState(), Option(future), record)
-      case ((state, _, _), (record, _)) => (state.update(record), None, record)
+  def unsafePoll(timeout: time.Duration = javaPollDuration): Iterable[ConsumerRecord[K, V]] = {
+    try {
+      val records: ConsumerRecords[K, V] = consumer.poll(timeout)
+      logger.debug(s"Got ${records.count()} records from ${records.partitions().asScala.mkString(s"[", ",", "]")}")
+      val forTopic: Iterable[ConsumerRecord[K, V]] = {
+        records.asScala.filter { record =>
+          topics.contains(record.topic())
+        }
+      }
+      logger.trace(s"Got ${forTopic.size} of ${records.count()} for topic '$topics' records from ${records.partitions().asScala.mkString(s"[", ",", "]")}")
+      forTopic
+    } catch {
+      case NonFatal(e) =>
+        logger.warn(s"Poll threw $e")
+        throw e
     }
   }
+
+  private val NoResults = Observable.empty[ConsumerRecord[K, V]]
 
   /**
     * Represent this consumer as an observable
     * @param closeOnComplete set to true if the underlying Kafka consumer should be closed when this observable completes
     */
-  def asObservable(closeOnComplete: Boolean)(implicit scheduler: Scheduler): Observable[ConsumerRecord[K, V]] = {
+  def asObservable(closeOnComplete: Boolean): Observable[ConsumerRecord[K, V]] = {
+    val records: Task[Observable[ConsumerRecord[K, V]]] = {
+      commandQueue.tryPoll.flatMap {
+        // try and handle any explicit commands, but if none are queued, then fall-back to polling kafka
+        case None =>
+          Task.eval(unsafePoll()).executeOn(kafkaScheduler).map { returned =>
+            if (returned.isEmpty) {
+              NoResults
+            } else {
+              Observable.fromIterable(returned)
+            }
+          }
+        case Some(exec: ExecOnConsumer[K, V, _]) =>
+          Task(exec.run(self)).executeOn(kafkaScheduler).map(_ => NoResults)
+      }
+    }
 
-    val obs: Observable[ConsumerRecord[K, V]] = repeatedObservable(poll())
+    val obs: Observable[ConsumerRecord[K, V]] = Observable.repeatEvalF(records).flatten.observeOn(asyncScheduler)
     if (closeOnComplete) {
-      obs.guarantee(Task.delay(close()))
+      obs.guarantee(Task.delay(close()).executeOn(kafkaScheduler))
     } else {
       obs
     }
   }
 
-  /** @param state the state to commit
-    * @return a future of the commit result
+  /**
+    * @return a task which will run any exec commands on our kafka scheduler
     */
+  def execNext() = {
+    require(!closed, "RickKafkaConsumer is already closed")
+    commandQueue.tryPoll.flatMap {
+      case Some(exec: ExecOnConsumer[K, V, _]) =>
+        Task(exec.run(self)).executeOn(kafkaScheduler).map(_ => NoResults).void
+      case _ => Task.unit
+    }
+  }
+
   def commitAsync(state: PartitionOffsetState): Future[Map[TopicPartition, OffsetAndMetadata]] = {
+    val promise: Promise[Map[TopicPartition, OffsetAndMetadata]] = Promise[Map[TopicPartition, OffsetAndMetadata]]()
+
     if (state.nonEmpty) {
-      val promise = Promise[Map[TopicPartition, OffsetAndMetadata]]
       object callback extends OffsetCommitCallback {
         override def onComplete(offsets: util.Map[TopicPartition, OffsetAndMetadata], exception: Exception): Unit = {
-          logger.info(s"commitAsync($offsets, $exception)")
+          logger.debug(s"commitAsync($offsets, $exception)")
           if (exception != null) {
             promise.tryFailure(exception)
           } else {
@@ -102,31 +145,81 @@ final class RichKafkaConsumer[K, V](val consumer: KafkaConsumer[K, V], val topic
           }
         }
       }
-      logger.info(s"commitAsync($state)")
+      logger.debug(s"commitAsync($state)")
       consumer.commitAsync(state.asTopicPartitionMapJava, callback)
-      promise.future
     } else {
-      logger.info(s"NOT committing empty state")
-      Future.successful(Map.empty)
+      logger.trace(s"NOT committing empty state")
+      promise.trySuccess(Map.empty)
     }
+    promise.future
   }
 
-  private def swallow(thunk: => Unit): Boolean = {
-    try {
-      thunk
-      true
-    } catch {
-      case NonFatal(e) =>
-        logger.error("" + e, e)
-        false
-    }
+  private def swallow(thunk: => Unit) = {
+    Try(thunk).map(_ => true)
   }
 
-  def seekToBeginning(partition: Int): Boolean = swallow {
+  def seekToBeginning(partition: Int) = swallow {
     logger.info(s"seekToBeginning(${partition})")
     topics.foreach { topic =>
       val tp = new TopicPartition(topic, partition)
       consumer.seekToBeginning(java.util.Collections.singletonList(tp))
+    }
+  }
+
+  def seekToBeginning() = swallow {
+    logger.info(s"seekToBeginning")
+    topics.foreach { topic =>
+      val topicPartitions = assignmentPartitions.map { partition =>
+        new TopicPartition(topic, partition)
+      }
+      consumer.seekToBeginning(topicPartitions.asJava)
+    }
+  }
+  def seekToEnd() = swallow {
+    logger.info("seekToEndUnsafe")
+    topics.foreach { topic =>
+      val topicPartitions = assignmentPartitions.map { partition =>
+        new TopicPartition(topic, partition)
+      }
+      consumer.seekToEnd(topicPartitions.asJava)
+    }
+  }
+
+  def assignToTopics(): Try[Set[TopicPartition]] = {
+    val pbt = partitionsByTopic()
+    val allTopicPartitions = topics.flatMap { topic =>
+      val topicPartitions = pbt.get(topic).map { partitions: List[KafkaPartitionInfo] =>
+        partitions.map(_.asTopicPartition)
+      }
+      topicPartitions.getOrElse(Nil)
+    }
+    swallow(consumer.assign(allTopicPartitions.asJava)).map { _ =>
+      allTopicPartitions
+    }
+  }
+
+  def seekToOffset(offset: Long) = seekToCustom(_ => offset)
+
+  def seekToCustom(computeOffset: KafkaPartitionInfo => Long) = swallow {
+
+    val partitions = partitionsByTopic(true)
+    partitions.collect {
+      case (topic, partitions) =>
+        partitions.foreach { pi: KafkaPartitionInfo =>
+          val offset = computeOffset(pi)
+          consumer.seek(new TopicPartition(topic, pi.partition), offset)
+        }
+    }
+  }
+
+  def seekTo(topicPartitionState: PartitionOffsetState) = swallow {
+    logger.info(s"seekToUnsafe(${topicPartitionState})")
+    for {
+      topic               <- topics
+      topicPartitions     <- topicPartitionState.offsetByPartitionByTopic.get(topic).toSeq
+      (partition, offset) <- topicPartitions
+    } yield {
+      consumer.seek(new TopicPartition(topic, partition), offset)
     }
   }
 
@@ -144,45 +237,24 @@ final class RichKafkaConsumer[K, V](val consumer: KafkaConsumer[K, V], val topic
     byTopic.toMap
   }
 
-  /**
-    * poll for records
-    * @param timeout the poll timeout
-    * @return the records returned from the poll
-    */
-  def poll(timeout: time.Duration = javaPollDuration): Iterable[ConsumerRecord[K, V]] = {
-    try {
-      val records: ConsumerRecords[K, V] = consumer.poll(timeout)
-      logger.trace(s"Got ${records.count()} records from ${records.partitions().asScala.mkString(s"[", ",", "]")}")
-      val forTopic: Iterable[ConsumerRecord[K, V]] = {
-        records.asScala.filter { record =>
-          topics.contains(record.topic())
-        }
-      }
-      logger.trace(s"Got ${forTopic.size} of ${records.count()} for topic '$topics' records from ${records.partitions().asScala.mkString(s"[", ",", "]")}")
-      forTopic
-    } catch {
-      case NonFatal(e) =>
-        logger.warn(s"Poll threw $e")
-        throw e
-    }
-  }
-
   def assignmentPartitions: List[Int] = {
-    consumer.assignment().asScala.toList.map { tp =>
+    assignments().map { tp =>
       require(topics.contains(tp.topic()), s"consumer for topics $topics has assignment on ${tp.topic()}")
       tp.partition()
     }
   }
+  def assignments() = consumer.assignment().asScala.toList
 
   def status(verbose: Boolean): String = {
-    val byTopic: Map[kafka4m.Key, List[PartitionInfo]] = partitionsByTopic()
+    val byTopic = partitionsByTopic()
 
     val topicStatuses = topics.map { topic =>
-      byTopic.get(topic).fold(s"topic '${topic}' doesn't exist") { partitions: Seq[PartitionInfo] =>
+      byTopic.get(topic).fold(s"topic '${topic}' doesn't exist") { partitions =>
         val ourAssignments = {
-          val all = assignmentPartitions
+          val all: List[Int] = assignmentPartitions
           val detail = if (verbose) {
-            all.map(committed).mkString("\n\tCommit status:\n\t", "\n\t", "\n")
+            val committedStatus: Seq[Map[String, OffsetAndMetadata]] = all.map(committed)
+            committedStatus.mkString("\n\tCommit status:\n\t", "\n\t", "\n")
           } else {
             ""
           }
@@ -195,11 +267,45 @@ final class RichKafkaConsumer[K, V](val consumer: KafkaConsumer[K, V], val topic
     topicStatuses.mkString("\n")
   }
 
+  /**
+    * @return a scala-friendly data structure containing the commit status of the kafka cluster
+    */
+  def committedStatus(): List[CommittedStatus] = {
+    val all: List[Int] = assignmentPartitions
+    partitionsByTopic().collect {
+      case (topic, kafkaPartitions) =>
+        val weAreSubscribed: Boolean = topics.contains(topic)
+
+        val partitionStats: List[(KafkaPartitionInfo, Boolean)] = kafkaPartitions.map { kpi =>
+          val isAssigned = all.contains(kpi.partition)
+          (kpi, isAssigned)
+        }
+
+        val commitStats: mutable.Map[TopicPartition, OffsetAndMetadata] = consumer.committed(partitionStats.map(_._1.asTopicPartition).toSet.asJava).asScala
+
+        val pos = PartitionOffsetState.fromKafka(commitStats.toMap)
+        CommittedStatus(topic, weAreSubscribed, partitionStats, pos)
+    }.toList
+  }
+
   def isClosed() = closed
 
   override def close(): Unit = {
     closed = true
     consumer.close()
+    Schedulers.close(kafkaScheduler)
+  }
+
+  override def withConsumer[A](withConsumer: RichKafkaConsumer[K, V] => A): Future[A] = {
+    val cmd = ExecOnConsumer[K, V, A](withConsumer)
+    import cats.syntax.apply._
+    val task = commandQueue.offer(cmd) *> execNext
+
+    task
+      .runToFuture(asyncScheduler)
+      .flatMap { _ =>
+        cmd.promise.future
+      }(asyncScheduler)
   }
 }
 
@@ -213,13 +319,16 @@ object RichKafkaConsumer extends StrictLogging {
     }
   }
 
-  def byteArrayValues(rootConfig: Config)(implicit ioSched: Scheduler): RichKafkaConsumer[String, Array[Byte]] = {
+  private[consumer] def byteArrayValues(rootConfig: Config, kafkaScheduler: Scheduler, ioSched: Scheduler) = {
     val keyDeserializer   = new org.apache.kafka.common.serialization.StringDeserializer
     val valueDeserializer = new org.apache.kafka.common.serialization.ByteArrayDeserializer
-    apply(rootConfig, keyDeserializer, valueDeserializer)
+    apply(rootConfig, keyDeserializer, valueDeserializer, kafkaScheduler)(ioSched)
   }
 
-  def apply[K, V](rootConfig: Config, keyDeserializer: Deserializer[K], valueDeserializer: Deserializer[V])(implicit ioSched: Scheduler): RichKafkaConsumer[K, V] = {
+  private[consumer] def apply[K, V](rootConfig: Config,
+                                    keyDeserializer: Deserializer[K],
+                                    valueDeserializer: Deserializer[V],
+                                    kafkaScheduler: Scheduler = FixedScheduler().scheduler)(implicit ioSched: Scheduler): RichKafkaConsumer[K, V] = {
 
     import args4c.implicits._
     val consumerConfig = rootConfig.getConfig("kafka4m.consumer")
@@ -247,6 +356,21 @@ object RichKafkaConsumer extends StrictLogging {
     val consumer: KafkaConsumer[K, V] = new KafkaConsumer[K, V](props, keyDeserializer, valueDeserializer)
     val pollTimeout                   = rootConfig.asDuration("kafka4m.consumer.pollTimeout")
 
-    new RichKafkaConsumer(consumer, topics, pollTimeout)
+    val capacity: BufferCapacity = rootConfig.getInt("kafka4m.consumer.commandBufferCapacity") match {
+      case n if n <= 0 => BufferCapacity.Unbounded()
+      case n           => BufferCapacity.Bounded(n)
+    }
+
+    val queue = ConcurrentQueue.unsafe[Task, ExecOnConsumer[K, V, _]](capacity)
+
+    val richConsumer = new RichKafkaConsumer(consumer, topics, pollTimeout, queue, kafkaScheduler, ioSched)
+
+    if (consumerConfig.getBoolean("subscribeOnConnect")) {
+      topics.foreach(t => richConsumer.subscribe(t))
+    } else {
+      logger.debug("subscribeOnConnect is false")
+    }
+
+    richConsumer
   }
 }
