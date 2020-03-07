@@ -12,10 +12,9 @@ enablePlugins(ParadoxMaterialThemePlugin) // see https://jonas.github.io/paradox
 //ParadoxMaterialThemePlugin.paradoxMaterialThemeSettings(Paradox)
 
 val username            = "aaronp"
-val scalaTwelve         = "2.12.10"
 val scalaThirteen       = "2.13.0"
 val defaultScalaVersion = scalaThirteen
-crossScalaVersions := Seq(scalaTwelve, scalaThirteen)
+crossScalaVersions := Seq(scalaThirteen)
 scalaVersion := defaultScalaVersion
 
 paradoxProperties += ("project.url" -> "https://aaronp.github.io/kafka4m/docs/current/")
