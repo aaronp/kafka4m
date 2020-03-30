@@ -37,7 +37,7 @@ class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
         val (topic, config) = Kafka4mTestConfig.next()
         Using(RichKafkaConsumer.byteArrayValues(config, FixedScheduler().scheduler, sched)) { consumer =>
           Using(RichKafkaAdmin(config))(_.createTopicSync(topic, testTimeout))
-          consumer.assignmentPartitions shouldBe empty
+          consumer.assignmentPartitions() shouldBe empty
         }
       }
     }
@@ -54,7 +54,7 @@ class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
             val third  = producer.sendAsync(topic, "third", "value".getBytes(), partition = 0).futureValue
 
             When("We subscribe and consume to the end")
-            consumer.subscribe(topic, RebalanceListener)
+            consumer.subscribe(topic)
 
             eventually {
               consumer.unsafePoll().toList.size shouldBe 3
@@ -62,7 +62,7 @@ class RichKafkaConsumerTest extends BaseKafka4mDockerSpec {
 
             And("seek to the beginning")
             eventually {
-              consumer.seekToBeginning(0) shouldBe Success(true)
+              consumer.seekToBeginningOnPartition(0) shouldBe Success(true)
             }
 
             Then("we should see that offset as the first message")
