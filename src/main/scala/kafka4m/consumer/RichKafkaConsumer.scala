@@ -74,11 +74,7 @@ final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
     try {
       val records: ConsumerRecords[K, V] = consumer.poll(timeout)
       logger.debug(s"Got ${records.count()} records from ${records.partitions().asScala.mkString(s"[", ",", "]")}")
-      val forTopic: Iterable[ConsumerRecord[K, V]] = {
-        records.asScala.filter { record =>
-          topics.contains(record.topic())
-        }
-      }
+      val forTopic: Iterable[ConsumerRecord[K, V]] = records.asScala
       logger.trace(s"Got ${forTopic.size} of ${records.count()} for topic '$topics' records from ${records.partitions().asScala.mkString(s"[", ",", "]")}")
       forTopic
     } catch {
