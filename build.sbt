@@ -75,8 +75,8 @@ libraryDependencies ++= List(
   "ch.qos.logback"    % "logback-classic" % "1.2.3" % Test,
   "org.pegdown"       % "pegdown"         % "1.6.0" % Test,
   "junit"             % "junit"           % "4.13"  % Test,
-  "com.github.aaronp" %% "dockerenv"      % "0.4.5" % Test,
-  "com.github.aaronp" %% "dockerenv"      % "0.4.5" % Test classifier ("tests")
+  "com.github.aaronp" %% "dockerenv"      % "0.5.4" % Test,
+  "com.github.aaronp" %% "dockerenv"      % "0.5.4" % Test classifier ("tests")
 )
 
 publishMavenStyle := true
