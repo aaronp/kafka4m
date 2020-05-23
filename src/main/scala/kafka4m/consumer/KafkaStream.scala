@@ -13,10 +13,10 @@ import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 
 /**
-  * Combines our concurrent stream and kafka access
+  * A KafkaStream here is just the union of a [[ConcurrentStream]] and [[ConsumerAccess]]
   *
-  * @param stream
-  * @param access
+  * @param stream a means to load-balance jobs
+  * @param access a means to access the Kafka API in a thread-safe manner
   * @tparam A
   */
 class KafkaStream[A] private (val stream: ConcurrentStream[A], val access: ConsumerAccess) extends ConsumerAccess {

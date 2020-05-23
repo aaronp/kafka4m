@@ -11,8 +11,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
   */
 trait RecordDecoder[K, A, R] { self =>
   def decode(record: ConsumerRecord[K, A]): R
-
 }
+
 object RecordDecoder {
 
   type ByteArrayDecoder[A] = RecordDecoder[kafka4m.Key, kafka4m.Bytes, A]
@@ -20,6 +20,10 @@ object RecordDecoder {
   def apply[K, A, R](implicit instance: RecordDecoder[K, A, R]): RecordDecoder[K, A, R] = instance
 
   def ByteArrayDecoder[A](implicit instance: ByteArrayDecoder[A]): ByteArrayDecoder[A] = instance
+
+  def forBytes[A](f: kafka4m.Bytes => A): ByteArrayDecoder[A] = new ByteArrayDecoder[A] {
+    override def decode(record: ConsumerRecord[Key, Bytes]): A = f(record.value())
+  }
 
   implicit def fromBytesDecoder[A](implicit fromBytes: BytesDecoder[A]): RecordDecoder[Key, Bytes, A] = new ByteArrayDecoder[A] {
     override def decode(record: ConsumerRecord[Key, Bytes]) = fromBytes.decode(record.value())
