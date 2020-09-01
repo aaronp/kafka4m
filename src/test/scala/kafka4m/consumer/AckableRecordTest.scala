@@ -39,11 +39,19 @@ class AckableRecordTest extends BaseKafka4mDockerSpec {
           beforeStatus.flatMap(_.offsetsByPartition.values).foreach(_ shouldBe 0L)
 
           When("we consume some messages then ask an ackable record to ack")
-          var ackPos: Future[Map[TopicPartition, OffsetAndMetadata]] = null
           var ackOffset: PartitionOffsetState                        = null
           val ackStream = ackableRecords.zipWithIndex.map {
             case (record, i) if i == numRecords / 2 =>
-              ackPos = record.commitPosition()
+              And("The current state contains offsets for a partition we aren't currently assigned to")
+              val state = record.offset.incOffsets().update(topic, 999, 999)
+              whenReady(record.commit(state)) { committedOffsets =>
+                Then("We should kermit offsets only for the currently assigned partition")
+                committedOffsets.keys.size shouldBe 1
+                val (topicPartition, offsetAndMetadata) = committedOffsets.head
+                topicPartition.topic shouldBe topic
+                topicPartition.partition shouldBe 0
+                offsetAndMetadata.offset shouldBe 51
+              }
               ackOffset = record.offset.incOffsets()
               record
             case (record: AckBytes, i) if i == numRecords - 1 =>
@@ -58,8 +66,7 @@ class AckableRecordTest extends BaseKafka4mDockerSpec {
 
           val lastValue = shared.take(numRecords).delayOnNext(5.millis).lastL.runToFuture.futureValue
 
-          Then("we should see the offsets/partitions kermitted in Kafka")
-          ackPos should not be null
+          And("we should see the offsets/partitions kermitted in Kafka")
           val readFromKafka: Seq[ConsumerGroupStats] = testAdmin.consumerGroupsStats.futureValue
           readFromKafka.flatMap(_.forTopic(topic).offsetsByPartition).toMap shouldBe Map(0 -> 51)
           lastValue.offset.offsetByPartitionByTopic(topic) shouldBe Map(0                  -> (numRecords - 1))

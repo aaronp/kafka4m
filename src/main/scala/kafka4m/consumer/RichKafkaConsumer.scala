@@ -139,7 +139,12 @@ final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
         }
       }
       logger.debug(s"commitAsync($state)")
-      consumer.commitAsync(state.asTopicPartitionMapJava, callback)
+
+      // Only commit offsets for partitions that we're currently assigned to.
+      val assignedPartitions = assignments()
+      val offsetsToCommit    = state.asTopicPartitionMap.view.filterKeys(assignedPartitions.contains).toMap
+
+      consumer.commitAsync(offsetsToCommit.asJava, callback)
     } else {
       logger.trace(s"NOT committing empty state")
       promise.trySuccess(Map.empty)
