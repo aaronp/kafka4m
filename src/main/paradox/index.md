@@ -1,9 +1,10 @@
 Kafka4m
 ======
 [![Build Status](https://travis-ci.org/aaronp/kafka4m.svg?branch=master)](https://travis-ci.org/aaronp/kafka4m)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.aaronp/kafka4m_2.12/badge.png)](https://maven-badges.herokuapp.com/maven-central/com.github.aaronp/kafka4m_2.12)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.aaronp/kafka4m_2.13/badge.png)](https://maven-badges.herokuapp.com/maven-central/com.github.aaronp/kafka4m_2.13)
 [![Coverage Status](https://coveralls.io/repos/github/aaronp/kafka4m/badge.svg?branch=master)](https://coveralls.io/github/aaronp/kafka4m?branch=master)
-[![Scaladoc](https://javadoc-badge.appspot.com/com.github.aaronp/kafka4m_2.12.svg?label=scaladoc)](https://javadoc-badge.appspot.com/com.github.aaronp/kafka4m_2.12)
+[![Scaladoc](https://javadoc-badge.appspot.com/com.github.aaronp/kafka4m_2.13.svg?label=scaladoc)](https://javadoc-badge.appspot.com/com.github.aaronp/kafka4m_2.13)
+
 
 Kafka4m (kafka for monix) is a bit like the [fs2kafka](https://fd4s.github.io/fs2-kafka/) or [zio-kafka](https://github.com/zio/zio-kafka), but a bit more opinionated, in that it also brings in a typesafe configuration and application setup.
 

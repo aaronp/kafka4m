@@ -39,7 +39,7 @@ class AckableRecordTest extends BaseKafka4mDockerSpec {
           beforeStatus.flatMap(_.offsetsByPartition.values).foreach(_ shouldBe 0L)
 
           When("we consume some messages then ask an ackable record to ack")
-          var ackOffset: PartitionOffsetState                        = null
+          var ackOffset: PartitionOffsetState = null
           val ackStream = ackableRecords.zipWithIndex.map {
             case (record, i) if i == numRecords / 2 =>
               And("The current state contains offsets for a partition we aren't currently assigned to")
