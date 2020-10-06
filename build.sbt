@@ -12,7 +12,7 @@ enablePlugins(ParadoxMaterialThemePlugin) // see https://jonas.github.io/paradox
 //ParadoxMaterialThemePlugin.paradoxMaterialThemeSettings(Paradox)
 
 val username            = "aaronp"
-val scalaThirteen       = "2.13.0"
+val scalaThirteen       = "2.13.3"
 val defaultScalaVersion = scalaThirteen
 crossScalaVersions := Seq(scalaThirteen)
 scalaVersion := defaultScalaVersion
@@ -55,22 +55,24 @@ siteSourceDirectory := target.value / "paradox" / "site" / "main"
 
 siteSubdirName in SiteScaladoc := "api/latest"
 
+val MonixVersion = "3.2.2"
+
 libraryDependencies ++= List(
-  "io.monix"                   %% "monix"          % "3.1.0",
-  "io.monix"                   %% "monix-reactive" % "3.1.0",
-  "io.monix"                   %% "monix-eval"     % "3.1.0",
-  "com.lihaoyi"                %% "sourcecode"     % "0.1.9",
+  "io.monix"                   %% "monix"          % MonixVersion,
+  "io.monix"                   %% "monix-reactive" % MonixVersion,
+  "io.monix"                   %% "monix-eval"     % MonixVersion,
+  "com.lihaoyi"                %% "sourcecode"     % "0.2.1",
   "com.github.aaronp"          %% "args4c"         % "0.7.0",
   "com.typesafe.scala-logging" %% "scala-logging"  % "3.9.2",
   "com.typesafe"               % "config"          % "1.4.0",
-  "org.apache.kafka"           % "kafka-clients"   % "2.4.0",
-  "org.apache.kafka"           % "kafka-streams"   % "2.4.0"
+  "org.apache.kafka"           % "kafka-clients"   % "2.6.0",
+  "org.apache.kafka"           % "kafka-streams"   % "2.6.0"
 )
 
 libraryDependencies ++= List(
   "com.github.aaronp" %% "eie"            % "1.0.0" % Test,
-  "org.scalactic"     %% "scalactic"      % "3.1.0" % Test,
-  "org.scalatest"     %% "scalatest"      % "3.1.0" % Test,
+  "org.scalactic"     %% "scalactic"      % "3.2.2" % Test,
+  "org.scalatest"     %% "scalatest"      % "3.2.2" % Test,
   "com.vladsch.flexmark" % "flexmark-all" % "0.35.10" % Test, //https://github.com/sbt/sbt/issues/5308
   "ch.qos.logback"    % "logback-classic" % "1.2.3" % Test,
   "org.pegdown"       % "pegdown"         % "1.6.0" % Test,
