@@ -15,9 +15,7 @@ import org.apache.kafka.common.serialization.Serializer
 
 import scala.concurrent.Future
 
-final class RichKafkaProducer[K, V] private (val publisher: KafkaProducer[K, V]) extends AutoCloseable with StrictLogging {
-
-  logger.info("Creating Producer")
+final class RichKafkaProducer[K, V](val publisher: KafkaProducer[K, V]) extends AutoCloseable with StrictLogging {
 
   def sendAsync(kafkaTopic: String, key: K, value: V, callback: Callback = null, partition: Int = -1): Future[RecordMetadata] = {
     val promise = PromiseCallback()
@@ -82,7 +80,11 @@ object RichKafkaProducer extends StrictLogging {
   }
 
   def apply[K, V](rootConfig: Config, keySerializer: Serializer[K], valueSerializer: Serializer[V]): RichKafkaProducer[K, V] = {
-    val props: Properties = Props.propertiesForConfig(rootConfig.getConfig("kafka4m.producer"))
+    forConfig(rootConfig.getConfig("kafka4m.producer"), keySerializer, valueSerializer)
+  }
+
+  def forConfig[K, V](producerConfig: Config, keySerializer: Serializer[K], valueSerializer: Serializer[V]): RichKafkaProducer[K, V] = {
+    val props: Properties = Props.propertiesForConfig(producerConfig)
     val publisher         = new KafkaProducer[K, V](props, keySerializer, valueSerializer)
     new RichKafkaProducer(publisher)
   }

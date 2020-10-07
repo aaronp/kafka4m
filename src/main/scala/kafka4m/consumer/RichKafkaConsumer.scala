@@ -327,10 +327,18 @@ object RichKafkaConsumer extends StrictLogging {
                                     keyDeserializer: Deserializer[K],
                                     valueDeserializer: Deserializer[V],
                                     kafkaScheduler: Scheduler = FixedScheduler().scheduler)(implicit ioSched: Scheduler): RichKafkaConsumer[K, V] = {
+    val topics: Set[String] = kafka4m.consumerTopics(rootConfig)
+    forConfig(rootConfig.getConfig("kafka4m.consumer"), keyDeserializer, valueDeserializer, topics, kafkaScheduler)
+  }
+
+  def forConfig[K, V](consumerConfig: Config,
+                      keyDeserializer: Deserializer[K],
+                      valueDeserializer: Deserializer[V],
+                      topicOverrides: Set[String] = Set.empty,
+                      kafkaScheduler: Scheduler = FixedScheduler().scheduler)(implicit ioSched: Scheduler): RichKafkaConsumer[K, V] = {
 
     import args4c.implicits._
-    val consumerConfig = rootConfig.getConfig("kafka4m.consumer")
-    val topics         = kafka4m.consumerTopics(rootConfig)
+    val topics = if (topicOverrides.isEmpty) consumerConfig.asList("topics").toSet else topicOverrides
 
     val props: Properties = {
       val properties = kafka4m.util.Props.propertiesForConfig(consumerConfig)
@@ -352,9 +360,9 @@ object RichKafkaConsumer extends StrictLogging {
     }
 
     val consumer: KafkaConsumer[K, V] = new KafkaConsumer[K, V](props, keyDeserializer, valueDeserializer)
-    val pollTimeout                   = rootConfig.asDuration("kafka4m.consumer.pollTimeout")
+    val pollTimeout                   = consumerConfig.asDuration("pollTimeout")
 
-    val capacity: BufferCapacity = rootConfig.getInt("kafka4m.consumer.commandBufferCapacity") match {
+    val capacity: BufferCapacity = consumerConfig.getInt("commandBufferCapacity") match {
       case n if n <= 0 => BufferCapacity.Unbounded()
       case n           => BufferCapacity.Bounded(n)
     }
