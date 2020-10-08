@@ -105,7 +105,7 @@ final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
   val poll: Task[Observable[ConsumerRecord[K, V]]] = {
     commandQueue.tryPoll.flatMap {
       // try and handle any explicit commands, but if none are queued, then fall-back to polling kafka
-      case None =>  nextBatch
+      case None => nextBatch
       case Some(exec: ExecOnConsumer[K, V, _]) =>
         Task(exec.run(self)).executeOn(kafkaScheduler).map(_ => NoResults)
     }
@@ -310,11 +310,16 @@ final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
   def isClosed() = closed
 
   override def close(): Unit = {
-    withConsumer { c =>
-      closed = true
-      c.close()
-      Schedulers.close(kafkaScheduler)
+    if (!closed) {
+      logger.warn("Closing the consumer")
+      withConsumer { c =>
+        logger.warn("Closing the consumer on kafka thread")
+        closed = true
+        c.close()
+        Schedulers.close(kafkaScheduler)
+      }
     }
+    logger.warn("Closed the consumer")
   }
 
   override def withConsumer[A](withConsumer: RichKafkaConsumer[K, V] => A): Future[A] = {

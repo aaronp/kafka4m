@@ -106,9 +106,12 @@ final class RichKafkaAdmin(val admin: AdminClient) extends AutoCloseable with St
   def isClosed() = closed
 
   override def close(): Unit = {
-    logger.warn("Closing the admin client")
-    closed = true
-    admin.close()
+    if (!closed) {
+      logger.warn("Closing the admin client")
+      closed = true
+      admin.close()
+    }
+    logger.warn("Closed the admin client")
   }
 }
 

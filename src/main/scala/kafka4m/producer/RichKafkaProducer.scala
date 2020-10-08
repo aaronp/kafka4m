@@ -60,8 +60,9 @@ final class RichKafkaProducer[K, V](val publisher: KafkaProducer[K, V]) extends 
   }
 
   override def close(): Unit = {
-    logger.info("Closing producer")
+    logger.warn("Closing producer")
     publisher.close()
+    logger.warn("Closed the producer")
   }
 }
 
