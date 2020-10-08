@@ -3,7 +3,7 @@ package kafka4m
 import java.nio.file.Path
 
 import com.typesafe.scalalogging.StrictLogging
-import dockerenv.{BaseDockerSpec, BaseKafkaSpec}
+import dockerenv.BaseDockerSpec
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, GivenWhenThen}
 

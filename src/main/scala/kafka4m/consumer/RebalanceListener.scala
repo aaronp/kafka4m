@@ -8,13 +8,23 @@ import org.apache.kafka.common.TopicPartition
 
 import scala.collection.JavaConverters._
 
-case object RebalanceListener extends ConsumerRebalanceListener with StrictLogging {
+final class RebalanceListener extends ConsumerRebalanceListener with StrictLogging {
+  private var currentAssignments: Set[TopicPartition] = Set.empty
 
+  def assignments: Set[TopicPartition] = currentAssignments
+
+  private object Lock
   override def onPartitionsRevoked(partitions: util.Collection[TopicPartition]): Unit = {
-    logger.info(partitions.asScala.mkString("onPartitionsRevoked(", ", ", ")"))
+    if (partitions != null) Lock.synchronized {
+      currentAssignments = currentAssignments -- partitions.asScala.toSet
+    }
+    logger.info(partitions.asScala.mkString("onPartitionsRevoked(", ", ", s"), currentAssignments is now ${currentAssignments}"))
   }
 
   override def onPartitionsAssigned(partitions: util.Collection[TopicPartition]): Unit = {
-    logger.info(partitions.asScala.mkString("onPartitionsAssigned(", ", ", ")"))
+    Lock.synchronized {
+      currentAssignments = currentAssignments ++ partitions.asScala.toSet
+    }
+    logger.info(partitions.asScala.mkString("onPartitionsAssigned(", ", ", s"), currentAssignments is now ${currentAssignments}"))
   }
 }

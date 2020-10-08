@@ -71,8 +71,8 @@ libraryDependencies ++= List(
 
 libraryDependencies ++= List(
   "com.github.aaronp" %% "eie"            % "1.0.0" % Test,
-  "org.scalactic"     %% "scalactic"      % "3.2.2" % Test,
-  "org.scalatest"     %% "scalatest"      % "3.2.2" % Test,
+  "org.scalactic"     %% "scalactic"      % "3.1.0" % Test,
+  "org.scalatest"     %% "scalatest"      % "3.1.0" % Test,
   "com.vladsch.flexmark" % "flexmark-all" % "0.35.10" % Test, //https://github.com/sbt/sbt/issues/5308
   "ch.qos.logback"    % "logback-classic" % "1.2.3" % Test,
   "org.pegdown"       % "pegdown"         % "1.6.0" % Test,

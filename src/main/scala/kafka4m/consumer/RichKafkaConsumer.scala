@@ -31,6 +31,7 @@ final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
                                              commandQueue: ConcurrentQueue[Task, ExecOnConsumer[K, V, _]],
                                              kafkaScheduler: Scheduler,
                                              val asyncScheduler: Scheduler,
+                                             val rebalanceListener: RebalanceListener = new RebalanceListener,
                                              startPollingOnStart: Boolean = true)
     extends AutoCloseable
     with ConsumerAccess
@@ -54,9 +55,14 @@ final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
 
   def subscribe(topic: String): Unit = subscribe(Set(topic))
 
-  def subscribe(topics: Set[String], listener: ConsumerRebalanceListener = RebalanceListener): Unit = {
+  def subscribe(topics: Set[String], listener: ConsumerRebalanceListener = null): Unit = {
+    val callback = if (listener != null) {
+      DelegateListener(rebalanceListener, listener)
+    } else {
+      rebalanceListener
+    }
     logger.info(s"Subscribing to $topics")
-    consumer.subscribe(topics.asJava, listener)
+    consumer.subscribe(topics.asJava, callback)
   }
 
   def partitions: List[KafkaPartitionInfo] = {
@@ -83,28 +89,34 @@ final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
 
   private val NoResults = Observable.empty[ConsumerRecord[K, V]]
 
+  val nextBatchIterable: Task[Iterable[ConsumerRecord[K, V]]] = Task.eval(unsafePoll()).executeOn(kafkaScheduler)
+
+  val nextBatch: Task[Observable[ConsumerRecord[K, V]]] = nextBatchIterable.map { returned =>
+    if (returned.isEmpty) {
+      NoResults
+    } else {
+      Observable.fromIterable(returned)
+    }
+  }
+
+  /**
+    * This will poll for a single batch and exec commands which may or may not need to be executed
+    */
+  val poll: Task[Observable[ConsumerRecord[K, V]]] = {
+    commandQueue.tryPoll.flatMap {
+      // try and handle any explicit commands, but if none are queued, then fall-back to polling kafka
+      case None =>  nextBatch
+      case Some(exec: ExecOnConsumer[K, V, _]) =>
+        Task(exec.run(self)).executeOn(kafkaScheduler).map(_ => NoResults)
+    }
+  }
+
   /**
     * Represent this consumer as an observable
     * @param closeOnComplete set to true if the underlying Kafka consumer should be closed when this observable completes
     */
   def asObservable(closeOnComplete: Boolean): Observable[ConsumerRecord[K, V]] = {
-    val records: Task[Observable[ConsumerRecord[K, V]]] = {
-      commandQueue.tryPoll.flatMap {
-        // try and handle any explicit commands, but if none are queued, then fall-back to polling kafka
-        case None =>
-          Task.eval(unsafePoll()).executeOn(kafkaScheduler).map { returned =>
-            if (returned.isEmpty) {
-              NoResults
-            } else {
-              Observable.fromIterable(returned)
-            }
-          }
-        case Some(exec: ExecOnConsumer[K, V, _]) =>
-          Task(exec.run(self)).executeOn(kafkaScheduler).map(_ => NoResults)
-      }
-    }
-
-    val obs: Observable[ConsumerRecord[K, V]] = Observable.repeatEvalF(records).flatten.observeOn(asyncScheduler)
+    val obs: Observable[ConsumerRecord[K, V]] = Observable.repeatEvalF(poll).flatten.observeOn(asyncScheduler)
     if (closeOnComplete) {
       obs.guarantee(Task.delay(close()).executeOn(kafkaScheduler))
     } else {
@@ -141,8 +153,15 @@ final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
       logger.debug(s"commitAsync($state)")
 
       // Only commit offsets for partitions that we're currently assigned to.
-      val assignedPartitions = assignments()
-      val offsetsToCommit    = state.asTopicPartitionMap.view.filterKeys(assignedPartitions.contains).toMap
+      val assignedPartitions = {
+        val consumerAssignments = assignments()
+        val callbackAssignments = assignmentsAccordingToCallback()
+        if (consumerAssignments != callbackAssignments) {
+          logger.warn(s"!!! Consumer assignments $consumerAssignments disagrees with the callback assignments $callbackAssignments")
+        }
+        callbackAssignments
+      }
+      val offsetsToCommit = state.asTopicPartitionMap.view.filterKeys(assignedPartitions.contains).toMap
 
       consumer.commitAsync(offsetsToCommit.asJava, callback)
     } else {
@@ -235,13 +254,15 @@ final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
     byTopic.toMap
   }
 
-  def assignmentPartitions(topics: Set[String] = defaultTopics): List[Int] = {
+  def assignmentPartitions(topics: Set[String] = defaultTopics): Set[Int] = {
     assignments().map { tp =>
       require(topics.contains(tp.topic()), s"consumer for topics $topics has assignment on ${tp.topic()}")
       tp.partition()
     }
   }
-  def assignments() = consumer.assignment().asScala.toList
+
+  def assignments(): Set[TopicPartition]                    = consumer.assignment().asScala.toSet
+  def assignmentsAccordingToCallback(): Set[TopicPartition] = rebalanceListener.assignments
 
   def status(verbose: Boolean, topics: Set[String] = defaultTopics): String = {
     val byTopic = partitionsByTopic()
@@ -249,9 +270,9 @@ final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
     val topicStatuses = topics.map { topic =>
       byTopic.get(topic).fold(s"topic '${topic}' doesn't exist") { partitions =>
         val ourAssignments = {
-          val all: List[Int] = assignmentPartitions(topics)
+          val all = assignmentPartitions(topics)
           val detail = if (verbose) {
-            val committedStatus: Seq[Map[String, OffsetAndMetadata]] = all.map(i => committed(i, topics))
+            val committedStatus = all.toSeq.map(i => committed(i, topics))
             committedStatus.mkString("\n\tCommit status:\n\t", "\n\t", "\n")
           } else {
             ""
@@ -269,7 +290,7 @@ final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
     * @return a scala-friendly data structure containing the commit status of the kafka cluster
     */
   def committedStatus(topics: Set[String] = defaultTopics): List[CommittedStatus] = {
-    val all: List[Int] = assignmentPartitions(topics)
+    val all: Set[Int] = assignmentPartitions(topics)
     partitionsByTopic().collect {
       case (topic, kafkaPartitions) =>
         val weAreSubscribed: Boolean = topics.contains(topic)
@@ -289,9 +310,11 @@ final class RichKafkaConsumer[K, V] private (val consumer: KafkaConsumer[K, V],
   def isClosed() = closed
 
   override def close(): Unit = {
-    closed = true
-    consumer.close()
-    Schedulers.close(kafkaScheduler)
+    withConsumer { c =>
+      closed = true
+      c.close()
+      Schedulers.close(kafkaScheduler)
+    }
   }
 
   override def withConsumer[A](withConsumer: RichKafkaConsumer[K, V] => A): Future[A] = {
@@ -338,7 +361,7 @@ object RichKafkaConsumer extends StrictLogging {
                       kafkaScheduler: Scheduler = FixedScheduler().scheduler)(implicit ioSched: Scheduler): RichKafkaConsumer[K, V] = {
 
     import args4c.implicits._
-    val topics = if (topicOverrides.isEmpty) consumerConfig.asList("topics").toSet else topicOverrides
+    val topics = if (topicOverrides.isEmpty) consumerConfig.asList("topic").toSet else topicOverrides
 
     val props: Properties = {
       val properties = kafka4m.util.Props.propertiesForConfig(consumerConfig)

@@ -1,7 +1,12 @@
 package kafka4m.data
 
 import org.apache.kafka.common._
-case class KafkaPartitionInfo(topic: String, partition: Int, leader: KafkaNode, replicas: List[KafkaNode], inSyncReplicas: List[KafkaNode], offlineReplicas: List[KafkaNode]) {
+case class KafkaPartitionInfo(topic: String,
+                              partition: Int,
+                              leader: Option[KafkaNode],
+                              replicas: List[KafkaNode],
+                              inSyncReplicas: List[KafkaNode],
+                              offlineReplicas: List[KafkaNode]) {
 
   def asTopicPartition = new TopicPartition(topic, partition)
 
@@ -20,7 +25,7 @@ object KafkaPartitionInfo {
     new KafkaPartitionInfo(
       topic = Option(info.topic()).getOrElse(""),
       partition = info.partition,
-      leader = KafkaNode(info.leader()),
+      leader = Option(info.leader()).map(KafkaNode.apply),
       replicas = info.replicas().map(KafkaNode.apply).toList,
       inSyncReplicas = info.inSyncReplicas().map(KafkaNode.apply).toList,
       offlineReplicas = info.offlineReplicas().map(KafkaNode.apply).toList
